@@ -18,7 +18,7 @@ rd = redis.Redis(host="localhost", port=6379, db=0)
 
 @router.post("/run-c_glance", summary="Run C_GLANCE")
 async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str, features_to_change: Optional[List[str]] = None):
-    cache_key = f"run-c_glance:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{cf_method}:{action_choice_strategy}"
+    cache_key = f"run-c_glance:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{cf_method}:{action_choice_strategy}:{features_to_change}"
     cache = rd.get(cache_key)
     if cache:
         print("Cache hit")
