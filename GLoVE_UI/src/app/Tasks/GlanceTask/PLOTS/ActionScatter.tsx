@@ -12,6 +12,7 @@ interface ActionScatterProps {
   eff_cost_actions: any;
 }
 const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatterProps) => {
+  
 
   const tableRows = Object.keys(eff_cost_actions).map((key) => ({
     id: key,
@@ -117,8 +118,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
       }
     },
     data: { values: data },
-    width: 400,
-    height: 400,
+   
     config: {
       legend: {
         orient: "top", // Position the legend at the top
@@ -143,7 +143,8 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
       color: { field: colorField, type: 'nominal',scale: {
         domain: [0, 1], // Define the domain (values in the data)
         range: ["red", "green"], // Map 0 to red and 1 to green
-      },
+      },      title: "Prediction", // Use the cleaned-up title for the legend
+
  },
       tooltip: [{ field: xAxis, type: 'nominal' }, { field: yAxis, type: 'nominal' }, { field: colorField, type: 'nominal' },
 
@@ -151,19 +152,8 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
       
     },
     data: { values: data },
-    width: 400,
-    height: 400,
-    config: {
-      legend: {
-        orient: "top", // Position the legend at the top
-        direction: "horizontal", // Arrange items in a row
-        padding: 10, // Space between legend items
-        labelFontSize: 12, // Font size for legend labels
-        symbolSize: 100, // Size of the legend symbols
-        symbolType: "circle", // Make the symbols circles
-        titleFontSize: 14, // Font size for the legend title
-      },
-    },
+  
+   
     
   }) as VisualizationSpec;
   
@@ -184,8 +174,70 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
   const selectedEffCost = getEffCostForColorField(colorField);
 
 
+
+  const sharedLegendSpec = (data1: any[], data2: any[]) => ({
+    description: 'Two scatter plots with a shared legend',
+    hconcat: [
+      {
+        title: 'Action Selection Scatter Plot',
+        data: { values: data1 },
+        mark: { type: 'circle', opacity: 0.8 },
+        params: [{
+          name: "industry",
+          select: {type: "point", fields: ["Chosen_Action"]},
+          bind: "legend"
+        }],
+        encoding: {
+          x: { field: xAxis, type: determineType(xAxis, data1) },
+          y: { field: yAxis, type: determineType(yAxis, data1) },
+          color: { field: 'Chosen_Action', type: 'nominal', title: 'Chosen Action' },
+          tooltip: [
+            { field: 'Chosen_Action', type: 'nominal', title: 'Chosen Action' },
+            { field: xAxis, type: determineType(xAxis, data1) },
+            { field: yAxis, type: determineType(yAxis, data1) },
+          ],
+          opacity: {
+            condition: { "param": "industry", "value": 1 },
+            value: 0.01
+          }
+        },
+       
+      },
+      {
+        title: 'Post-Action Selection Scatter Plot',
+        data: { values: data2 },
+        mark: { type: 'circle', opacity: 0.8 },
+        params: [{
+          name: "industry",
+          select: {type: "point", fields: ["Chosen_Action"]},
+          bind: "legend"
+        }],
+        encoding: {
+          x: { field: xAxis, type: determineType(xAxis, data2) },
+          y: { field: yAxis, type: determineType(yAxis, data2) },
+          color: { field: 'Chosen_Action', type: 'nominal', title: 'Chosen Action' }, // Shared legend
+          tooltip: [
+            { field: 'Chosen_Action', type: 'nominal', title: 'Chosen Action' },
+            { field: xAxis, type: determineType(xAxis, data2) },
+            { field: yAxis, type: determineType(yAxis, data2) },
+          ],
+          opacity: {
+            condition: { "param": "industry", "value": 1 },
+            value: 0.01
+          }
+        },
+       
+      },
+
+    ],
+   
+    width: 200, // Width for each plot
+    height: 500, // Height for each plot
+  }) as VisualizationSpec;
+  
+
   return (
-    <Box>
+    <>
       <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
         <FormControl variant="outlined" style={{ minWidth: 200, marginRight: '20px' }}>
           <InputLabel>X-Axis</InputLabel>
@@ -229,8 +281,8 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
      
-          <WorkflowCard title="Title"
-          description="Description not available">
+          <WorkflowCard title="Action Selection Scatter Plot"
+          description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction.">
           <ResponsiveVegaLite
           spec={spec(transformedData1)}
           actions={false}
@@ -243,8 +295,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
        
-        <WorkflowCard title="Title"
-          description="Description not available">
+        <WorkflowCard title="Post-Action Selection Scatter Plot"
+
+          description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.">
           <ResponsiveVegaLite spec={spec(transformedData2)}
           actions={false}
           minWidth={100}
@@ -269,10 +322,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
       
       
       {selectedEffCost && (
-        <Paper>
-          <Typography fontWeight={600} sx={{ padding: 1 }}>Title</Typography>     
+        <WorkflowCard title="Action Effectiveness and Cost Summary" description="Displays the effectiveness and cost of each action when applied to all affected instances, providing a detailed overview of how each action impacts performance.">
 
-        <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+        <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', marginTop:'20px'}}>
         {/* Left side (Dropdown and DataGrid) */}
           {/* Dropdown (Form Control) */}
           <FormControl variant="outlined" fullWidth>
@@ -290,11 +342,15 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
                 },
               }}
             >
-              {colorOptions.map((option) => (
-                <MenuItem key={option} value={option}>
-                  {option}
-                </MenuItem>
-              ))}
+              {colorOptions.map((option) => {
+      // Extract the part before "_Prediction"
+      const displayText = option.replace(/_Prediction$/, '');
+      return (
+        <MenuItem key={option} value={option}>
+          {displayText}
+        </MenuItem>
+      );
+    })}
             </Select>
           </FormControl>
 
@@ -318,16 +374,33 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           </Box>
         </Box>
 
+        <Grid >
+
         {/* Right side (Vega-Lite Chart) */}
-        <WorkflowCard title='Title' description=''>
-          <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false}  minWidth={100} aspectRatio={5/1} />
+        <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
+          <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false}  minWidth={100} aspectRatio={10/1} />
          
         </WorkflowCard>
-        </Paper>
+        </Grid>
+        <WorkflowCard 
+        title='' 
+        description=
+        'Action Selection Scatter Plot : Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction. Post-Action Selection Scatter Plot: Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.'>
+        <ResponsiveVegaLite
+    spec={sharedLegendSpec(transformedData1, transformedData2)}
+    actions={false}
+    minWidth={100}
+    aspectRatio={2/1}
+  />
+
+        </WorkflowCard>
+
+  
+        </WorkflowCard>
 
       
       )}
-      </Box>
+      </>
 
      
   );

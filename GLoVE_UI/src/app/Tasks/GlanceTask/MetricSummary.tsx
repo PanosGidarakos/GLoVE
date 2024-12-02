@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import ActionsTable from "./PLOTS/ActionsTable";
+import WorkflowCard from "../../../shared/components/workflow-card";
 
 interface MetricSummaryProps {
     cost: number;
@@ -42,7 +43,7 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff,actions,instanc
 
     return (
         <Paper>
-            <Typography variant="h6" fontWeight={"bold"} sx={{ padding: 1 }}>Metric Summary</Typography>
+            {/* <Typography variant="h6" fontWeight={"bold"} sx={{ padding: 1 }}>Metric Summary</Typography> */}
 
             <Box
             sx={{
@@ -69,7 +70,9 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff,actions,instanc
             </Paper>
         </Box>
         <Box>
-            <ActionsTable data={actionsWithAction} title={"CounterFactual Actions"} showArrow={true}/>
+            <WorkflowCard title={"CounterFactual Actions"} description="Set of final global counterfactual actions generated">
+            <ActionsTable data={actionsWithAction} title={""} showArrow={true}/>
+            </WorkflowCard>
         </Box>
 
         </Paper>

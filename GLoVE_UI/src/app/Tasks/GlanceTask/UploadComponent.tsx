@@ -75,10 +75,10 @@ const UploadComponent: React.FC = () => {
         <option value="model">Model</option>
       </select>
       <button onClick={handleUpload} style={styles.uploadButton} disabled={loading}>
-        {loading ? "Uploading..." : "Upload"}
+        {loading ? "Uploading..." : "Upload files"}
       </button>
       <button onClick={handleData} style={styles.uploadButton} disabled={loading}>
-        {loading ? "Uploading..." : "Upload"}
+        {loading ? "Uploading..." : "Get DAta"}
       </button>
       {error && <p style={styles.error}>{error}</p>}
     </div>

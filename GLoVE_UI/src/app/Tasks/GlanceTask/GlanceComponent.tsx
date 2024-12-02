@@ -66,7 +66,7 @@ const GlanceComponent: React.FC = () => {
   const glanceState = useAppSelector((state) => state.glance);
   const [viewOption, setViewOption] = useState<"data" | "affected" |"test">("test"); // Track which data to display
   const [selectedTab, setSelectedTab] = useState<number>(0); // Track selected tab
-  const [showUMAPScatter, setShowUMAPScatter] = useState(false); // State to toggle scatter plot
+  const [showUMAPScatter, setShowUMAPScatter] = useState(true); // State to toggle scatter plot
   const [processedDataset, setProcessedDataset] = useState([]);
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({});
@@ -147,14 +147,15 @@ const GlanceComponent: React.FC = () => {
     if (!showUMAPScatter && viewOption === "affected") {
       // Render Raw Scatter when checkbox is unchecked
       return (
-        <WorkflowCard title="Title" description="description">
+        <WorkflowCard title="Affected Data Scatter Plot" description="Visualizes Affected instances, each labeled with the prediction given by the model
+ ">
       <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
       </WorkflowCard>);
     }
     if (!showUMAPScatter && viewOption === "test") {
       // Render Raw Scatter when checkbox is unchecked
       return (
-        <WorkflowCard title="Title" description="description">
+        <WorkflowCard title="Test Data Scatter Plot" description="Visualizes Test instances, each labeled with the prediction given by the model">
 
       <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
       </WorkflowCard>)
@@ -169,6 +170,8 @@ const GlanceComponent: React.FC = () => {
       );
 
     }
+    const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
     const datasetKey = viewOption === "data" ? "rawData" :
                    viewOption === "affected" ? "affectedData" :
                    "testData"; // Update or expand if necessary
@@ -179,7 +182,8 @@ const GlanceComponent: React.FC = () => {
                     const umapData = umapCache[datasetKey].reduced_data;
                     // Use `umapData` for your visualization logic
                     return (
-                      <WorkflowCard title="Title" description="description">
+                      <WorkflowCard   title={`${capitalizeFirstLetter(viewOption)} Data Scatter Plot`} 
+                      description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>                      
                       <UmapScatter
                         data={umapData}
                         color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
@@ -187,7 +191,7 @@ const GlanceComponent: React.FC = () => {
                       </WorkflowCard>
                     );
                   } else return <Typography variant="body1">No UMAP data available.</Typography>;
-  };
+                };
 
 
 
@@ -213,21 +217,16 @@ const GlanceComponent: React.FC = () => {
   return (
   <Box sx={styles.layoutContainer}>
     <Paper sx={styles.sidebar}>
-      <Box>
-        <Typography variant="h4" gutterBottom sx={styles.header}>
-          Data Configuration
-        </Typography>
-      </Box>
       <DataModelSetup />
 
     </Paper>
     <Box sx={styles.mainContent}>
       <Typography variant="h4" gutterBottom sx={styles.header}>
-        GLANCE User Interface
+        GLoVE: Global Visual Explanations
       </Typography>
       <Tabs value={selectedTab} onChange={handleTabChange} centered>
-        <Tab label="Data Table" />
-        <Tab label="GLANCE Analysis" />
+        <Tab label="Data Exploration" />
+        <Tab label="GLoVE Analysis" />
         <Tab label="Comparative Analysis" />
       </Tabs>
       {selectedTab === 0 && (
@@ -276,7 +275,7 @@ const GlanceComponent: React.FC = () => {
                 )}
                 {viewOption === "affected" && glanceState.loadDatasetAndModelResult.affected && (
                   <>
-                    <WorkflowCard title="Title" description="Descr">
+                    <WorkflowCard title="Affected Data" description="Instances from the test dataset where the model's prediction was equal to 0.">
                     <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
@@ -294,8 +293,7 @@ const GlanceComponent: React.FC = () => {
                 )}
                 {viewOption === "test" && glanceState.loadDatasetAndModelResult.X_test && (
                   <>
-                    <WorkflowCard title="Title" description="Descr">
-
+                    <WorkflowCard title="Test Data" description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
                     <DataTable title="Test Data" data={glanceState.loadDatasetAndModelResult.X_test} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
@@ -347,12 +345,17 @@ const GlanceComponent: React.FC = () => {
         <>
           <Box>
             <Box>
+              <WorkflowCard 
+              title={"Metric Summary"} 
+              description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
+              Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population.">
               <MetricSummary
                 cost={glanceState.runGlanceResult.TotalCost}
                 eff={glanceState.runGlanceResult.TotalEffectiveness}
                 actions={glanceState.runGlanceResult.actions}
                 instances={glanceState.applyAffectedActionsResult["Chosen_Action"]}
               />
+              </WorkflowCard>
               <FormControlLabel
                 control={
                   <Switch

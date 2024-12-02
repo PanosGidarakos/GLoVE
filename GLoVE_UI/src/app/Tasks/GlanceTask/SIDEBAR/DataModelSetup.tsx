@@ -81,7 +81,7 @@ const DataModelSetup: React.FC = () => {
   return (
     <Box display="flex" flexDirection="column" gap={2}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography variant="h4">Data & Model Setup</Typography>
+        <Typography variant="h4">Dataset & Model Selection</Typography>
         <Tooltip title="This section allows you to select a dataset and model for analysis.">
           <IconButton>
             {datasetLoading ? <CircularProgress size={24} /> : <InfoIcon />}

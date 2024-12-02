@@ -15,12 +15,12 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
 
   return (
   <>
-         <WorkflowCard title="General title" description="des" >
 
   
     <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <WorkflowCard title="title" description="des" >
+        <WorkflowCard title="Action Selection Scatter Plot"  description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction." >
+          
           <UmapScatterGlance
           data={data["affectedData"].reduced_data}
           color=""
@@ -30,7 +30,7 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
         </WorkflowCard>
       </Grid>
       <Grid item xs={12} md={6}>
-        <WorkflowCard title="title" description="des" >
+        <WorkflowCard title="Post-Action Selection Scatter Plot" description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action." >
           <UmapScatterGlance
           data={data["appliedAffected"].reduced_data}
           color=""
@@ -40,11 +40,11 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
         </WorkflowCard>
       </Grid>
     </Grid>
-  </WorkflowCard>
       
     
       
-      
+<WorkflowCard title="Action Effectiveness and Cost Summary" description="Displays the effectiveness and cost of each action when applied to all affected instances, providing a detailed overview of how each action impacts performance.">
+     
 <LastUmap 
 data={data["affectedData"].reduced_data} 
 actions={Object.keys(actions)
@@ -56,6 +56,7 @@ actions={Object.keys(actions)
   name={"Affected with Actions Label"}
   eff_cost_actions={eff_cost_actions}
   />
+  </WorkflowCard>
 </>
   );
 };
