@@ -86,7 +86,7 @@ class C_GLANCE(GlobalCounterfactualMethod):
             LocalCounterfactualMethod,
             Literal["Dice", "NearestNeighbors", "NearestNeighborsScaled", "RandomSampling"]
         ] = "Dice",
-        cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost", "min-cost-eff-thres", "eff-thres-hybrid"] = "max-eff",
+        cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost"] = "max-eff",
         nns__n_scalars: Optional[int] = None,
         rs__n_most_important: Optional[int] = None,
         rs__n_categorical_most_frequent: Optional[int] = None,
@@ -106,11 +106,11 @@ class C_GLANCE(GlobalCounterfactualMethod):
         self.y = y
         self.train_dataset = train_dataset
         self.clustering_method_ = clustering_method
-        self.action_threshold = lowcost__action_threshold if lowcost__action_threshold is not None else 1.5
+        self.action_threshold = lowcost__action_threshold if lowcost__action_threshold is not None else 0.4
         self.num_low_cost = lowcost__num_low_cost if lowcost__num_low_cost is not None else 20
         self.effectiveness_threshold = min_cost_eff_thres__effectiveness_threshold if min_cost_eff_thres__effectiveness_threshold is not None else 0.1
         self.min_cost_eff_thres_combinations__num_min_cost = min_cost_eff_thres_combinations__num_min_cost
-        self.cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost", "min-cost-eff-thres", "min-cost-eff-thres-combinations", "hybrid"] = cluster_action_choice_algo
+        self.cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost"] = cluster_action_choice_algo
         self.eff_thres_hybrid__max_n_actions_full_combinations = eff_thres_hybrid__max_n_actions_full_combinations if eff_thres_hybrid__max_n_actions_full_combinations is None else 50
         
         if nns__n_scalars is not None:
@@ -153,6 +153,8 @@ class C_GLANCE(GlobalCounterfactualMethod):
                 "Requested number of initial clusters is larger than the number of instances to explain. Setting to number of instances."
             )
             self.initial_clusters = instances.shape[0]
+        print("Explaining")
+        print(self.action_threshold)
 
         self.clustering_method = _decide_cluster_method(
             self.clustering_method_, self.initial_clusters, self.random_seed
@@ -349,6 +351,8 @@ def _select_action_low_cost(
         predictions: np.ndarray = model.predict(cfs)
         n_flipped = predictions.sum()
 
+        print(n_flipped)
+        print((action_threshold * inv_total_clusters) * len(instances))
         if n_flipped > (action_threshold * inv_total_clusters) * len(instances):
             cfs = apply_action_pandas(
                 X=cluster_instances,
@@ -366,7 +370,7 @@ def _select_action_low_cost(
 
     if len(cf_list) == 0:
         raise ValueError(
-            "Change action_threshold. No action found in cluster with effectiveness in all instances above the threshold"
+            "Change action_threshold. No action found in cluster with effectiveness in all instances above the threshold."
         )
     else:
         n_flipped, min_recourse_cost_sum, best_action = min(
@@ -710,8 +714,8 @@ def cluster_results(
     dist_func_dataframe: Callable[[pd.DataFrame, pd.DataFrame], pd.Series],
     numerical_features_names: List[str],
     categorical_features_names: List[str],
-    cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost", "min-cost-eff-thres", "eff-thres-hybrid"] = "max-eff",
-    action_threshold: int = 2,
+    cluster_action_choice_algo: Literal["max-eff", "mean-act", "low-cost"] = "max-eff",
+    action_threshold: int = 0.5,
     num_low_cost: int = 20,
     effectiveness_threshold: float = 0.1,
     num_min_cost: Optional[int] = None,
@@ -752,21 +756,6 @@ def cluster_results(
                 num_low_cost=num_low_cost,
                 inv_total_clusters=(1 / len(clusters)),
             )
-        elif cluster_action_choice_algo == "min-cost-eff-thres":
-            n_flipped, recourse_cost_sum, selected_action = _select_action_min_cost_eff_thres(
-                model=model,
-                instances=instances,
-                cluster_instances=cluster,
-                candidate_actions=cluster_expl_actions[i],
-                dist_func_dataframe=dist_func_dataframe,
-                numerical_features_names=numerical_features_names,
-                categorical_features_names=categorical_features_names,
-                effectiveness_threshold=effectiveness_threshold,
-            )
-        elif cluster_action_choice_algo == "min-cost-eff-thres-combinations":
-            break
-        elif cluster_action_choice_algo == "eff-thres-hybrid":
-            break
         else:
             raise ValueError(
                 "Unsupported algorithm for choice of final action for each cluster"
