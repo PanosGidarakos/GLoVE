@@ -342,7 +342,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   <TableRow>
                     <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
                     <TableCell>Total Cost</TableCell>
-                    <TableCell>Total Effectiveness</TableCell>
+                    <TableCell>Total Effectiveness %</TableCell>
+                    <TableCell>Details</TableCell> {/* New column header */}
+
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -350,7 +352,16 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     <TableRow key={key}>
       <TableCell>{getSuffix(key)}</TableCell> {/* Use getSuffix for display */}
       <TableCell>{data.TotalCost}</TableCell>
-      <TableCell>{data.TotalEffectiveness}</TableCell>
+      <TableCell>{data.TotalEffectiveness*100}</TableCell>
+      <TableCell>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => console.log(`Analysis button clicked for key: ${glanceState.comparativeResults[key]}`)}
+            >
+              View Details
+            </Button>
+          </TableCell> {/* New button column */}
     </TableRow>
   ))}
 </TableBody>
