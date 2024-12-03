@@ -153,8 +153,6 @@ class C_GLANCE(GlobalCounterfactualMethod):
                 "Requested number of initial clusters is larger than the number of instances to explain. Setting to number of instances."
             )
             self.initial_clusters = instances.shape[0]
-        print("Explaining")
-        print(self.action_threshold)
 
         self.clustering_method = _decide_cluster_method(
             self.clustering_method_, self.initial_clusters, self.random_seed
@@ -351,8 +349,6 @@ def _select_action_low_cost(
         predictions: np.ndarray = model.predict(cfs)
         n_flipped = predictions.sum()
 
-        print(n_flipped)
-        print((action_threshold * inv_total_clusters) * len(instances))
         if n_flipped > (action_threshold * inv_total_clusters) * len(instances):
             cfs = apply_action_pandas(
                 X=cluster_instances,

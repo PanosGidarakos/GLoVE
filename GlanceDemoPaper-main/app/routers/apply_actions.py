@@ -6,7 +6,7 @@ from app.services.resources_service import load_dataset_and_model
 from glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
 from raiutils.exceptions import UserConfigValidationException
-from glance.iterative_merges.iterative_merges import apply_action_pandas,cumulative
+from src.glance.iterative_merges.iterative_merges import apply_action_pandas,cumulative
 import pandas as pd
 import numpy as np
 
