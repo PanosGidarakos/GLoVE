@@ -42,7 +42,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const glanceState = useAppSelector((state) => state.glance);
 
 
-  const [executionMode, setExecutionMode] = React.useState<string>("Counterfactual by Size");
+  const [executionMode, setExecutionMode] = React.useState<string>("Number of Actions");
   const [gcfSize, setGcfSize] = React.useState<number[]>([3,4]);
   const [cfMethod, setCfMethod] = React.useState<string[]>([availableCfMethods[0]]);
   const [actionChoiceStrategy, setActionChoiceStrategy] = React.useState<string[]>([availableActionStrategies[0]]);
@@ -71,11 +71,11 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const getRowLabelKey = () => {
     switch (executionMode) {
-      case "Counterfactual by Size":
+      case "Number of Actions":
         return "size";
-      case "Counterfactual by Method":
+      case "Local Counterfactual Method":
         return "method";
-      case "Counterfactual by Strategy":
+      case "Action Choice Strategy":
         return "strategy";
       default:
         return "key";
@@ -84,67 +84,104 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const rowLabelKey = getRowLabelKey();
 
+  const getSuffix = (value: string) => value.split('_').pop() || value;
 
   const scatterPlotData = glanceState.comparativeResults
-    ? Object.entries(glanceState.comparativeResults).map(([key, data]) => ({
-        TotalCost: data.TotalCost,
-        TotalEffectiveness: data.TotalEffectiveness,
-        key,
-      }))
-    : [];
+  ? Object.entries(glanceState.comparativeResults).map(([key, data]) => ({
+      TotalCost: data.TotalCost,
+      TotalEffectiveness: data.TotalEffectiveness,
+      [rowLabelKey]: key,
+      DisplayKey: getSuffix(key), // Add cleaned-up value for display
+    }))
+  : [];
 
-  // Define the Vega-Lite specification
+  
   const scatterPlotSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     data: { values: scatterPlotData },
+    transform: [
+      {
+        calculate: "datum.TotalEffectiveness * 100", // Multiply TotalEffectiveness by 100
+        as: "ScaledEffectiveness", // Store the result in a new field
+      },
+    ],
     mark: "point",
     encoding: {
       x: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      y: { field: "TotalEffectiveness", type: "quantitative", title: "Total Effectiveness" },
-      color: { field: "key", type: "nominal", title: "Key" },
+      y: { 
+        field: "ScaledEffectiveness", // Use the scaled field for the y-axis
+        type: "quantitative", 
+        title: "Total Effectiveness (%)", // Adjust the title to reflect the scaling
+      },
+      color: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { field: "TotalEffectiveness", type: "quantitative", title: "Total Effectiveness" },
-        { field: "key", type: "nominal", title: "Key" },
+        { 
+          field: "ScaledEffectiveness", 
+          type: "quantitative", 
+          title: "Total Effectiveness (%)" // Reflect the scaled value in the tooltip
+        },
+        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
-   
-  } as VisualizationSpec;
+  };
+  
+ 
 
-  const chart1={
+  const chart1 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     data: { values: scatterPlotData },
+    transform: [
+      {
+        calculate: "datum.TotalEffectiveness * 100", // Scale TotalEffectiveness by 100
+        as: "ScaledEffectiveness", // Store in a new field
+      },
+    ],
     mark: "bar",
     encoding: {
       y: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      x: { field: "key", type: "nominal", title: "key" },
+      x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { field: "TotalEffectiveness", type: "quantitative", title: "Total Effectiveness" },
-        { field: "key", type: "nominal", title: "Key" },
+        { 
+          field: "ScaledEffectiveness", 
+          type: "quantitative", 
+          title: "Total Effectiveness (%)" // Reflect scaled value
+        },
+        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
-   
-  }
-
-  const chart2={
+  };
+  
+  const chart2 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     data: { values: scatterPlotData },
+    transform: [
+      {
+        calculate: "datum.TotalEffectiveness * 100", // Scale TotalEffectiveness by 100
+        as: "ScaledEffectiveness", // Store in a new field
+      },
+    ],
     mark: "bar",
     encoding: {
-      y: { field: "TotalEffectiveness", type: "quantitative", title: "Total Eff" },
-      x: { field: "key", type: "nominal", title: "key" },
+      y: { 
+        field: "ScaledEffectiveness", // Use scaled field for the y-axis
+        type: "quantitative", 
+        title: "Total Effectiveness (%)" // Update axis title
+      },
+      x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { field: "TotalEffectiveness", type: "quantitative", title: "Total Effectiveness" },
-        { field: "key", type: "nominal", title: "Key" },
+        { 
+          field: "ScaledEffectiveness", 
+          type: "quantitative", 
+          title: "Total Effectiveness (%)" // Reflect scaled value in the tooltip
+        },
+        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
+  };
   
-  }
-  
-  
-  console.log(results)
   return (
     <>
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
@@ -157,21 +194,21 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             onChange={(e) => setExecutionMode(e.target.value)}
             input={<OutlinedInput label="Execution Mode" />}
           >
-            <MenuItem value="Counterfactual by Size">Counterfactual by Size</MenuItem>
-            <MenuItem value="Counterfactual by Method">Counterfactual by Method</MenuItem>
-            <MenuItem value="Counterfactual by Strategy">Counterfactual by Strategy</MenuItem>
+            <MenuItem value="Number of Actions">Number of Actions</MenuItem>
+            <MenuItem value="Local Counterfactual Method">Local Counterfactual Method</MenuItem>
+            <MenuItem value="Action Choice Strategy">Action Choice Strategy</MenuItem>
           </Select>
         </FormControl>
 
         {/* GCF Size */}
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-        <InputLabel id="gcf-size-select-label">Number of CounterFactual Actions</InputLabel>
+        <InputLabel id="gcf-size-select-label">Number of Actions</InputLabel>
         <Select
             labelId="gcf-size-select-label"
-            input={<OutlinedInput label="Number of CounterFactual Actions" />}
-            multiple={isMultiSelect("Counterfactual by Size")}
+            input={<OutlinedInput label="Number of Actions" />}
+            multiple={isMultiSelect("Number of Actions")}
             value={gcfSize}
-            onChange={(e) => setGcfSize(isMultiSelect("Counterfactual by Size") ? (e.target.value as number[]) : [Number(e.target.value)])}
+            onChange={(e) => setGcfSize(isMultiSelect("Number of Actions") ? (e.target.value as number[]) : [Number(e.target.value)])}
             renderValue={(selected) =>
               Array.isArray(selected) ? selected.join(", ") : selected
             }
@@ -193,11 +230,11 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           <Select
             labelId="cf-method-select-label"
             input={<OutlinedInput label="Local Counterfactual Method" />}
-            multiple={isMultiSelect("Counterfactual by Method")}
+            multiple={isMultiSelect("Local Counterfactual Method")}
             value={cfMethod}
             onChange={(e) =>
               setCfMethod(
-                isMultiSelect("Counterfactual by Method") ? (e.target.value as string[]) : [(e.target.value as string)]
+                isMultiSelect("Local Counterfactual Method") ? (e.target.value as string[]) : [(e.target.value as string)]
               )
             }
             renderValue={(selected) =>
@@ -221,11 +258,11 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           <Select
             labelId="action-choice-strategy-select-label"
             input={<OutlinedInput label="Action Choice Strategy" />}
-            multiple={isMultiSelect("Counterfactual by Strategy")}
+            multiple={isMultiSelect("Action Choice Strategy")}
             value={actionChoiceStrategy}
             onChange={(e) =>
               setActionChoiceStrategy(
-                isMultiSelect("Counterfactual by Strategy") ? (e.target.value as string[]) : [(e.target.value as string)]
+                isMultiSelect("Action Choice Strategy") ? (e.target.value as string[]) : [(e.target.value as string)]
               )
             }
             renderValue={(selected) =>
@@ -244,7 +281,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         </FormControl>
 
         {/* Features */}
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+        {/* <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="feature-select-label">Features</InputLabel>
           <Select
             labelId="feature-select-label"
@@ -263,7 +300,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         {/* Run Button */}
         <Box display="flex" justifyContent="center" alignItems="center">
@@ -273,12 +310,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             onClick={handleRun}
             disabled={
               loading ||
-              (executionMode === "Counterfactual by Size" && gcfSize.length === 0) ||
-              (executionMode === "Counterfactual by Method" && cfMethod.length === 0) ||
-              (executionMode === "Counterfactual by Strategy" && actionChoiceStrategy.length === 0)
+              (executionMode === "Number of Actions" && gcfSize.length === 0) ||
+              (executionMode === "Local Counterfactual Method" && cfMethod.length === 0) ||
+              (executionMode === "Action Choice Strategy" && actionChoiceStrategy.length === 0)
             }
           >
-            Run C-GLANCE
+            Run Comparative Analysis
           </Button>
           {error && (
             <Typography color="error" style={{ marginTop: 16 }}>
@@ -298,9 +335,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
          </Box>
         ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
           <>
-            <Typography variant="h6" marginBottom={2}>
-              Comparative Results
-            </Typography>
+            <WorkflowCard title="Comparative Analysis Results" description="">
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -311,28 +346,33 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
-                    <TableRow key={key}>
-                      <TableCell>{key}</TableCell>
-                      <TableCell>{data.TotalCost}</TableCell>
-                      <TableCell>{data.TotalEffectiveness}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
+  {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
+    <TableRow key={key}>
+      <TableCell>{getSuffix(key)}</TableCell> {/* Use getSuffix for display */}
+      <TableCell>{data.TotalCost}</TableCell>
+      <TableCell>{data.TotalEffectiveness}</TableCell>
+    </TableRow>
+  ))}
+</TableBody>
               </Table>
-            </TableContainer>
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px" marginTop={10}>
+            </TableContainer> 
+            </WorkflowCard>
+              <WorkflowCard title="Cost-Effectiveness Scatter Plot" description="Visualizes the performance of algorithm for different parameter configurations">
+
             <ResponsiveVegaLite
           minWidth={100}
           aspectRatio={5 / 1}
           actions={false}
           spec={scatterPlotSpec as VisualizationSpec}
         />            
-        
-        </Box>
-        <Grid container spacing={2}>
+                      
+      </WorkflowCard>
+
+      <Grid container spacing={2} marginTop={"20px"}>
       <Grid item xs={12} md={6}>
-              <WorkflowCard title="title" description="">
+              <WorkflowCard 
+  title="Cost by Parameter Bar Plot" 
+  description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter.">
   <ResponsiveVegaLite
           minWidth={100}
           aspectRatio={2 / 1}
@@ -343,7 +383,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   </Grid>
   <Grid item xs={12} md={6}>
 
-  <WorkflowCard title="title" description="">
+  <WorkflowCard 
+  title="Effectiveness by Parameter Bar Plot" 
+  description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter.">
   <ResponsiveVegaLite
           minWidth={100}
           aspectRatio={2 / 1}

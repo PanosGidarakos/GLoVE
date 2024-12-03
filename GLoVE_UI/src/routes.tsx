@@ -6,7 +6,7 @@ import GlanceComponent from "./app/Tasks/GlanceTask/GlanceComponent";
 const routes = createBrowserRouter([
  
   {
-    path: "/glance",
+    path: "/",
     element: <GlanceComponent />,
     errorElement: <NotFound />
   }

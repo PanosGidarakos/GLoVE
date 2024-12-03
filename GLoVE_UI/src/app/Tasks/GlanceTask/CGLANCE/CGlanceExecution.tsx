@@ -13,7 +13,8 @@ import {
   Chip,
   OutlinedInput,
   SelectChangeEvent,
-  Collapse
+  Collapse,
+  Tooltip
 } from "@mui/material";
 
 interface CGlanceExecutionProps {
@@ -36,19 +37,29 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
   const [gcfSize, setGcfSize] = React.useState<number>(3);
   const [cfMethod, setCfMethod] = React.useState<string>(availableCfMethods[0] || "");
   const [actionChoiceStrategy, setActionChoiceStrategy] = React.useState<string>(availableActionStrategies[0] || "");
-  const [selectedFeature, setSelectedFeature] = React.useState<string[]>(availableFeatures);
+  // const [selectedFeature, setSelectedFeature] = React.useState<string[]>(availableFeatures);
+  const [selectedFeature, setSelectedFeature] = useState<string[]>([]); // Start with empty array
+
   const [results, setResults] = React.useState<any | null>(null);
   // console.log("selectedFeatures",selectedFeatures)
 
+  // useEffect(() => {
+  //   if (availableCfMethods.length > 0 && !cfMethod) {
+  //     setCfMethod(availableCfMethods[0]);
+  //   }
+  //   if (availableFeatures.length > 0 ) {
+  //     setSelectedFeature(availableFeatures);
+  //   }
+    
+  // }, [availableCfMethods,availableFeatures,selectedFeature.length]);
   useEffect(() => {
     if (availableCfMethods.length > 0 && !cfMethod) {
       setCfMethod(availableCfMethods[0]);
     }
-    if (availableFeatures.length > 0 ) {
-      setSelectedFeature(availableFeatures);
+    if (availableFeatures.length > 0 && selectedFeature.length === 0) {
+      setSelectedFeature(availableFeatures); // Only set if `selectedFeature` is empty
     }
-    
-  }, [availableCfMethods,availableFeatures,selectedFeature.length]);
+  }, [availableCfMethods, availableFeatures]);
 
   const handleRunCGlance = () => {
     setResults(null);
@@ -101,6 +112,9 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
       {/* Box container to arrange elements side by side */}
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
         {/* Dropdown for GCF Size */}
+        <Tooltip 
+        title="The number of actions to be generated in the end of the algorithm">
+
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }} >
           <InputLabel id="gcf-size-select-label">Number of CounterFactual Actions</InputLabel>
           <Select
@@ -108,6 +122,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
             PaperProps: { style: { maxHeight: 224, width: 250 } },
           }}
           labelId="gcf-size-select-label"
+          
           input={<OutlinedInput label="Number of CounterFactual Actions" />}
 
             value={gcfSize}
@@ -115,12 +130,15 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
             onChange={(e) => setGcfSize(Number(e.target.value))}
           >
             {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+              
               <MenuItem key={value} value={value}>
                 {value}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
+        
 
         {/* Multi-Select for Features */}
 
@@ -130,6 +148,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
           variant="outlined"
           onClick={() => setAdvancedOptionsOpen(!advancedOptionsOpen)}
         >
+          
           {advancedOptionsOpen ? 'Hide Advanced Options' : 'Show Advanced Options'}
         </Button>
       </Box>
@@ -137,6 +156,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
       <Box display="flex" gap={1} marginTop={2} flexWrap="wrap">
 
         {/* Counterfactual Method Selection Dropdown */}
+        <Tooltip title="Methods that generate candidate counterfactual explanations">
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
           <Select
@@ -155,8 +175,10 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
         {/* Action Choice Strategy Selection Dropdown */}
+        <Tooltip title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria">
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
           <Select
@@ -175,7 +197,9 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
+        <Tooltip title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling.">
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="feature-select-label">Features</InputLabel>
           <Select
@@ -201,6 +225,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
         </Box>
       </Collapse>
 
@@ -213,7 +238,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
               onClick={handleRunCGlance}
               disabled={loading || gcfSize <= 0 || !cfMethod}
             >
-              Run C-GLANCE
+              Run GLoVE
             </Button>
             {/* {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />} */}
             {error && (
