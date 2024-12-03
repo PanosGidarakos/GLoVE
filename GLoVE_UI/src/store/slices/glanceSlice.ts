@@ -257,13 +257,71 @@ export const uploadModel = createAsyncThunk(
 );
 
 
+// export const runCGlanceComparative = createAsyncThunk(
+//   "glance/runCGlanceComparative",
+//   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams) => {
+//     const results: any = {};
+
+//     if (sizes?.length>1) {
+//       // Comparative by size
+//       for (const size of sizes) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: size,
+//               cf_method: methods?.[0], // Single method
+//               action_choice_strategy: strategies?.[0], // Single strategy
+//             },
+//           }
+//         );
+//         results[`size_${size}`] = response.data;
+//       }
+//     } else if (methods?.length>1) {
+//       // Comparative by method
+//       for (const method of methods) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: sizes?.[0], // Single size
+//               cf_method: method,
+//               action_choice_strategy: strategies?.[0],
+//             },
+//           }
+//         );
+//         results[`method_${method}`] = response.data;
+//       }
+//     }else if (strategies?.length>1) {
+//       // Comparative by strategy
+//       for (const strategy of strategies) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: sizes?.[0], // Single size
+//               cf_method: methods?.[0], // Single method
+//               action_choice_strategy: strategy,
+//             },
+//           }
+//         );
+//         results[`strategy_${strategy}`] = response.data;
+//       }
+//     }
+
+//     return results;
+//   }
+// );
+
 export const runCGlanceComparative = createAsyncThunk(
   "glance/runCGlanceComparative",
   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams) => {
     const results: any = {};
 
-    if (sizes?.length>1) {
-      // Comparative by size
+    if (sizes?.length > 1) {
       for (const size of sizes) {
         const response = await axios.post(
           `${API_BASE_URL}run-c_glance`,
@@ -276,10 +334,15 @@ export const runCGlanceComparative = createAsyncThunk(
             },
           }
         );
-        results[`size_${size}`] = response.data;
+
+        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        
+        results[`size_${size}`] = {
+          ...response.data,
+          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+        };
       }
-    } else if (methods?.length>1) {
-      // Comparative by method
+    } else if (methods?.length > 1) {
       for (const method of methods) {
         const response = await axios.post(
           `${API_BASE_URL}run-c_glance`,
@@ -292,10 +355,15 @@ export const runCGlanceComparative = createAsyncThunk(
             },
           }
         );
-        results[`method_${method}`] = response.data;
+
+        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        
+        results[`method_${method}`] = {
+          ...response.data,
+          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+        };
       }
-    }else if (strategies?.length>1) {
-      // Comparative by strategy
+    } else if (strategies?.length > 1) {
       for (const strategy of strategies) {
         const response = await axios.post(
           `${API_BASE_URL}run-c_glance`,
@@ -308,13 +376,20 @@ export const runCGlanceComparative = createAsyncThunk(
             },
           }
         );
-        results[`strategy_${strategy}`] = response.data;
+
+        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        
+        results[`strategy_${strategy}`] = {
+          ...response.data,
+          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+        };
       }
     }
 
     return results;
   }
 );
+
 
 const glanceSlice = createSlice({
   name: "glance",
@@ -372,6 +447,7 @@ const glanceSlice = createSlice({
         state.datasetLoading = false;
         state.loadDatasetAndModelResult = action.payload;
         state.runGlanceResult = null;
+        state.comparativeResults={};
         state.error = null;
       })
       .addCase(loadDatasetAndModel.rejected, (state, action) => {

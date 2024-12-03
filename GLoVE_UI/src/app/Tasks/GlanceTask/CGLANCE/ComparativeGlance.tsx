@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
 import { runCGlanceComparative } from "../../../../store/slices/glanceSlice";
 import {
@@ -19,10 +19,16 @@ import {
   TableHead,
   Grid,
   TableRow,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { VegaLite, VisualizationSpec } from "react-vega"; // Import VegaLite from react-vega
 import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite";
 import WorkflowCard from "../../../../shared/components/workflow-card";
+import MetricSummary from "../MetricSummary";
+import ActionScatter from "../PLOTS/ActionScatter";
+import UmapGlanceComponent from "../UmapGlanceComponent";
+import { daDK } from "@mui/material/locale";
 
 
 interface CGlanceExecutionProps {
@@ -40,7 +46,14 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const loading = useAppSelector((state) => state.glance.loading);
   const error = useAppSelector((state) => state.glance.error);
   const glanceState = useAppSelector((state) => state.glance);
-
+  const [selectedDetails, setSelectedDetails] = React.useState<any | null>(null); // State for selected details
+  const handleViewDetails = (data: any) => {
+    setSelectedDetails(data); // Update selected details when button is clicked
+  };
+  
+  const clearDetails = () => {
+    setSelectedDetails(null); // Clear selected details
+  };
 
   const [executionMode, setExecutionMode] = React.useState<string>("Number of Actions");
   const [gcfSize, setGcfSize] = React.useState<number[]>([3,4]);
@@ -153,6 +166,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     },
   };
   
+  const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
+
   const chart2 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     data: { values: scatterPlotData },
@@ -326,95 +341,155 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       </Box>
 
       <Box marginTop={4}>
-        {loading ? (
-           <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px">
-           <CircularProgress size={50} />
-           <Typography variant="h6" sx={{ marginTop: 2 }}>
-             Running Experiments...
-           </Typography>
-         </Box>
-        ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
-          <>
-            <WorkflowCard title="Comparative Analysis Results" description="">
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
-                    <TableCell>Total Cost</TableCell>
-                    <TableCell>Total Effectiveness %</TableCell>
-                    <TableCell>Details</TableCell> {/* New column header */}
+  {loading ? (
+    <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px">
+      <CircularProgress size={50} />
+      <Typography variant="h6" sx={{ marginTop: 2 }}>
+        Running Experiments...
+      </Typography>
+    </Box>
+  ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
+    <>
+      <WorkflowCard title="Comparative Analysis Results" description="">
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
+                <TableCell>Total Cost</TableCell>
+                <TableCell>Total Effectiveness %</TableCell>
+                <TableCell>Details</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
+                <TableRow key={key}>
+                  <TableCell>{getSuffix(key)}</TableCell>
+                  <TableCell>{data.TotalCost}</TableCell>
+                  <TableCell>{data.TotalEffectiveness * 100}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleViewDetails(data)}
+                    >
+                      View Details
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </WorkflowCard>
 
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-  {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
-    <TableRow key={key}>
-      <TableCell>{getSuffix(key)}</TableCell> {/* Use getSuffix for display */}
-      <TableCell>{data.TotalCost}</TableCell>
-      <TableCell>{data.TotalEffectiveness*100}</TableCell>
-      <TableCell>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => console.log(`Analysis button clicked for key: ${glanceState.comparativeResults[key]}`)}
-            >
-              View Details
-            </Button>
-          </TableCell> {/* New button column */}
-    </TableRow>
-  ))}
-</TableBody>
-              </Table>
-            </TableContainer> 
-            </WorkflowCard>
-            <Grid container spacing={2} marginTop={"20px"}>
-  <Grid item xs={12} md={4}>
-    <WorkflowCard
-      title="Cost-Effectiveness Scatter Plot"
-      description="Visualizes the performance of the algorithm for different parameter configurations."
-    >
-      <ResponsiveVegaLite
-        minWidth={100}
-        aspectRatio={2 / 1}
-        actions={false}
-        spec={scatterPlotSpec as VisualizationSpec}
-      />
-    </WorkflowCard>
-  </Grid>
-  <Grid item xs={12} md={4}>
-    <WorkflowCard
-      title="Cost by Parameter Bar Plot"
-      description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-    >
-      <ResponsiveVegaLite
-        minWidth={100}
-        aspectRatio={2 / 1}
-        actions={false}
-        spec={chart1 as VisualizationSpec}
-      />
-    </WorkflowCard>
-  </Grid>
-  <Grid item xs={12} md={4}>
-    <WorkflowCard
-      title="Effectiveness by Parameter Bar Plot"
-      description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-    >
-      <ResponsiveVegaLite
-        minWidth={100}
-        aspectRatio={2 / 1}
-        actions={false}
-        spec={chart2 as VisualizationSpec}
-      />
-    </WorkflowCard>
-  </Grid>
-</Grid>
+      {/* Render the details if selectedDetails is not null */}
+      {selectedDetails && (
+        <Box marginTop={4}>
+          <WorkflowCard
+            title={"Metric Summary"}
+            description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
+              Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
+          >
+            <MetricSummary
+              cost={selectedDetails.TotalCost}
+              eff={selectedDetails.TotalEffectiveness}
+              actions={selectedDetails.actions}
+              instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
+            />
+            <FormControlLabel
+                control={
+                  <Switch
+                    checked={showUMAPInTab1}
+                    onChange={(e) => {
+                      setShowUMAPInTab1(e.target.checked);
+                    }}
+                    color="primary"
+                  />
+                }
+                label="Enable Dimensionality Reduction (UMAP)"
+              />
+             {!showUMAPInTab1 ? (
+              <Box
+                mt={2}
+                display="flex"
+                justifyContent="space-between"
+                flexWrap="wrap"
+                gap={2}
+              >
+                <Box flex={1} minWidth={0}>
+                  <ActionScatter
+                    data1={selectedDetails.affected_clusters}
+                    data2={selectedDetails.applyAffectedActions}
+                    actions={selectedDetails.actions}
+                    eff_cost_actions={
+                      selectedDetails.eff_cost_actions
+                    }
+                  />
+                </Box>
+              </Box>
+            ) : (<UmapGlanceComponent data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions}/>
+            )}
+            <Box marginTop={2}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={clearDetails} // Clear the details view
+              >
+                Close Details
+              </Button>
+            </Box>
+          </WorkflowCard>
+        </Box>
+      )}
 
-          </>
-        ) : (
-          <Typography>Run Something</Typography>
-        )}
-      </Box>
+      <Grid container spacing={2} marginTop={"20px"}>
+        <Grid item xs={12} md={4}>
+          <WorkflowCard
+            title="Cost-Effectiveness Scatter Plot"
+            description="Visualizes the performance of the algorithm for different parameter configurations."
+          >
+            <ResponsiveVegaLite
+              minWidth={100}
+              aspectRatio={2 / 1}
+              actions={false}
+              spec={scatterPlotSpec as VisualizationSpec}
+            />
+          </WorkflowCard>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <WorkflowCard
+            title="Cost by Parameter Bar Plot"
+            description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+          >
+            <ResponsiveVegaLite
+              minWidth={100}
+              aspectRatio={2 / 1}
+              actions={false}
+              spec={chart1 as VisualizationSpec}
+            />
+          </WorkflowCard>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <WorkflowCard
+            title="Effectiveness by Parameter Bar Plot"
+            description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+          >
+            <ResponsiveVegaLite
+              minWidth={100}
+              aspectRatio={2 / 1}
+              actions={false}
+              spec={chart2 as VisualizationSpec}
+            />
+          </WorkflowCard>
+        </Grid>
+      </Grid>
+    </>
+  ) : (
+    <Typography>Run Something</Typography>
+  )}
+</Box>
+
     </>
   );
 };
