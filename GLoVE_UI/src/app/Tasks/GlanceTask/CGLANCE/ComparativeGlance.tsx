@@ -357,44 +357,48 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               </Table>
             </TableContainer> 
             </WorkflowCard>
-              <WorkflowCard title="Cost-Effectiveness Scatter Plot" description="Visualizes the performance of algorithm for different parameter configurations">
-
-            <ResponsiveVegaLite
-          minWidth={100}
-          aspectRatio={5 / 1}
-          actions={false}
-          spec={scatterPlotSpec as VisualizationSpec}
-        />            
-                      
-      </WorkflowCard>
-
-      <Grid container spacing={2} marginTop={"20px"}>
-      <Grid item xs={12} md={6}>
-              <WorkflowCard 
-  title="Cost by Parameter Bar Plot" 
-  description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter.">
-  <ResponsiveVegaLite
-          minWidth={100}
-          aspectRatio={2 / 1}
-          actions={false}
-          spec={chart1 as VisualizationSpec}
-        />
-  </WorkflowCard>
+            <Grid container spacing={2} marginTop={"20px"}>
+  <Grid item xs={12} md={4}>
+    <WorkflowCard
+      title="Cost-Effectiveness Scatter Plot"
+      description="Visualizes the performance of the algorithm for different parameter configurations."
+    >
+      <ResponsiveVegaLite
+        minWidth={100}
+        aspectRatio={2 / 1}
+        actions={false}
+        spec={scatterPlotSpec as VisualizationSpec}
+      />
+    </WorkflowCard>
   </Grid>
-  <Grid item xs={12} md={6}>
+  <Grid item xs={12} md={4}>
+    <WorkflowCard
+      title="Cost by Parameter Bar Plot"
+      description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+    >
+      <ResponsiveVegaLite
+        minWidth={100}
+        aspectRatio={2 / 1}
+        actions={false}
+        spec={chart1 as VisualizationSpec}
+      />
+    </WorkflowCard>
+  </Grid>
+  <Grid item xs={12} md={4}>
+    <WorkflowCard
+      title="Effectiveness by Parameter Bar Plot"
+      description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+    >
+      <ResponsiveVegaLite
+        minWidth={100}
+        aspectRatio={2 / 1}
+        actions={false}
+        spec={chart2 as VisualizationSpec}
+      />
+    </WorkflowCard>
+  </Grid>
+</Grid>
 
-  <WorkflowCard 
-  title="Effectiveness by Parameter Bar Plot" 
-  description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter.">
-  <ResponsiveVegaLite
-          minWidth={100}
-          aspectRatio={2 / 1}
-          actions={false}
-          spec={chart2 as VisualizationSpec}
-        /> 
-        </WorkflowCard>
-        </Grid>
-        </Grid>
           </>
         ) : (
           <Typography>Run Something</Typography>

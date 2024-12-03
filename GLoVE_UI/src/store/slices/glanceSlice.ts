@@ -262,7 +262,7 @@ export const runCGlanceComparative = createAsyncThunk(
   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams) => {
     const results: any = {};
 
-    if (sizes?.length>1) {
+    if (sizes?.length>=1) {
       // Comparative by size
       for (const size of sizes) {
         const response = await axios.post(
@@ -278,7 +278,7 @@ export const runCGlanceComparative = createAsyncThunk(
         );
         results[`size_${size}`] = response.data;
       }
-    } else if (methods?.length>1) {
+    } else if (methods?.length>=1) {
       // Comparative by method
       for (const method of methods) {
         const response = await axios.post(
@@ -294,11 +294,11 @@ export const runCGlanceComparative = createAsyncThunk(
         );
         results[`method_${method}`] = response.data;
       }
-    }else if (strategies?.length>1) {
+    }else if (strategies?.length>=1) {
       // Comparative by strategy
       for (const strategy of strategies) {
         const response = await axios.post(
-          `http://127.0.0.1:8000/run-c_glance`,
+          `${API_BASE_URL}run-c_glance`,
           selectedFeatures?.length ? selectedFeatures : null,
           {
             params: {
