@@ -104,19 +104,19 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-
+const API_BASE_URL="http://glove.imsi.athenarc.gr:8000/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
   async () => {
     const [resourcesResponse, cfMethodsResponse, welcomeMessageResponse,actionsStrategiesResponse,loadDatasetAndModelResponse,loadGetDataResponse] = await Promise.all([
-      axios.get("http://127.0.0.1:8000/available-resources/"),
-      axios.get("http://127.0.0.1:8000/available-cf-methods/"),
-      axios.get("http://127.0.0.1:8000/"),
-      axios.get("http://127.0.0.1:8000/available-action-strategies/"),
-      axios.post("http://127.0.0.1:8000/load-dataset-and-model/?dataset_name=compas&model_name=xgb"),
-      // axios.get("http://127.0.0.1:8000/get-data/")
-      // axios.post("http://127.0.0.1:8000/run-c_glance?gcf_size=3&cf_method=Dice&action_choice_strategy=Max+Effectiveness")
+      axios.get(`${API_BASE_URL}available-resources/`),
+      axios.get(`${API_BASE_URL}available-cf-methods/`),
+      axios.get(`${API_BASE_URL}`),
+
+      axios.get(`${API_BASE_URL}available-action-strategies/`),
+      axios.post(`${API_BASE_URL}load-dataset-and-model/?dataset_name=compas&model_name=xgb`)
+
     ]);
 
     return {
@@ -136,7 +136,7 @@ export const umapReduce = createAsyncThunk(
   "glance/umapReduce",
   async ({ dataset_identifier, n_components }: UmapReduceParams) => {
     const response = await axios.post(
-      `http://127.0.0.1:8000/umap-reduce/`,
+      `${API_BASE_URL}umap-reduce/`,
       { dataset_identifier },
       {
         params: { n_components },
@@ -154,7 +154,7 @@ export const runCGlance = createAsyncThunk(
     "glance/runCGlance",
     async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams) => {
       const response = await axios.post(
-        `http://127.0.0.1:8000/run-c_glance`,
+        `${API_BASE_URL}run-c_glance`,
         selected_features?.length ? selected_features : null, // Pass selected features or null
         {
           params: {
@@ -172,7 +172,7 @@ export const runCGlance = createAsyncThunk(
 export const loadDatasetAndModel = createAsyncThunk(
   "glance/loadDatasetAndModel",
   async ({ dataset_name, model_name }: LoadDatasetAndModelParams) => {
-    const response = await axios.post(`http://127.0.0.1:8000/load-dataset-and-model/`, null, {
+    const response = await axios.post(`${API_BASE_URL}load-dataset-and-model/`, null, {
       params: { dataset_name, model_name }
     });
     return response.data;
@@ -183,7 +183,7 @@ export const loadDatasetAndModel = createAsyncThunk(
 export const fetchAvailableFeatures = createAsyncThunk(
   "glance/fetchAvailableFeatures",
   async () => {
-    const response = await axios.get("http://127.0.0.1:8000/available-features");
+    const response = await axios.get(`${API_BASE_URL}available-features`);
     return response.data;
   }
 );
@@ -203,7 +203,7 @@ export const runTGlance = createAsyncThunk(
 export const applyAffectedActions = createAsyncThunk(
   "glance/applyAffectedActions",
   async () => {
-    const response = await axios.get("http://127.0.0.1:8000/apply_affected_actions");
+    const response = await axios.get(`${API_BASE_URL}apply_affected_actions`);
     // console.log(response);
     return response.data;
   }
@@ -215,7 +215,7 @@ export const uploadDataset = createAsyncThunk(
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post("http://127.0.0.1:8000/upload/dataset", formData, {
+    const response = await axios.post(`${API_BASE_URL}upload/dataset`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -231,7 +231,7 @@ export const uploadTestDataset = createAsyncThunk(
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post("http://127.0.0.1:8000/upload/test_dataset", formData, {
+    const response = await axios.post(`${API_BASE_URL}upload/test_dataset`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -247,7 +247,7 @@ export const uploadModel = createAsyncThunk(
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await axios.post("http://127.0.0.1:8000/upload/model", formData, {
+    const response = await axios.post(`${API_BASE_URL}upload/model`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -266,7 +266,7 @@ export const runCGlanceComparative = createAsyncThunk(
       // Comparative by size
       for (const size of sizes) {
         const response = await axios.post(
-          `http://127.0.0.1:8000/run-c_glance`,
+          `${API_BASE_URL}run-c_glance`,
           selectedFeatures?.length ? selectedFeatures : null,
           {
             params: {
@@ -282,7 +282,7 @@ export const runCGlanceComparative = createAsyncThunk(
       // Comparative by method
       for (const method of methods) {
         const response = await axios.post(
-          `http://127.0.0.1:8000/run-c_glance`,
+          `${API_BASE_URL}run-c_glance`,
           selectedFeatures?.length ? selectedFeatures : null,
           {
             params: {

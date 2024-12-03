@@ -382,7 +382,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
          
         </WorkflowCard>
         </Grid>
-        <WorkflowCard 
+        {/* <WorkflowCard 
         title='' 
         description=
         'Action Selection Scatter Plot : Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction. Post-Action Selection Scatter Plot: Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.'>
@@ -393,7 +393,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
     aspectRatio={2/1}
   />
 
-        </WorkflowCard>
+        </WorkflowCard> */}
 
   
         </WorkflowCard>
