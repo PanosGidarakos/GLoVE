@@ -49,20 +49,36 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const glanceState = useAppSelector((state) => state.glance);
   const [selectedDetails, setSelectedDetails] = React.useState<any | null>(null); // State for selected details
-  const handleViewDetails = (data: any) => {
-    setSelectedDetails(data); // Update selected details when button is clicked
-  };
-  
-  const clearDetails = () => {
-    setSelectedDetails(null); // Clear selected details
-  };
-
-  const [executionMode, setExecutionMode] = React.useState<string>("Number of Actions");
-  const [gcfSize, setGcfSize] = React.useState<number[]>([3,4]);
+  const [showPlots, setShowPlots] = React.useState(true); // New state to manage plot visibility
+  const [executionMode, setExecutionMode] = React.useState<string>("Number of Counterfactual Actions");
+  const [gcfSize, setGcfSize] = React.useState<number[]>([3, 4]);
   const [cfMethod, setCfMethod] = React.useState<string[]>([availableCfMethods[0]]);
   const [actionChoiceStrategy, setActionChoiceStrategy] = React.useState<string[]>([availableActionStrategies[0]]);
   const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>(availableFeatures);
   const [results, setResults] = React.useState<any | null>(null);
+  const isMultiSelect = (type: string) => executionMode === type;
+  const getSuffix = (value: string) => value.split('_').pop() || value;
+  const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
+  const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
+
+  const handleViewDetails = (key: any, data: any) => {
+    if (selectedRowKey === key) {
+      // If the same row is clicked again, clear the details and show plots
+      clearDetails();
+    } else {
+      setSelectedDetails(data); // Update selected details when button is clicked
+      setSelectedRowKey(key); // Mark the row as selected
+      setShowPlots(false); // Hide plots
+    }
+  };
+
+  const clearDetails = () => {
+    setSelectedDetails(null); // Clear selected details
+    setSelectedRowKey(null); // Clear selected row key
+    setShowPlots(true); // Show plots again
+  };
+
+
 
   const handleRun = () => {
     dispatch(
@@ -82,16 +98,15 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       });
   };
 
-  const isMultiSelect = (type: string) => executionMode === type;
 
   const getRowLabelKey = () => {
     switch (executionMode) {
-      case "Number of Actions":
-        return "size";
+      case "Number of Counterfactual Actions":
+        return "Counterfactual Actions";
       case "Local Counterfactual Method":
-        return "method";
+        return "Local Counterfactual Methods";
       case "Action Choice Strategy":
-        return "strategy";
+        return "Action Choice Strategy";
       default:
         return "key";
     }
@@ -99,18 +114,17 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const rowLabelKey = getRowLabelKey();
 
-  const getSuffix = (value: string) => value.split('_').pop() || value;
 
   const scatterPlotData = glanceState.comparativeResults
-  ? Object.entries(glanceState.comparativeResults).map(([key, data]) => ({
+    ? Object.entries(glanceState.comparativeResults).map(([key, data]) => ({
       TotalCost: data.TotalCost,
       TotalEffectiveness: data.TotalEffectiveness,
       [rowLabelKey]: key,
       DisplayKey: getSuffix(key), // Add cleaned-up value for display
     }))
-  : [];
+    : [];
 
-  
+
   const scatterPlotSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     data: { values: scatterPlotData },
@@ -123,25 +137,25 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     mark: "point",
     encoding: {
       x: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      y: { 
+      y: {
         field: "ScaledEffectiveness", // Use the scaled field for the y-axis
-        type: "quantitative", 
+        type: "quantitative",
         title: "Total Effectiveness (%)", // Adjust the title to reflect the scaling
       },
       color: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { 
-          field: "ScaledEffectiveness", 
-          type: "quantitative", 
+        {
+          field: "ScaledEffectiveness",
+          type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect the scaled value in the tooltip
         },
         { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
   };
-  
- 
+
+
 
   const chart1 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -158,17 +172,17 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { 
-          field: "ScaledEffectiveness", 
-          type: "quantitative", 
+        {
+          field: "ScaledEffectiveness",
+          type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect scaled value
         },
         { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
   };
-  
-  const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
+
+
 
   const chart2 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -181,24 +195,24 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     ],
     mark: "bar",
     encoding: {
-      y: { 
+      y: {
         field: "ScaledEffectiveness", // Use scaled field for the y-axis
-        type: "quantitative", 
+        type: "quantitative",
         title: "Total Effectiveness (%)" // Update axis title
       },
       x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        { 
-          field: "ScaledEffectiveness", 
-          type: "quantitative", 
+        {
+          field: "ScaledEffectiveness",
+          type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect scaled value in the tooltip
         },
         { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
       ],
     },
   };
-  
+
   return (
     <>
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
@@ -211,7 +225,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             onChange={(e) => setExecutionMode(e.target.value)}
             input={<OutlinedInput label="Execution Mode" />}
           >
-            <MenuItem value="Number of Actions">Number of Actions</MenuItem>
+            <MenuItem value="Number of Counterfactual Actions">Number of Counterfactual Actions</MenuItem>
             <MenuItem value="Local Counterfactual Method">Local Counterfactual Method</MenuItem>
             <MenuItem value="Action Choice Strategy">Action Choice Strategy</MenuItem>
           </Select>
@@ -219,13 +233,13 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
         {/* GCF Size */}
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-        <InputLabel id="gcf-size-select-label">Number of Actions</InputLabel>
-        <Select
+          <InputLabel id="gcf-size-select-label">Number of Counterfactual Actions</InputLabel>
+          <Select
             labelId="gcf-size-select-label"
-            input={<OutlinedInput label="Number of Actions" />}
-            multiple={isMultiSelect("Number of Actions")}
+            input={<OutlinedInput label="Number of Counterfactual Actions" />}
+            multiple={isMultiSelect("Number of Counterfactual Actions")}
             value={gcfSize}
-            onChange={(e) => setGcfSize(isMultiSelect("Number of Actions") ? (e.target.value as number[]) : [Number(e.target.value)])}
+            onChange={(e) => setGcfSize(isMultiSelect("Number of Counterfactual Actions") ? (e.target.value as number[]) : [Number(e.target.value)])}
             renderValue={(selected) =>
               Array.isArray(selected) ? selected.join(", ") : selected
             }
@@ -327,12 +341,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             onClick={handleRun}
             disabled={
               comparativeLoading ||
-              (executionMode === "Number of Actions" && gcfSize.length === 0) ||
+              (executionMode === "Number of Counterfactual Actions" && gcfSize.length === 0) ||
               (executionMode === "Local Counterfactual Method" && cfMethod.length === 0) ||
               (executionMode === "Action Choice Strategy" && actionChoiceStrategy.length === 0)
             }
           >
-            Run Comparative Analysis
+            Run Analysis
           </Button>
           {error && (
             <Typography color="error" style={{ marginTop: 16 }}>
@@ -343,155 +357,175 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       </Box>
 
       <Box marginTop={4}>
-  {comparativeLoading ? (
-    <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px">
-      <CircularProgress size={50} />
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Running Experiments...
-      </Typography>
-    </Box>
-  ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
-    <>
-      <WorkflowCard title="Comparative Analysis Results" description="">
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
-                <TableCell>Total Cost</TableCell>
-                <TableCell>Total Effectiveness %</TableCell>
-                <TableCell>Details</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
-                <TableRow key={key}>
-                  <TableCell>{getSuffix(key)}</TableCell>
-                  <TableCell>{data.TotalCost}</TableCell>
-                  <TableCell>{data.TotalEffectiveness * 100}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleViewDetails(data)}
-                    >
-                      View Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </WorkflowCard>
+        {comparativeLoading ? (
+          <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px">
+            <CircularProgress size={50} />
+            <Typography variant="h6" sx={{ marginTop: 2 }}>
+              Running Experiments...
+            </Typography>
+          </Box>
+        ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
+          <>
+            <WorkflowCard title="Comparative Analysis Results" description="">
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
+                      <TableCell>Total Cost</TableCell>
+                      <TableCell>Total Effectiveness %</TableCell>
+                      <TableCell>Details</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(glanceState.comparativeResults).map(([key, data]: any) => (
+                      <TableRow key={key} style={{
+                        backgroundColor: selectedRowKey === key ? "#e0f7fa" : "inherit", // Highlight row if selected
+                      }}>
+                        <TableCell>{getSuffix(key)}</TableCell>
+                        <TableCell>{data.TotalCost}</TableCell>
+                        <TableCell>{data.TotalEffectiveness * 100}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleViewDetails(key, data)}
+                            size="small"
+                            style={{
+                              backgroundColor: selectedRowKey === key ? "#00796b" : undefined, // Change button color
+                            }}
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </WorkflowCard>
 
-      {/* Render the details if selectedDetails is not null */}
-      {selectedDetails && (
-        <Box marginTop={4}>
-          <WorkflowCard
-            title={"Metric Summary"}
-            description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
+            {/* Render the details if selectedDetails is not null */}
+            {selectedDetails && (
+              <>
+              
+              
+              <Box marginTop={4}>
+                <WorkflowCard
+                  title={"Metric Summary"}
+                  description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
               Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
-          >
-            <MetricSummary
-              cost={selectedDetails.TotalCost}
-              eff={selectedDetails.TotalEffectiveness}
-              actions={selectedDetails.actions}
-              instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
-            />
-            <FormControlLabel
-                control={
-                  <Switch
-                    checked={showUMAPInTab1}
-                    onChange={(e) => {
-                      setShowUMAPInTab1(e.target.checked);
-                    }}
-                    color="primary"
-                  />
-                }
-                label="Enable Dimensionality Reduction (UMAP)"
-              />
-             {!showUMAPInTab1 ? (
-              <Box
-                mt={2}
-                display="flex"
-                justifyContent="space-between"
-                flexWrap="wrap"
-                gap={2}
-              >
-                <Box flex={1} minWidth={0}>
-                  <ActionScatter
-                    data1={selectedDetails.affected_clusters}
-                    data2={selectedDetails.applyAffectedActions}
-                    actions={selectedDetails.actions}
-                    eff_cost_actions={
-                      selectedDetails.eff_cost_actions
-                    }
-                  />
-                </Box>
-              </Box>
-            ) : (<UmapGlanceComponent applied_aff_data={selectedDetails.umapOfAppliedAffected.data} aff_data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions}/>
-            )}
-            <Box marginTop={2}>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={clearDetails} // Clear the details view
-              >
-                Close Details
-              </Button>
-            </Box>
-          </WorkflowCard>
-        </Box>
-      )}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    alignItems="flex-start"
+                    position="absolute"
 
-      <Grid container spacing={2} marginTop={"20px"}>
-        <Grid item xs={12} md={4}>
-          <WorkflowCard
-            title="Cost-Effectiveness Scatter Plot"
-            description="Visualizes the performance of the algorithm for different parameter configurations."
-          >
-            <ResponsiveVegaLite
-              minWidth={100}
-              aspectRatio={2 / 1}
-              actions={false}
-              spec={scatterPlotSpec as VisualizationSpec}
-            />
-          </WorkflowCard>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <WorkflowCard
-            title="Cost by Parameter Bar Plot"
-            description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-          >
-            <ResponsiveVegaLite
-              minWidth={100}
-              aspectRatio={2 / 1}
-              actions={false}
-              spec={chart1 as VisualizationSpec}
-            />
-          </WorkflowCard>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <WorkflowCard
-            title="Effectiveness by Parameter Bar Plot"
-            description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-          >
-            <ResponsiveVegaLite
-              minWidth={100}
-              aspectRatio={2 / 1}
-              actions={false}
-              spec={chart2 as VisualizationSpec}
-            />
-          </WorkflowCard>
-        </Grid>
-      </Grid>
-    </>
-  ) : (
-    <Typography>Run Something</Typography>
-  )
-  }
-</Box>
+                  >
+                    <Button
+                      variant="text"
+                      onClick={clearDetails} // Clear the details view
+                      style={{ minWidth: "24px", padding: "4px" }}
+                    >
+                      ✕
+                    </Button>
+                  </Box>
+                  <MetricSummary
+                    cost={selectedDetails.TotalCost}
+                    eff={selectedDetails.TotalEffectiveness}
+                    actions={selectedDetails.actions}
+                    instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
+                  />
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={showUMAPInTab1}
+                        onChange={(e) => {
+                          setShowUMAPInTab1(e.target.checked);
+                        }}
+                        color="primary"
+                      />
+                    }
+                    label="Enable Dimensionality Reduction (UMAP)"
+                  />
+                  {!showUMAPInTab1 ? (
+                    <Box
+                      mt={2}
+                      display="flex"
+                      justifyContent="space-between"
+                      flexWrap="wrap"
+                      gap={2}
+                    >
+                      <Box flex={1} minWidth={0}>
+                        <ActionScatter
+                          data1={selectedDetails.affected_clusters}
+                          data2={selectedDetails.applyAffectedActions}
+                          actions={selectedDetails.actions}
+                          eff_cost_actions={
+                            selectedDetails.eff_cost_actions
+                          }
+                        />
+                      </Box>
+                    </Box>
+                  ) : (<UmapGlanceComponent applied_aff_data={selectedDetails.umapOfAppliedAffected.data} aff_data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions} />
+                  )}
+
+                </WorkflowCard>
+              </Box>
+              </>
+            )}
+
+            {showPlots && (
+
+              <Grid container spacing={2} marginTop={"20px"}>
+                <Grid item xs={12} md={4}>
+                  <WorkflowCard
+                    title="Cost-Effectiveness Scatter Plot"
+                    description="Visualizes the performance of the algorithm for different parameter configurations."
+                  >
+                    <ResponsiveVegaLite
+                      minWidth={100}
+                      aspectRatio={2 / 1}
+                      actions={false}
+                      spec={scatterPlotSpec as VisualizationSpec}
+                    />
+                  </WorkflowCard>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <WorkflowCard
+                    title="Cost by Parameter Bar Plot"
+                    description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+                  >
+                    <ResponsiveVegaLite
+                      minWidth={100}
+                      aspectRatio={2 / 1}
+                      actions={false}
+                      spec={chart1 as VisualizationSpec}
+                    />
+                  </WorkflowCard>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <WorkflowCard
+                    title="Effectiveness by Parameter Bar Plot"
+                    description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
+                  >
+                    <ResponsiveVegaLite
+                      minWidth={100}
+                      aspectRatio={2 / 1}
+                      actions={false}
+                      spec={chart2 as VisualizationSpec}
+                    />
+                  </WorkflowCard>
+                </Grid>
+              </Grid>
+            )}
+          </>
+        ) : (
+          <Typography>Run Something</Typography>
+        )
+        }
+      </Box>
 
     </>
   );

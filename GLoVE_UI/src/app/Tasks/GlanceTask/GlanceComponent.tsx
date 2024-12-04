@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataModelSetup from "./SIDEBAR/DataModelSetup";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import { fetchAvailableFeatures, fetchInitialGlanceData, loadDatasetAndModel, runCGlanceComparative, umapReduce } from "../../../store/slices/glanceSlice";
-import { Paper, Box, Typography,CircularProgress, Tabs, Tab, FormControlLabel, Radio, RadioGroup, Checkbox, Tooltip, Switch } from "@mui/material";
+import { Paper, Box, Typography, CircularProgress, Tabs, Tab, FormControlLabel, Radio, RadioGroup, Checkbox, Tooltip, Switch } from "@mui/material";
 import DataTable from "./PLOTS/DataTable";
 import MetricSummary from "./MetricSummary";
 import UmapScatter from "./PLOTS/UmapScatter";
@@ -64,7 +64,7 @@ const styles = {
 const GlanceComponent: React.FC = () => {
   const dispatch = useAppDispatch();
   const glanceState = useAppSelector((state) => state.glance);
-  const [viewOption, setViewOption] = useState<"data" | "affected" |"test">("affected"); // Track which data to display
+  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">("affected"); // Track which data to display
   const [selectedTab, setSelectedTab] = useState<number>(0); // Track selected tab
   const [showUMAPScatter, setShowUMAPScatter] = useState(true); // State to toggle scatter plot
   const [processedDataset, setProcessedDataset] = useState([]);
@@ -76,6 +76,10 @@ const GlanceComponent: React.FC = () => {
     if (!glanceState.loadDatasetAndModelResult) {
       dispatch(fetchInitialGlanceData());
       dispatch(fetchAvailableFeatures());
+      dispatch(umapReduce({ dataset_identifier: "affectedData", n_components: 2 }));
+      dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }));
+
+    
     }
   }, [dispatch]);
 
@@ -85,9 +89,9 @@ const GlanceComponent: React.FC = () => {
         viewOption === "data"
           ? "rawData"
           : viewOption === "affected"
-          ? "affectedData"
-          : "testData";
-  
+            ? "affectedData"
+            : "testData";
+      console.log("dataseid",datasetIdentifier)
       // Check if UMAP data is already cached
       if (!umapCache[datasetIdentifier]) {
         dispatch(umapReduce({ dataset_identifier: datasetIdentifier, n_components: 2 }))
@@ -111,7 +115,7 @@ const GlanceComponent: React.FC = () => {
       setSelectedTab(0);
     }
   }, [glanceState.loadDatasetAndModelResult]);
-  
+
   useEffect(() => {
     if (glanceState.runGlanceResult) {
       const indexValues = new Set(Object.values(glanceState.runGlanceResult.affected_clusters.index));
@@ -122,10 +126,10 @@ const GlanceComponent: React.FC = () => {
           const actionValue = glanceState.runGlanceResult.affected_clusters.Chosen_Action[actionIndex];
           return { ...item, action: actionValue };
         } else {
-          return { ...item, action: "-1"};
+          return { ...item, action: "-1" };
         }
       });
-  
+
       setProcessedDataset(newDataset); // Set the state
       // console.log("processedDataset",processedDataset)
     }
@@ -149,16 +153,16 @@ const GlanceComponent: React.FC = () => {
       return (
         <WorkflowCard title="Affected Data Scatter Plot" description="Visualizes Affected instances, each labeled with the prediction given by the model
  ">
-      <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
-      </WorkflowCard>);
+          <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
+        </WorkflowCard>);
     }
     if (!showUMAPScatter && viewOption === "test") {
       // Render Raw Scatter when checkbox is unchecked
       return (
         <WorkflowCard title="Test Data Scatter Plot" description="Visualizes Test instances, each labeled with the prediction given by the model">
 
-      <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
-      </WorkflowCard>)
+          <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
+        </WorkflowCard>)
     }
     if (glanceState.loading) {
       // Show loader when UMAP data is still loading
@@ -173,29 +177,25 @@ const GlanceComponent: React.FC = () => {
     const capitalizeFirstLetter = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
     const datasetKey = viewOption === "data" ? "rawData" :
-                   viewOption === "affected" ? "affectedData" :
-                   "testData"; // Update or expand if necessary
+      viewOption === "affected" ? "affectedData" :
+        "testData"; // Update or expand if necessary
 
-                  //  if (glanceState.umapReduceResults[datasetKey]) {
-                  //   const umapData = glanceState.umapReduceResults[datasetKey].reduced_data; // Retrieve the UMAP data based on dataset key
-                  if (umapCache[datasetKey]) {
-                    const umapData = umapCache[datasetKey].reduced_data;
-                    // Use `umapData` for your visualization logic
-                    return (
-                      <WorkflowCard   title={`${capitalizeFirstLetter(viewOption)} Data Scatter Plot`} 
-                      description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>                      
-                      <UmapScatter
-                        data={umapData}
-                        color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
-                      />
-                      </WorkflowCard>
-                    );
-                  } else return <Typography variant="body1">No UMAP data available.</Typography>;
-                };
-
-
-
-
+    //  if (glanceState.umapReduceResults[datasetKey]) {
+    //   const umapData = glanceState.umapReduceResults[datasetKey].reduced_data; // Retrieve the UMAP data based on dataset key
+    if (umapCache[datasetKey]) {
+      const umapData = umapCache[datasetKey].reduced_data;
+      // Use `umapData` for your visualization logic
+      return (
+        <WorkflowCard title={`${capitalizeFirstLetter(viewOption)} Data Scatter Plot`}
+          description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>
+          <UmapScatter
+            data={umapData}
+            color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
+          />
+        </WorkflowCard>
+      );
+    } else return <Typography variant="body1">No UMAP data available.</Typography>;
+  };
 
 
 
@@ -209,84 +209,80 @@ const GlanceComponent: React.FC = () => {
   }
 
 
-    console.log("GlanceSate",glanceState)
+  console.log("GlanceSate", glanceState)
 
-  
-  
-  
   return (
-  <Box sx={styles.layoutContainer}>
-    <Paper sx={styles.sidebar}>
-      <DataModelSetup />
+    <Box sx={styles.layoutContainer}>
+      <Paper sx={styles.sidebar}>
+        <DataModelSetup />
 
-    </Paper>
-    <Box sx={styles.mainContent}>
-      <Typography variant="h4" gutterBottom sx={styles.header}>
-        GLoVE: Global Visual Explanations
-      </Typography>
-      <Tabs value={selectedTab} onChange={handleTabChange} centered>
-        <Tab label="Data Exploration" />
-        <Tab label="GLoVE Analysis" />
-        <Tab label="Comparative Analysis" />
-      </Tabs>
-      {selectedTab === 0 && (
-        <Box>
-{glanceState.datasetLoading && (
-      <Box 
-        display="flex" 
-        justifyContent="center" 
-        alignItems="center" 
-        height="300px" // Adjust the height to ensure proper centering
-      >
-        <CircularProgress size={50} />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>
-          Fetching Data...
+      </Paper>
+      <Box sx={styles.mainContent}>
+        <Typography variant="h4" gutterBottom sx={styles.header}>
+          GLoVE: Global Visual Explanations
         </Typography>
-      </Box>
-    )}          {glanceState.loadDatasetAndModelResult && !glanceState.datasetLoading && (
-            <Box>
-              <FormControlLabel
-  control={
-    <Switch
-      checked={viewOption === "affected"}
-      onChange={(e) => setViewOption(e.target.checked ? "affected" : "test")}
-      color="primary"
-    />
-  }
-  label="Show Only Affected"
-/>
-
-
-              {viewOption === "data" && glanceState.loadDatasetAndModelResult.data && (
-                <>
-                  <DataTable title="Raw Data" data={glanceState.loadDatasetAndModelResult.data} showArrow={false} />
-                  <FormControlLabel
+        <Tabs value={selectedTab} onChange={handleTabChange} centered>
+          <Tab label="Data Exploration" />
+          <Tab label="GLoVE Analysis" />
+        </Tabs>
+        {selectedTab === 0 && (
+          <Box>
+            {glanceState.datasetLoading && (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="300px" // Adjust the height to ensure proper centering
+              >
+                <CircularProgress size={50} />
+                <Typography variant="h6" sx={{ marginLeft: 2 }}>
+                  Fetching Data...
+                </Typography>
+              </Box>
+            )}          {glanceState.loadDatasetAndModelResult && !glanceState.datasetLoading && (
+              <Box>
+                <FormControlLabel
                   control={
-                  <Switch
-                  checked={showUMAPScatter}
-                  onChange={(e) => setShowUMAPScatter(e.target.checked)}
-                  color="primary"
-                  />
+                    <Switch
+                      checked={viewOption === "affected"}
+                      onChange={(e) => setViewOption(e.target.checked ? "affected" : "test")}
+                      color="primary"
+                    />
                   }
-                  label="Enable Dimensionality Reduction (UMAP)"
-                  />
+                  label="Show Only Affected"
+                />
+
+
+                {viewOption === "data" && glanceState.loadDatasetAndModelResult.data && (
+                  <>
+                    <DataTable title="Raw Data" data={glanceState.loadDatasetAndModelResult.data} showArrow={false} />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={showUMAPScatter}
+                          onChange={(e) => setShowUMAPScatter(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label="Enable Dimensionality Reduction (UMAP)"
+                    />
                     {renderScatterPlot()}
-                 </>
+                  </>
                 )}
                 {viewOption === "affected" && glanceState.loadDatasetAndModelResult.affected && (
                   <>
                     <WorkflowCard title="Affected Data" description="Instances from the test dataset where the model's prediction was equal to 0.">
-                    <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
+                      <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
-                    control={
-                    <Switch
-                    checked={showUMAPScatter}
-                    onChange={(e) => setShowUMAPScatter(e.target.checked)}
-                    color="primary"
-                    />
-                    }
-                    label="Enable Dimensionality Reduction (UMAP)"
+                      control={
+                        <Switch
+                          checked={showUMAPScatter}
+                          onChange={(e) => setShowUMAPScatter(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label="Enable Dimensionality Reduction (UMAP)"
                     />
                     {renderScatterPlot()}
                   </>
@@ -294,127 +290,46 @@ const GlanceComponent: React.FC = () => {
                 {viewOption === "test" && glanceState.loadDatasetAndModelResult.X_test && (
                   <>
                     <WorkflowCard title="Test Data" description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
-                    <DataTable title="Test Data" data={glanceState.loadDatasetAndModelResult.X_test} showArrow={false} />
+                      <DataTable title="Test Data" data={glanceState.loadDatasetAndModelResult.X_test} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
-                    control={
-                      <Switch
-                      checked={showUMAPScatter}
-                      onChange={(e) => setShowUMAPScatter(e.target.checked)}
-                      color="primary"
-                    />
-                    }
-                    label="Enable Dimensionality Reduction (UMAP)"
+                      control={
+                        <Switch
+                          checked={showUMAPScatter}
+                          onChange={(e) => setShowUMAPScatter(e.target.checked)}
+                          color="primary"
+                        />
+                      }
+                      label="Enable Dimensionality Reduction (UMAP)"
                     />
                     {renderScatterPlot()}
                   </>
                 )}
-               </Box>
-          )}
-        </Box>
-        )}
-
-        {selectedTab === 1 && (
-          <Box>
-            {/* Always display CGlanceExecution */}
-            <CGlanceExecution
-            availableCfMethods={glanceState.availableCfMethods}
-            availableActionStrategies={glanceState.availableActionStrategies}
-            availableFeatures={glanceState.availableFeatures.slice(0, -1)}
-            />
-
-            {/* Loader in the middle below CGlanceExecution */}
-            {glanceState.datasetLoading || glanceState.loading ? (
-              <Box
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              height="400px" // Adjust height for centering
-              marginTop={4} // Space between CGlanceExecution and the loader
-            >
-        <CircularProgress size={50} />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>
-          Loading...
-        </Typography>
-      </Box>
-    ) : (
-      glanceState.loadDatasetAndModelResult &&
-      glanceState.runGlanceResult &&
-      glanceState.applyAffectedActionsResult &&
-      glanceState.umapReduceResults && (
-        <>
-          <Box>
-            <Box>
-              <WorkflowCard 
-              title={"Metric Summary"} 
-              description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
-              Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population.">
-              <MetricSummary
-                cost={glanceState.runGlanceResult.TotalCost}
-                eff={glanceState.runGlanceResult.TotalEffectiveness}
-                actions={glanceState.runGlanceResult.actions}
-                instances={glanceState.applyAffectedActionsResult["Chosen_Action"]}
-              />
-              </WorkflowCard>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={showUMAPInTab1}
-                    onChange={(e) => {
-                      setShowUMAPInTab1(e.target.checked);
-                    }}
-                    color="primary"
-                  />
-                }
-                label="Enable Dimensionality Reduction (UMAP)"
-              />
-            </Box>
-            {!showUMAPInTab1 ? (
-              <Box
-                mt={2}
-                display="flex"
-                justifyContent="space-between"
-                flexWrap="wrap"
-                gap={2}
-              >
-                <Box flex={1} minWidth={0}>
-                  <ActionScatter
-                    data1={glanceState.runGlanceResult.affected_clusters}
-                    data2={glanceState.applyAffectedActionsResult}
-                    actions={glanceState.runGlanceResult.actions}
-                    eff_cost_actions={
-                      glanceState.runGlanceResult.eff_cost_actions
-                    }
-                  />
-                </Box>
               </Box>
-            ) : (<UmapGlanceComponent data={glanceState.umapReduceResults} actions={glanceState.runGlanceResult.affected_clusters} eff_cost_actions={glanceState.runGlanceResult.eff_cost_actions}/>
             )}
           </Box>
-        </>
-      )
-    )}
-  </Box>
-)}
+        )}
 
-        {selectedTab === 2 && (
+       
+
+        {selectedTab === 1 && (
 
           <>
-          {glanceState.datasetLoading && <CircularProgress />}
-          {/* <ComparativeAnalysis/> */}
+            {glanceState.datasetLoading && <CircularProgress />}
+            {/* <ComparativeAnalysis/> */}
 
-          <ComparativeGlance 
-          availableCfMethods={glanceState.availableCfMethods} 
-          availableActionStrategies={glanceState.availableActionStrategies} 
-          availableFeatures={glanceState.availableFeatures.slice(0,-1)} 
-         />
-         
+            <ComparativeGlance
+              availableCfMethods={glanceState.availableCfMethods}
+              availableActionStrategies={glanceState.availableActionStrategies}
+              availableFeatures={glanceState.availableFeatures.slice(0, -1)}
+            />
+
           </>
-          
+
         )}
-        
+
+      </Box>
     </Box>
-  </Box>
   );
 };
 
