@@ -5,13 +5,14 @@ import LastUmap from "./LastUmap";
 import WorkflowCard from "../../../shared/components/workflow-card";
 
 interface UmapGlanceComponentProps {
-  data:any;
+  applied_aff_data:any;
+  aff_data:any;
   actions:any;
   eff_cost_actions:any;
 }
 
-const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions ,eff_cost_actions}) => {
-
+const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ applied_aff_data,aff_data,actions ,eff_cost_actions}) => {
+console.log("applie",applied_aff_data)
 
   return (
   <>
@@ -22,9 +23,9 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
         <WorkflowCard title="Action Selection Scatter Plot"  description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction." >
           
           <UmapScatterGlance
-          data={data["affectedData"].reduced_data}
+          data={aff_data["affectedData"].reduced_data}
           color=""
-          actions={data["appliedAffected"].reduced_data.Chosen_Action}
+          actions={applied_aff_data.reduced_data.Chosen_Action}
           name="Affected population"
           />
         </WorkflowCard>
@@ -32,9 +33,9 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
       <Grid item xs={12} md={6}>
         <WorkflowCard title="Post-Action Selection Scatter Plot" description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action." >
           <UmapScatterGlance
-          data={data["appliedAffected"].reduced_data}
+          data={applied_aff_data.reduced_data}
           color=""
-          actions={data["appliedAffected"].reduced_data.Chosen_Action}
+          actions={applied_aff_data.reduced_data.Chosen_Action}
           name="Affected population after Actions Applied"
           />
         </WorkflowCard>
@@ -46,7 +47,7 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ data,actions 
 <WorkflowCard title="Action Effectiveness and Cost Summary" description="Displays the effectiveness and cost of each action when applied to all affected instances, providing a detailed overview of how each action impacts performance.">
      
 <LastUmap 
-data={data["affectedData"].reduced_data} 
+data={aff_data["affectedData"].reduced_data} 
 actions={Object.keys(actions)
   .filter(key => /^Action\d+_Prediction$/.test(key)) 
   .map(key => {

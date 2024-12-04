@@ -37,6 +37,8 @@ interface GlanceState {
   };
     
   getDataResults:any | null;
+  comparativeLoading: boolean; // New state for comparative process
+
 
 }
 
@@ -63,7 +65,9 @@ const initialState: GlanceState = {
   processedSizes: [],
   umapReduceResults: {},
   getDataResults:null,
-  comparativeResults:{}
+  comparativeResults:{},
+  comparativeLoading: false,
+
 
 
 
@@ -318,8 +322,24 @@ export const uploadModel = createAsyncThunk(
 
 export const runCGlanceComparative = createAsyncThunk(
   "glance/runCGlanceComparative",
-  async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams) => {
+  async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams, { dispatch }) => {
     const results: any = {};
+
+    const performUmapReduce = async (appliedData: any) => {
+      // Simulate a call to UMAP reduce for appliedAffected
+      return await axios.post(
+        `${API_BASE_URL}umap-reduce/`,
+        { dataset_identifier: "appliedAffected", data: appliedData },
+        {
+          params: { n_components: 2 },
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    };
+
+    
 
     if (sizes?.length > 1) {
       for (const size of sizes) {
@@ -336,10 +356,15 @@ export const runCGlanceComparative = createAsyncThunk(
         );
 
         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        const umapResult = await dispatch(
+          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+        ).unwrap();
         
         results[`size_${size}`] = {
           ...response.data,
           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+          umapOfAppliedAffected: umapResult, // Add UMAP result
+
         };
       }
     } else if (methods?.length > 1) {
@@ -357,10 +382,15 @@ export const runCGlanceComparative = createAsyncThunk(
         );
 
         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        const umapResult = await dispatch(
+          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+        ).unwrap();
         
         results[`method_${method}`] = {
           ...response.data,
           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+          umapOfAppliedAffected: umapResult, // Add UMAP result
+
         };
       }
     } else if (strategies?.length > 1) {
@@ -378,10 +408,15 @@ export const runCGlanceComparative = createAsyncThunk(
         );
 
         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+        const umapResult = await dispatch(
+          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+        ).unwrap();
         
         results[`strategy_${strategy}`] = {
           ...response.data,
           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+          umapOfAppliedAffected: umapResult, // Add UMAP result
+
         };
       }
     }
@@ -542,15 +577,15 @@ const glanceSlice = createSlice({
         state.error = action.error.message || "Error uploading model";
       })
       .addCase(runCGlanceComparative.pending, (state) => {
-        state.loading = true;
+        state.comparativeLoading = true; // Start the loader
       })
       .addCase(runCGlanceComparative.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
+        state.comparativeLoading = false; // End the loader
         state.comparativeResults = action.payload;
         state.error = null;
       })
       .addCase(runCGlanceComparative.rejected, (state, action) => {
-        state.loading = false;
+        state.comparativeLoading = false; // End the loader
         state.error = action.error.message || "Error in comparative analysis";
       });
   },

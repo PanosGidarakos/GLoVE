@@ -45,6 +45,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const dispatch = useAppDispatch();
   const loading = useAppSelector((state) => state.glance.loading);
   const error = useAppSelector((state) => state.glance.error);
+  const comparativeLoading = useAppSelector((state) => state.glance.comparativeLoading);
+
   const glanceState = useAppSelector((state) => state.glance);
   const [selectedDetails, setSelectedDetails] = React.useState<any | null>(null); // State for selected details
   const handleViewDetails = (data: any) => {
@@ -296,7 +298,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         </FormControl>
 
         {/* Features */}
-        {/* <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="feature-select-label">Features</InputLabel>
           <Select
             labelId="feature-select-label"
@@ -315,7 +317,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               </MenuItem>
             ))}
           </Select>
-        </FormControl> */}
+        </FormControl>
 
         {/* Run Button */}
         <Box display="flex" justifyContent="center" alignItems="center">
@@ -324,7 +326,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             color="primary"
             onClick={handleRun}
             disabled={
-              loading ||
+              comparativeLoading ||
               (executionMode === "Number of Actions" && gcfSize.length === 0) ||
               (executionMode === "Local Counterfactual Method" && cfMethod.length === 0) ||
               (executionMode === "Action Choice Strategy" && actionChoiceStrategy.length === 0)
@@ -341,7 +343,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       </Box>
 
       <Box marginTop={4}>
-  {loading ? (
+  {comparativeLoading ? (
     <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="400px">
       <CircularProgress size={50} />
       <Typography variant="h6" sx={{ marginTop: 2 }}>
@@ -428,7 +430,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   />
                 </Box>
               </Box>
-            ) : (<UmapGlanceComponent data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions}/>
+            ) : (<UmapGlanceComponent applied_aff_data={selectedDetails.umapOfAppliedAffected.data} aff_data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions}/>
             )}
             <Box marginTop={2}>
               <Button
@@ -487,7 +489,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     </>
   ) : (
     <Typography>Run Something</Typography>
-  )}
+  )
+  }
 </Box>
 
     </>

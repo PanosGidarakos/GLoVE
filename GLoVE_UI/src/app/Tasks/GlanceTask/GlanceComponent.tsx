@@ -64,7 +64,7 @@ const styles = {
 const GlanceComponent: React.FC = () => {
   const dispatch = useAppDispatch();
   const glanceState = useAppSelector((state) => state.glance);
-  const [viewOption, setViewOption] = useState<"data" | "affected" |"test">("test"); // Track which data to display
+  const [viewOption, setViewOption] = useState<"data" | "affected" |"test">("affected"); // Track which data to display
   const [selectedTab, setSelectedTab] = useState<number>(0); // Track selected tab
   const [showUMAPScatter, setShowUMAPScatter] = useState(true); // State to toggle scatter plot
   const [processedDataset, setProcessedDataset] = useState([]);
