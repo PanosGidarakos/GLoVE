@@ -142,7 +142,7 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
         </Box>
 
         <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
-        <ResponsiveVegaLite spec={spec} minWidth={100} aspectRatio={2/1} actions={false} />
+        <ResponsiveVegaLite spec={spec} minWidth={100} maxHeight={1000} minHeight={100} maxWidth={100} aspectRatio={2/1} actions={false} />
     </WorkflowCard>   
      </Paper>  
   );

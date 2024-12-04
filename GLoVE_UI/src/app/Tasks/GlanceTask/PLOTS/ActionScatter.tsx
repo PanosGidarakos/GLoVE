@@ -287,7 +287,11 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           spec={spec(transformedData1)}
           actions={false}
           minWidth={100}
+          minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
           aspectRatio={2/1}
+
           />
           </WorkflowCard>
           </Grid>
@@ -301,6 +305,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           <ResponsiveVegaLite spec={spec(transformedData2)}
           actions={false}
           minWidth={100}
+          minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
           aspectRatio={2/1}
           // onNewView={(view) => {
           //   view.addEventListener("click", (_e, item) => {
@@ -378,7 +385,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
         {/* Right side (Vega-Lite Chart) */}
         <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
-          <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false}  minWidth={100} aspectRatio={10/1} />
+          <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false}  minWidth={100}minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000} aspectRatio={10/1} />
          
         </WorkflowCard>
         </Grid>

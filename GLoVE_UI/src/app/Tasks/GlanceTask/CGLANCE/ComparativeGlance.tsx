@@ -400,7 +400,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>{rowLabelKey.charAt(0).toUpperCase() + rowLabelKey.slice(1)}</TableCell>
+                      <TableCell>{executionMode}</TableCell>
                       <TableCell>Total Cost</TableCell>
                       <TableCell>Total Effectiveness %</TableCell>
                       <TableCell>Details</TableCell>
@@ -445,27 +445,28 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
               Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
                 >
-                  <Box
+                  {/* <Box
                     display="flex"
                     justifyContent="flex-end"
-                    alignItems="flex-start"
+                    alignItems="flex-end"
                     position="absolute"
 
                   >
                     <Button
                       variant="text"
                       onClick={clearDetails} // Clear the details view
-                      style={{ minWidth: "24px", padding: "4px" }}
+                      style={{ minWidth: "40px", padding: "4px" }}
                     >
                       ✕
                     </Button>
-                  </Box>
+                  </Box> */}a
                   <MetricSummary
                     cost={selectedDetails.TotalCost}
                     eff={selectedDetails.TotalEffectiveness}
                     actions={selectedDetails.actions}
                     instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
                   />
+                  </WorkflowCard>
                   <FormControlLabel
                     control={
                       <Switch
@@ -500,7 +501,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   ) : (<UmapGlanceComponent applied_aff_data={selectedDetails.umapOfAppliedAffected.data} aff_data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions} />
                   )}
 
-                </WorkflowCard>
               </Box>
               </>
             )}
@@ -515,6 +515,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   >
                     <ResponsiveVegaLite
                       minWidth={100}
+                      minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
                       aspectRatio={2 / 1}
                       actions={false}
                       spec={scatterPlotSpec as VisualizationSpec}
@@ -528,6 +531,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   >
                     <ResponsiveVegaLite
                       minWidth={100}
+                      minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
                       aspectRatio={2 / 1}
                       actions={false}
                       spec={chart1 as VisualizationSpec}
@@ -541,6 +547,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   >
                     <ResponsiveVegaLite
                       minWidth={100}
+                      minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
                       aspectRatio={2 / 1}
                       actions={false}
                       spec={chart2 as VisualizationSpec}

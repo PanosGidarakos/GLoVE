@@ -98,6 +98,9 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data,color }) => {
         spec={scatterPlotSpec}
         actions={false}
         minWidth={100}
+        minHeight={100}
+                      maxHeight={1000}
+                      maxWidth={1000}
         aspectRatio={2/1}
 
         />
