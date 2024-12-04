@@ -219,7 +219,7 @@ const GlanceComponent: React.FC = () => {
       </Paper>
       <Box sx={styles.mainContent}>
         <Typography variant="h4" gutterBottom sx={styles.header}>
-          GLoVE: Global Visual Explanations
+        GLOVE: Global Counterfactual-based Visual Explanations
         </Typography>
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Data Exploration" />

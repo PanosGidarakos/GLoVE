@@ -22,15 +22,22 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow }) => {
   // Function to generate columns dynamically
   const getColumns = (data: any[]): GridColDef[] => {
     const keys = getUniqueKeys(data);
-    return keys.map((key) => ({
+
+    // Move "Population" key to the end
+    const reorderedKeys = keys.filter((key) => key !== "Population");
+    if (keys.includes("Population")) {
+      reorderedKeys.push("Population");
+    }
+
+    return reorderedKeys.map((key) => ({
       field: key,
       headerName: key.charAt(0).toUpperCase() + key.slice(1),
       width: 200,
       renderCell: (params) => {
         const value = params.value;
-        if (key === "Action"||key==="Population") {
-            return value || "-";
-          }
+        if (key === "Action" || key === "Population") {
+          return value || "-";
+        }
 
         // Handle numeric values with arrows
         if (showArrow && typeof value === "number") {
@@ -81,7 +88,7 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow }) => {
           }}
         }
         pageSizeOptions={[5, 10]}
-        // hideFooter
+        hideFooter
       />
     </Box>
   );

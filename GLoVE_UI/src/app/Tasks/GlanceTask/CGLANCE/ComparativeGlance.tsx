@@ -21,6 +21,7 @@ import {
   TableRow,
   FormControlLabel,
   Switch,
+  Tooltip,
 } from "@mui/material";
 import { VegaLite, VisualizationSpec } from "react-vega"; // Import VegaLite from react-vega
 import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite";
@@ -28,7 +29,6 @@ import WorkflowCard from "../../../../shared/components/workflow-card";
 import MetricSummary from "../MetricSummary";
 import ActionScatter from "../PLOTS/ActionScatter";
 import UmapGlanceComponent from "../UmapGlanceComponent";
-import { daDK } from "@mui/material/locale";
 
 
 interface CGlanceExecutionProps {
@@ -60,6 +60,20 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const getSuffix = (value: string) => value.split('_').pop() || value;
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
+
+  
+
+  const handleCfMethodChange = (value: string[]) => {
+    setCfMethod(value);
+  
+    // Automatically select all features if NearestNeighbors is chosen
+    if (value.includes("NearestNeighbors")) {
+      setSelectedFeatures(availableFeatures);
+    }
+  };
+  
+  // Check if NearestNeighbors is selected
+  const isNearestNeighborsSelected = cfMethod.includes("NearestNeighbors");
 
   const handleViewDetails = (key: any, data: any) => {
     if (selectedRowKey === key) {
@@ -124,6 +138,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     }))
     : [];
 
+    console.log("dis",scatterPlotData)
+
 
   const scatterPlotSpec = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -142,7 +158,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         type: "quantitative",
         title: "Total Effectiveness (%)", // Adjust the title to reflect the scaling
       },
-      color: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
+      color: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
         {
@@ -150,12 +166,10 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect the scaled value in the tooltip
         },
-        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
+        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
       ],
     },
   };
-
-
 
   const chart1 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -169,7 +183,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     mark: "bar",
     encoding: {
       y: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
+      x: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
         {
@@ -177,12 +191,10 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect scaled value
         },
-        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
+        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
       ],
     },
   };
-
-
 
   const chart2 = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
@@ -200,7 +212,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         type: "quantitative",
         title: "Total Effectiveness (%)" // Update axis title
       },
-      x: { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' with dynamic field
+      x: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
       tooltip: [
         { field: "TotalCost", type: "quantitative", title: "Total Cost" },
         {
@@ -208,7 +220,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           type: "quantitative",
           title: "Total Effectiveness (%)" // Reflect scaled value in the tooltip
         },
-        { field: rowLabelKey, type: "nominal", title: "Execution Mode" }, // Replace 'key' in tooltip
+        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
       ],
     },
   };
@@ -232,6 +244,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         </FormControl>
 
         {/* GCF Size */}
+        <Tooltip 
+        title="The number of actions to be generated in the end of the algorithm"
+        placement="right-start">
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="gcf-size-select-label">Number of Counterfactual Actions</InputLabel>
           <Select
@@ -254,8 +269,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
         {/* Counterfactual Method */}
+        <Tooltip title="Methods that generate candidate counterfactual explanations"
+        placement="right-start">
+
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
           <Select
@@ -282,8 +301,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
         {/* Action Choice Strategy */}
+        <Tooltip title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria"
+        placement="right-start">
+
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
           <Select
@@ -310,21 +333,26 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
         {/* Features */}
+        <Tooltip title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling."
+        placement="right-start">
+
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="feature-select-label">Features</InputLabel>
           <Select
-            labelId="feature-select-label"
-            input={<OutlinedInput label="Features" />}
-            multiple
-            value={selectedFeatures}
-            onChange={(e) => setSelectedFeatures(e.target.value as string[])}
-            renderValue={(selected) => selected.join(", ")}
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
+    labelId="feature-select-label"
+    input={<OutlinedInput label="Features" />}
+    multiple
+    value={selectedFeatures}
+    onChange={(e) => setSelectedFeatures(e.target.value as string[])}
+    renderValue={(selected) => selected.join(", ")}
+    disabled={isNearestNeighborsSelected} // Disable dropdown if NearestNeighbors is selected
+    MenuProps={{
+      PaperProps: { style: { maxHeight: 224, width: 250 } },
+    }}
+  >
             {availableFeatures.map((feature) => (
               <MenuItem key={feature} value={feature}>
                 {feature}
@@ -332,6 +360,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             ))}
           </Select>
         </FormControl>
+        </Tooltip>
 
         {/* Run Button */}
         <Box display="flex" justifyContent="center" alignItems="center">
@@ -366,7 +395,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           </Box>
         ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
           <>
-            <WorkflowCard title="Comparative Analysis Results" description="">
+            <WorkflowCard title="Analysis Results" description="">
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
