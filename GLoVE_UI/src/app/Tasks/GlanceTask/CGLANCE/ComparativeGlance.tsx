@@ -459,7 +459,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                     >
                       ✕
                     </Button>
-                  </Box> */}a
+                  </Box> */}
                   <MetricSummary
                     cost={selectedDetails.TotalCost}
                     eff={selectedDetails.TotalEffectiveness}

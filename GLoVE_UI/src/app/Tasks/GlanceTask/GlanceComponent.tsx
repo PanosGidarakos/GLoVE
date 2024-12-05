@@ -79,7 +79,7 @@ const GlanceComponent: React.FC = () => {
       dispatch(umapReduce({ dataset_identifier: "affectedData", n_components: 2 }));
       dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }));
 
-    
+
     }
   }, [dispatch]);
 
@@ -91,7 +91,7 @@ const GlanceComponent: React.FC = () => {
           : viewOption === "affected"
             ? "affectedData"
             : "testData";
-      console.log("dataseid",datasetIdentifier)
+      console.log("dataseid", datasetIdentifier)
       // Check if UMAP data is already cached
       if (!umapCache[datasetIdentifier]) {
         dispatch(umapReduce({ dataset_identifier: datasetIdentifier, n_components: 2 }))
@@ -194,7 +194,21 @@ const GlanceComponent: React.FC = () => {
           />
         </WorkflowCard>
       );
-    } else return <Typography variant="body1">No UMAP data available.</Typography>;
+    } else {
+      return(
+        <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="300px" // Adjust the height to ensure proper centering
+      >
+        <CircularProgress size={50} />
+        <Typography variant="h6" sx={{ marginLeft: 2 }}>
+          Fetching Data...
+        </Typography>
+      </Box>
+      );
+    }
   };
 
 
@@ -219,7 +233,7 @@ const GlanceComponent: React.FC = () => {
       </Paper>
       <Box sx={styles.mainContent}>
         <Typography variant="h4" gutterBottom sx={styles.header}>
-        GLOVE: Global Counterfactual-based Visual Explanations
+          GLOVE: Global Counterfactual-based Visual Explanations
         </Typography>
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Data Exploration" />
@@ -310,23 +324,30 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
 
-       
+{selectedTab === 1 && (
+  <>
+    {glanceState.datasetLoading ? (
+      <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      height="300px" // Adjust the height to ensure proper centering
+    >
+      <CircularProgress size={50} />
+      <Typography variant="h6" sx={{ marginLeft: 2 }}>
+        Fetching Data...
+      </Typography>
+    </Box>
+    ) : (
+      <ComparativeGlance
+        availableCfMethods={glanceState.availableCfMethods}
+        availableActionStrategies={glanceState.availableActionStrategies}
+        availableFeatures={glanceState.availableFeatures.slice(0, -1)}
+      />
+    )}
+  </>
+)}
 
-        {selectedTab === 1 && (
-
-          <>
-            {glanceState.datasetLoading && <CircularProgress />}
-            {/* <ComparativeAnalysis/> */}
-
-            <ComparativeGlance
-              availableCfMethods={glanceState.availableCfMethods}
-              availableActionStrategies={glanceState.availableActionStrategies}
-              availableFeatures={glanceState.availableFeatures.slice(0, -1)}
-            />
-
-          </>
-
-        )}
 
       </Box>
     </Box>

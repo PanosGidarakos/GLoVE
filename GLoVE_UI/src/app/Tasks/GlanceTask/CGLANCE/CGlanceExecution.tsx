@@ -1,6 +1,6 @@
-import React, { useEffect,useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
-import {applyAffectedActions, runCGlance, setSelectedFeatures, umapReduce } from "../../../../store/slices/glanceSlice";
+import { applyAffectedActions, runCGlance, setSelectedFeatures, umapReduce } from "../../../../store/slices/glanceSlice";
 import {
   Button,
   Typography,
@@ -50,7 +50,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
   //   if (availableFeatures.length > 0 ) {
   //     setSelectedFeature(availableFeatures);
   //   }
-    
+
   // }, [availableCfMethods,availableFeatures,selectedFeature.length]);
   useEffect(() => {
     if (availableCfMethods.length > 0 && !cfMethod) {
@@ -83,7 +83,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
     }
   };
 
-  
+
 
   useEffect(() => {
     if (results) {
@@ -112,141 +112,141 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
       {/* Box container to arrange elements side by side */}
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
         {/* Dropdown for GCF Size */}
-        <Tooltip 
-        title="The number of actions to be generated in the end of the algorithm">
+        <Tooltip
+          title="The number of actions to be generated in the end of the algorithm">
 
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }} >
-          <InputLabel id="gcf-size-select-label">Number of CounterFactual Actions</InputLabel>
-          <Select
-           MenuProps={{
-            PaperProps: { style: { maxHeight: 224, width: 250 } },
-          }}
-          labelId="gcf-size-select-label"
-          
-          input={<OutlinedInput label="Number of CounterFactual Actions" />}
+          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }} >
+            <InputLabel id="gcf-size-select-label">Number of CounterFactual Actions</InputLabel>
+            <Select
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 224, width: 250 } },
+              }}
+              labelId="gcf-size-select-label"
 
-            value={gcfSize}
+              input={<OutlinedInput label="Number of CounterFactual Actions" />}
 
-            onChange={(e) => setGcfSize(Number(e.target.value))}
-          >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
-              
-              <MenuItem key={value} value={value}>
-                {value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+              value={gcfSize}
+
+              onChange={(e) => setGcfSize(Number(e.target.value))}
+            >
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+
+                <MenuItem key={value} value={value}>
+                  {value}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Tooltip>
-        
+
 
         {/* Multi-Select for Features */}
 
-        </Box>
-        <Box display="flex" justifyContent="flex-start" marginTop={2}>
+      </Box>
+      <Box display="flex" justifyContent="flex-start" marginTop={2}>
         <Button
           variant="outlined"
           onClick={() => setAdvancedOptionsOpen(!advancedOptionsOpen)}
         >
-          
+
           {advancedOptionsOpen ? 'Hide Advanced Options' : 'Show Advanced Options'}
         </Button>
       </Box>
       <Collapse in={advancedOptionsOpen}>
-      <Box display="flex" gap={1} marginTop={2} flexWrap="wrap">
+        <Box display="flex" gap={1} marginTop={2} flexWrap="wrap">
 
-        {/* Counterfactual Method Selection Dropdown */}
-        <Tooltip title="Methods that generate candidate counterfactual explanations">
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
-          <Select
-            labelId="cf-method-select-label"
-            input={<OutlinedInput label="Local Counterfactual Method" />}
-            value={cfMethod}
-            onChange={(e) => setCfMethod(e.target.value as string)}
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
-            {availableCfMethods.map((method) => (
-              <MenuItem key={method} value={method}>
-                {method}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        </Tooltip>
+          {/* Counterfactual Method Selection Dropdown */}
+          <Tooltip title="Methods that generate candidate counterfactual explanations">
+            <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+              <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
+              <Select
+                labelId="cf-method-select-label"
+                input={<OutlinedInput label="Local Counterfactual Method" />}
+                value={cfMethod}
+                onChange={(e) => setCfMethod(e.target.value as string)}
+                MenuProps={{
+                  PaperProps: { style: { maxHeight: 224, width: 250 } },
+                }}
+              >
+                {availableCfMethods.map((method) => (
+                  <MenuItem key={method} value={method}>
+                    {method}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
 
-        {/* Action Choice Strategy Selection Dropdown */}
-        <Tooltip title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria">
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
-          <Select
-           MenuProps={{
-            PaperProps: { style: { maxHeight: 224, width: 250 } },
-          }}
-          labelId="action-choice-strategy-select-label"
-          input={<OutlinedInput label="Action Choice Strategy" />}
-            value={actionChoiceStrategy}
-            onChange={(e) => setActionChoiceStrategy(e.target.value as string)}
-          >
-            {availableActionStrategies.map((strategy) => (
-              <MenuItem key={strategy} value={strategy}>
-                {strategy}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        </Tooltip>
+          {/* Action Choice Strategy Selection Dropdown */}
+          <Tooltip title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria">
+            <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+              <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
+              <Select
+                MenuProps={{
+                  PaperProps: { style: { maxHeight: 224, width: 250 } },
+                }}
+                labelId="action-choice-strategy-select-label"
+                input={<OutlinedInput label="Action Choice Strategy" />}
+                value={actionChoiceStrategy}
+                onChange={(e) => setActionChoiceStrategy(e.target.value as string)}
+              >
+                {availableActionStrategies.map((strategy) => (
+                  <MenuItem key={strategy} value={strategy}>
+                    {strategy}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
 
-        <Tooltip title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling.">
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="feature-select-label">Features</InputLabel>
-          <Select
-            labelId="feature-select-label"
-            input={<OutlinedInput label=" Features" />}
-            multiple
-            value={selectedFeature}
-           
-            onChange={handleFeatureChange}
-            renderValue={(selected) => (
-              <Box>
-              {selected.join(', ')}
-            </Box>
-            )}
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
-            {availableFeatures.map((feature) => (
-              <MenuItem key={feature} value={feature}>
-                {feature}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        </Tooltip>
+          <Tooltip title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling.">
+            <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+              <InputLabel id="feature-select-label">Features</InputLabel>
+              <Select
+                labelId="feature-select-label"
+                input={<OutlinedInput label=" Features" />}
+                multiple
+                value={selectedFeature}
+
+                onChange={handleFeatureChange}
+                renderValue={(selected) => (
+                  <Box>
+                    {selected.join(', ')}
+                  </Box>
+                )}
+                MenuProps={{
+                  PaperProps: { style: { maxHeight: 224, width: 250 } },
+                }}
+              >
+                {availableFeatures.map((feature) => (
+                  <MenuItem key={feature} value={feature}>
+                    {feature}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Tooltip>
         </Box>
       </Collapse>
 
 
-        
-        <Box display="flex" justifyContent="center" alignItems="center" marginTop={2} >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleRunCGlance}
-              disabled={loading || gcfSize <= 0 || !cfMethod}
-            >
-              Run GLoVE
-            </Button>
-            {/* {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />} */}
-            {error && (
-            <Typography color="error" style={{ marginTop: 16 }}>
+
+      <Box display="flex" justifyContent="center" alignItems="center" marginTop={2} >
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleRunCGlance}
+          disabled={loading || gcfSize <= 0 || !cfMethod}
+        >
+          Run GLoVE
+        </Button>
+        {/* {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />} */}
+        {error && (
+          <Typography color="error" style={{ marginTop: 16 }}>
             No counterfactuals found for any of the query points! Kindly check your configuration.
-            </Typography>
-          )}
-        </Box>
+          </Typography>
+        )}
+      </Box>
 
     </>
   );
