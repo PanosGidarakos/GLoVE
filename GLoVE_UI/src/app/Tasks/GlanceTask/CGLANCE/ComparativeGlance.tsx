@@ -61,17 +61,17 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
 
-  
+
 
   const handleCfMethodChange = (value: string[]) => {
     setCfMethod(value);
-  
+
     // Automatically select all features if NearestNeighbors is chosen
     if (value.includes("NearestNeighbors")) {
       setSelectedFeatures(availableFeatures);
     }
   };
-  
+
   // Check if NearestNeighbors is selected
   const isNearestNeighborsSelected = cfMethod.includes("NearestNeighbors");
 
@@ -92,6 +92,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     setShowPlots(true); // Show plots again
   };
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Add state for error messages
 
 
   const handleRun = () => {
@@ -107,8 +108,14 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       .then((data) => {
         setResults(data); // Update results on success
       })
-      .catch(() => {
-        setResults(null);
+      .catch((error) => {
+        setResults(null); // Clear results if there's an error
+        if (error?.detail) {
+          console.log("error", error)
+          setErrorMessage(error.detail); // Set the error message from the response
+        } else {
+          setErrorMessage("An unexpected error occurred."); // Default error message
+        }
       });
   };
 
@@ -138,7 +145,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     }))
     : [];
 
-    console.log("dis",scatterPlotData)
+  console.log("dis", scatterPlotData)
 
 
   const scatterPlotSpec = {
@@ -226,8 +233,15 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   };
 
   return (
-    <>
+    <Box marginTop={2}>
+    <Box>
+        <Typography variant="h6" gutterBottom>
+      Counterfactual Analysis Configuration:
+    </Typography>
+    </Box>
+  
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
+
         {/* Execution Mode Dropdown */}
         <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
           <InputLabel id="execution-mode-select-label">Execution Mode</InputLabel>
@@ -244,127 +258,127 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         </FormControl>
 
         {/* GCF Size */}
-        <Tooltip 
-        title="The number of actions to be generated in the end of the algorithm"
-        placement="right-start">
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="gcf-size-select-label">Number of Counterfactual Actions</InputLabel>
-          <Select
-            labelId="gcf-size-select-label"
-            input={<OutlinedInput label="Number of Counterfactual Actions" />}
-            multiple={isMultiSelect("Number of Counterfactual Actions")}
-            value={gcfSize}
-            onChange={(e) => setGcfSize(isMultiSelect("Number of Counterfactual Actions") ? (e.target.value as number[]) : [Number(e.target.value)])}
-            renderValue={(selected) =>
-              Array.isArray(selected) ? selected.join(", ") : selected
-            }
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
-              <MenuItem key={value} value={value}>
-                {value}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Tooltip
+          title="The number of actions to be generated in the end of the algorithm"
+          placement="right-start">
+          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+            <InputLabel id="gcf-size-select-label">Number of Counterfactual Actions</InputLabel>
+            <Select
+              labelId="gcf-size-select-label"
+              input={<OutlinedInput label="Number of Counterfactual Actions" />}
+              multiple={isMultiSelect("Number of Counterfactual Actions")}
+              value={gcfSize}
+              onChange={(e) => setGcfSize(isMultiSelect("Number of Counterfactual Actions") ? (e.target.value as number[]) : [Number(e.target.value)])}
+              renderValue={(selected) =>
+                Array.isArray(selected) ? selected.join(", ") : selected
+              }
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 224, width: 250 } },
+              }}
+            >
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+                <MenuItem key={value} value={value}>
+                  {value}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Tooltip>
 
         {/* Counterfactual Method */}
         <Tooltip title="Methods that generate candidate counterfactual explanations"
-        placement="right-start">
+          placement="right-start">
 
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
-          <Select
-            labelId="cf-method-select-label"
-            input={<OutlinedInput label="Local Counterfactual Method" />}
-            multiple={isMultiSelect("Local Counterfactual Method")}
-            value={cfMethod}
-            onChange={(e) =>
-              setCfMethod(
-                isMultiSelect("Local Counterfactual Method") ? (e.target.value as string[]) : [(e.target.value as string)]
-              )
-            }
-            renderValue={(selected) =>
-              Array.isArray(selected) ? selected.join(", ") : selected
-            }
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
-            {availableCfMethods.map((method) => (
-              <MenuItem key={method} value={method}>
-                {method}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+            <InputLabel id="cf-method-select-label">Local Counterfactual Method</InputLabel>
+            <Select
+              labelId="cf-method-select-label"
+              input={<OutlinedInput label="Local Counterfactual Method" />}
+              multiple={isMultiSelect("Local Counterfactual Method")}
+              value={cfMethod}
+              onChange={(e) =>
+                setCfMethod(
+                  isMultiSelect("Local Counterfactual Method") ? (e.target.value as string[]) : [(e.target.value as string)]
+                )
+              }
+              renderValue={(selected) =>
+                Array.isArray(selected) ? selected.join(", ") : selected
+              }
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 224, width: 250 } },
+              }}
+            >
+              {availableCfMethods.map((method) => (
+                <MenuItem key={method} value={method}>
+                  {method}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Tooltip>
 
         {/* Action Choice Strategy */}
         <Tooltip title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria"
-        placement="right-start">
+          placement="right-start">
 
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
-          <Select
-            labelId="action-choice-strategy-select-label"
-            input={<OutlinedInput label="Action Choice Strategy" />}
-            multiple={isMultiSelect("Action Choice Strategy")}
-            value={actionChoiceStrategy}
-            onChange={(e) =>
-              setActionChoiceStrategy(
-                isMultiSelect("Action Choice Strategy") ? (e.target.value as string[]) : [(e.target.value as string)]
-              )
-            }
-            renderValue={(selected) =>
-              Array.isArray(selected) ? selected.join(", ") : selected
-            }
-            MenuProps={{
-              PaperProps: { style: { maxHeight: 224, width: 250 } },
-            }}
-          >
-            {availableActionStrategies.map((strategy) => (
-              <MenuItem key={strategy} value={strategy}>
-                {strategy}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+            <InputLabel id="action-choice-strategy-select-label">Action Choice Strategy</InputLabel>
+            <Select
+              labelId="action-choice-strategy-select-label"
+              input={<OutlinedInput label="Action Choice Strategy" />}
+              multiple={isMultiSelect("Action Choice Strategy")}
+              value={actionChoiceStrategy}
+              onChange={(e) =>
+                setActionChoiceStrategy(
+                  isMultiSelect("Action Choice Strategy") ? (e.target.value as string[]) : [(e.target.value as string)]
+                )
+              }
+              renderValue={(selected) =>
+                Array.isArray(selected) ? selected.join(", ") : selected
+              }
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 224, width: 250 } },
+              }}
+            >
+              {availableActionStrategies.map((strategy) => (
+                <MenuItem key={strategy} value={strategy}>
+                  {strategy}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Tooltip>
 
         {/* Features */}
         <Tooltip title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling."
-        placement="right-start">
+          placement="right-start">
 
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-          <InputLabel id="feature-select-label">Features</InputLabel>
-          <Select
-    labelId="feature-select-label"
-    input={<OutlinedInput label="Features" />}
-    multiple
-    value={selectedFeatures}
-    onChange={(e) => setSelectedFeatures(e.target.value as string[])}
-    renderValue={(selected) => selected.join(", ")}
-    disabled={isNearestNeighborsSelected} // Disable dropdown if NearestNeighbors is selected
-    MenuProps={{
-      PaperProps: { style: { maxHeight: 224, width: 250 } },
-    }}
-  >
-            {availableFeatures.map((feature) => (
-              <MenuItem key={feature} value={feature}>
-                {feature}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+            <InputLabel id="feature-select-label">Features</InputLabel>
+            <Select
+              labelId="feature-select-label"
+              input={<OutlinedInput label="Features" />}
+              multiple
+              value={selectedFeatures}
+              onChange={(e) => setSelectedFeatures(e.target.value as string[])}
+              renderValue={(selected) => selected.join(", ")}
+              disabled={isNearestNeighborsSelected} // Disable dropdown if NearestNeighbors is selected
+              MenuProps={{
+                PaperProps: { style: { maxHeight: 224, width: 250 } },
+              }}
+            >
+              {availableFeatures.map((feature) => (
+                <MenuItem key={feature} value={feature}>
+                  {feature}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Tooltip>
 
         {/* Run Button */}
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <Button
+        <Box display="flex" justifyContent="center" alignItems="center" width="100%" marginTop={3}>
+        <Button
             variant="contained"
             color="primary"
             onClick={handleRun}
@@ -395,7 +409,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           </Box>
         ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
           <>
-            <WorkflowCard title="Analysis Results" description="">
+            <WorkflowCard title="Counterfactual Analysis Results" description="">
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>
@@ -403,7 +417,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                       <TableCell>{executionMode}</TableCell>
                       <TableCell>Total Cost</TableCell>
                       <TableCell>Total Effectiveness %</TableCell>
-                      <TableCell>Details</TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -437,15 +451,15 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             {/* Render the details if selectedDetails is not null */}
             {selectedDetails && (
               <>
-              
-              
-              <Box marginTop={4}>
-                <WorkflowCard
-                  title={"Metric Summary"}
-                  description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
+
+
+                <Box marginTop={4}>
+                  <WorkflowCard
+                    title={"Metric Summary"}
+                    description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
               Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
-                >
-                  {/* <Box
+                  >
+                    {/* <Box
                     display="flex"
                     justifyContent="flex-end"
                     alignItems="flex-end"
@@ -460,12 +474,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                       ✕
                     </Button>
                   </Box> */}
-                  <MetricSummary
-                    cost={selectedDetails.TotalCost}
-                    eff={selectedDetails.TotalEffectiveness}
-                    actions={selectedDetails.actions}
-                    instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
-                  />
+                    <MetricSummary
+                      cost={selectedDetails.TotalCost}
+                      eff={selectedDetails.TotalEffectiveness}
+                      actions={selectedDetails.actions}
+                      instances={selectedDetails.applyAffectedActions["Chosen_Action"]}
+                    />
                   </WorkflowCard>
                   <FormControlLabel
                     control={
@@ -501,7 +515,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   ) : (<UmapGlanceComponent applied_aff_data={selectedDetails.umapOfAppliedAffected.data} aff_data={glanceState.umapReduceResults} actions={selectedDetails.affected_clusters} eff_cost_actions={selectedDetails.eff_cost_actions} />
                   )}
 
-              </Box>
+                </Box>
               </>
             )}
 
@@ -510,7 +524,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               <Grid container spacing={2} marginTop={"20px"}>
                 <Grid item xs={12} md={4}>
                   <WorkflowCard
-                    title="Cost-Effectiveness Scatter Plot"
+                    title="Cost-Effectiveness"
                     description="Visualizes the performance of the algorithm for different parameter configurations."
                   >
                     <ResponsiveVegaLite
@@ -526,7 +540,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <WorkflowCard
-                    title="Cost by Parameter Bar Plot"
+                    title="Cost by Parameter"
                     description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
                   >
                     <ResponsiveVegaLite
@@ -542,7 +556,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 </Grid>
                 <Grid item xs={12} md={4}>
                   <WorkflowCard
-                    title="Effectiveness by Parameter Bar Plot"
+                    title="Effectiveness by Parameter"
                     description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
                   >
                     <ResponsiveVegaLite
@@ -560,12 +574,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             )}
           </>
         ) : (
-          <Typography>Run Something</Typography>
+          <Typography></Typography>
         )
         }
       </Box>
 
-    </>
+    </Box>
   );
 };
 

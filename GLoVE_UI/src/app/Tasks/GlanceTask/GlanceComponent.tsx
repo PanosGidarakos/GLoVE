@@ -72,6 +72,7 @@ const GlanceComponent: React.FC = () => {
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({});
 
 
+
   useEffect(() => {
     if (!glanceState.loadDatasetAndModelResult) {
       dispatch(fetchInitialGlanceData());
@@ -151,18 +152,16 @@ const GlanceComponent: React.FC = () => {
     if (!showUMAPScatter && viewOption === "affected") {
       // Render Raw Scatter when checkbox is unchecked
       return (
-        <WorkflowCard title="Affected Data Scatter Plot" description="Visualizes Affected instances, each labeled with the prediction given by the model
- ">
+       
           <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
-        </WorkflowCard>);
+       );
     }
     if (!showUMAPScatter && viewOption === "test") {
       // Render Raw Scatter when checkbox is unchecked
       return (
-        <WorkflowCard title="Test Data Scatter Plot" description="Visualizes Test instances, each labeled with the prediction given by the model">
 
           <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
-        </WorkflowCard>)
+       )
     }
     if (glanceState.loading) {
       // Show loader when UMAP data is still loading
@@ -186,27 +185,27 @@ const GlanceComponent: React.FC = () => {
       const umapData = umapCache[datasetKey].reduced_data;
       // Use `umapData` for your visualization logic
       return (
-        <WorkflowCard title={`${capitalizeFirstLetter(viewOption)} Data Scatter Plot`}
-          description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>
+        // <WorkflowCard title={`${capitalizeFirstLetter(viewOption)} Data`}
+        //   description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>
           <UmapScatter
             data={umapData}
             color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
           />
-        </WorkflowCard>
+        // </WorkflowCard>
       );
     } else {
-      return(
+      return (
         <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="300px" // Adjust the height to ensure proper centering
-      >
-        <CircularProgress size={50} />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>
-          Fetching Data...
-        </Typography>
-      </Box>
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="300px" // Adjust the height to ensure proper centering
+        >
+          <CircularProgress size={50} />
+          <Typography variant="h6" sx={{ marginLeft: 2 }}>
+            Fetching Data...
+          </Typography>
+        </Box>
       );
     }
   };
@@ -253,7 +252,8 @@ const GlanceComponent: React.FC = () => {
                   Fetching Data...
                 </Typography>
               </Box>
-            )}          {glanceState.loadDatasetAndModelResult && !glanceState.datasetLoading && (
+            )}          
+            {glanceState.loadDatasetAndModelResult && !glanceState.datasetLoading && (
               <Box>
                 <FormControlLabel
                   control={
@@ -264,6 +264,8 @@ const GlanceComponent: React.FC = () => {
                     />
                   }
                   label="Show Only Affected"
+                  sx={{ marginBottom: 2 }} // Add spacing below the switch
+
                 />
 
 
@@ -279,6 +281,8 @@ const GlanceComponent: React.FC = () => {
                         />
                       }
                       label="Enable Dimensionality Reduction (UMAP)"
+                      sx={{ marginTop: 2 }} // Add spacing above the UMAP switch
+
                     />
                     {renderScatterPlot()}
                   </>
@@ -287,7 +291,6 @@ const GlanceComponent: React.FC = () => {
                   <>
                     <WorkflowCard title="Affected Data" description="Instances from the test dataset where the model's prediction was equal to 0.">
                       <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
-                    </WorkflowCard>
                     <FormControlLabel
                       control={
                         <Switch
@@ -299,6 +302,8 @@ const GlanceComponent: React.FC = () => {
                       label="Enable Dimensionality Reduction (UMAP)"
                     />
                     {renderScatterPlot()}
+                    </WorkflowCard>
+
                   </>
                 )}
                 {viewOption === "test" && glanceState.loadDatasetAndModelResult.X_test && (
@@ -324,29 +329,29 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
 
-{selectedTab === 1 && (
-  <>
-    {glanceState.datasetLoading ? (
-      <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      height="300px" // Adjust the height to ensure proper centering
-    >
-      <CircularProgress size={50} />
-      <Typography variant="h6" sx={{ marginLeft: 2 }}>
-        Fetching Data...
-      </Typography>
-    </Box>
-    ) : (
-      <ComparativeGlance
-        availableCfMethods={glanceState.availableCfMethods}
-        availableActionStrategies={glanceState.availableActionStrategies}
-        availableFeatures={glanceState.availableFeatures.slice(0, -1)}
-      />
-    )}
-  </>
-)}
+        {selectedTab === 1 && (
+          <>
+            {glanceState.datasetLoading ? (
+              <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="300px" // Adjust the height to ensure proper centering
+              >
+                <CircularProgress size={50} />
+                <Typography variant="h6" sx={{ marginLeft: 2 }}>
+                  Fetching Data...
+                </Typography>
+              </Box>
+            ) : (
+              <ComparativeGlance
+                availableCfMethods={glanceState.availableCfMethods}
+                availableActionStrategies={glanceState.availableActionStrategies}
+                availableFeatures={glanceState.availableFeatures.slice(0, -1)}
+              />
+            )}
+          </>
+        )}
 
 
       </Box>

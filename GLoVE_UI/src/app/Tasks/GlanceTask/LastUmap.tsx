@@ -101,27 +101,7 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
 
    
 <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-<FormControl fullWidth margin="normal">
-          <InputLabel id="select-action-label">Apply</InputLabel>
-          <Select
-            labelId="select-action-label"
-            value={selectedAction}
-            onChange={handleChange}
-            label="Apply"
-          >
-            {/* Dynamically create dropdown options from actions */}
-            {actions.map((action: any) => {
-  // Extract the number from the key dynamically
-  const displayText = action.key.replace(/^Action(\d+)_Prediction$/, 'Action$1');
-  
-  return (
-    <MenuItem key={action.key} value={action.key}>
-      {displayText}
-    </MenuItem>
-  );
-})}
-          </Select>
-        </FormControl>
+
         <Box width="100%" minWidth="100px">
             <DataGrid
               rows={tableRows}
@@ -142,6 +122,27 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
         </Box>
 
         <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="select-action-label">Apply</InputLabel>
+          <Select
+            labelId="select-action-label"
+            value={selectedAction}
+            onChange={handleChange}
+            label="Apply"
+          >
+            {/* Dynamically create dropdown options from actions */}
+            {actions.map((action: any) => {
+  // Extract the number from the key dynamically
+  const displayText = action.key.replace(/^Action(\d+)_Prediction$/, 'Action$1');
+  
+  return (
+    <MenuItem key={action.key} value={action.key}>
+      {displayText}
+    </MenuItem>
+  );
+})}
+          </Select>
+        </FormControl>
         <ResponsiveVegaLite spec={spec} minWidth={100} aspectRatio={2/1} actions={false} />
     </WorkflowCard>   
      </Paper>  

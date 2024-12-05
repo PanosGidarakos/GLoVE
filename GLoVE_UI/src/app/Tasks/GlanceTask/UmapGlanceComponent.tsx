@@ -20,7 +20,7 @@ console.log("applie",applied_aff_data)
   
     <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
-        <WorkflowCard title="Action Selection Scatter Plot"  description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction." >
+        <WorkflowCard title="Action Selection"  description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction." >
           
           <UmapScatterGlance
           data={aff_data["affectedData"].reduced_data}
@@ -31,7 +31,7 @@ console.log("applie",applied_aff_data)
         </WorkflowCard>
       </Grid>
       <Grid item xs={12} md={6}>
-        <WorkflowCard title="Post-Action Selection Scatter Plot" description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action." >
+        <WorkflowCard title="Post-Action Selection" description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action." >
           <UmapScatterGlance
           data={applied_aff_data.reduced_data}
           color=""

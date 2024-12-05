@@ -181,7 +181,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
     description: 'Two scatter plots with a shared legend',
     hconcat: [
       {
-        title: 'Action Selection Scatter Plot',
+        title: 'Action Selection',
         data: { values: data1 },
         mark: { type: 'circle', opacity: 0.8 },
         params: [{
@@ -206,7 +206,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
       },
       {
-        title: 'Post-Action Selection Scatter Plot',
+        title: 'Post-Action Selection',
         data: { values: data2 },
         mark: { type: 'circle', opacity: 0.8 },
         params: [{
@@ -283,7 +283,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
 
-          <WorkflowCard title="Action Selection Scatter Plot"
+          <WorkflowCard title="Action Selection"
             description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction.">
             <ResponsiveVegaLite
               spec={spec(transformedData1)}
@@ -301,7 +301,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
 
-          <WorkflowCard title="Post-Action Selection Scatter Plot"
+          <WorkflowCard title="Post-Action Selection"
 
             description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.">
             <ResponsiveVegaLite spec={spec(transformedData2)}
@@ -336,6 +336,34 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', marginTop: '20px' }}>
             {/* Left side (Dropdown and DataGrid) */}
             {/* Dropdown (Form Control) */}
+           
+
+            {/* DataGrid (just below the dropdown) */}
+            <Box width="100%" minWidth="100px">
+              <DataGrid
+                rows={tableRows}
+                columns={tableColumns}
+                autoHeight
+                disableColumnMenu
+                sx={{ marginTop: 1 }}
+                initialState={{
+                  pagination: {
+                    paginationModel: {
+                      pageSize: 5,
+                    },
+                  }
+                }
+                }
+                pageSizeOptions={[5, 10]}
+              />
+            </Box>
+          </Box>
+
+          <Grid >
+          
+
+            {/* Right side (Vega-Lite Chart) */}
+            <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
             <FormControl variant="outlined" fullWidth>
               <InputLabel>Apply</InputLabel>
               <Select
@@ -362,32 +390,6 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
                 })}
               </Select>
             </FormControl>
-
-            {/* DataGrid (just below the dropdown) */}
-            <Box width="100%" minWidth="100px">
-              <DataGrid
-                rows={tableRows}
-                columns={tableColumns}
-                autoHeight
-                disableColumnMenu
-                sx={{ marginTop: 1 }}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 5,
-                    },
-                  }
-                }
-                }
-                pageSizeOptions={[5, 10]}
-              />
-            </Box>
-          </Box>
-
-          <Grid >
-
-            {/* Right side (Vega-Lite Chart) */}
-            <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
               <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} aspectRatio={10 / 1} />
 
             </WorkflowCard>
