@@ -227,7 +227,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
           onClick={handleRunCGlance}
           disabled={loading || gcfSize <= 0 || !cfMethod}
         >
-          Run GLoVE
+          Run GLOVES
         </Button>
         {/* {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />} */}
         {error && (

@@ -155,7 +155,7 @@ const Login = () => {
             color: (theme) => theme.palette.text.primary,
           }}
         >
-          Welcome to GLoVE
+          Welcome to GLOVES
         </Typography>
         <Typography
           variant="subtitle1"

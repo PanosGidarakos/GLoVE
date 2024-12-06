@@ -24,9 +24,9 @@ const styles = {
     backgroundColor: '#f9f9f9',
   },
   mainContent: {
-    width: '75%',
-    padding: '16px',
-    margin: '20px',
+    width: '99%',
+    padding: '-1px',
+    // margin: '10px',
   },
   header: {
     textAlign: 'center',
@@ -76,7 +76,7 @@ const GlanceComponent: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<string>("COMPAS Dataset");
   const [selectedModel, setSelectedModel] = useState<string>("XGBoost");
 
-  console.log("daa,model",selectedDataset,selectedModel)
+  console.log("daa,model", selectedDataset, selectedModel)
 
 
 
@@ -167,16 +167,16 @@ const GlanceComponent: React.FC = () => {
     if (!showUMAPScatter && viewOption === "affected") {
       // Render Raw Scatter when checkbox is unchecked
       return (
-       
-          <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
-       );
+
+        <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.affected} name="Affected Data" />
+      );
     }
     if (!showUMAPScatter && viewOption === "test") {
       // Render Raw Scatter when checkbox is unchecked
       return (
 
-          <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
-       )
+        <ScatterPlotComponentForMainPage data={glanceState.loadDatasetAndModelResult.X_test} name="Test Data" />
+      )
     }
     if (glanceState.loading) {
       // Show loader when UMAP data is still loading
@@ -202,10 +202,10 @@ const GlanceComponent: React.FC = () => {
       return (
         // <WorkflowCard title={`${capitalizeFirstLetter(viewOption)} Data`}
         //   description={`Visualizes ${capitalizeFirstLetter(viewOption)} instances, each labeled with the prediction given by the model`}>
-          <UmapScatter
-            data={umapData}
-            color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
-          />
+        <UmapScatter
+          data={umapData}
+          color={viewOption === "affected" ? "" : "label"} // Adjust color logic as needed
+        />
         // </WorkflowCard>
       );
     } else {
@@ -240,13 +240,24 @@ const GlanceComponent: React.FC = () => {
   console.log("GlanceSate", glanceState)
 
   return (
-    <Box sx={styles.layoutContainer}>
-    
+    <Box>
+
       <Box sx={styles.mainContent}>
-        <Typography variant="h4" gutterBottom sx={styles.header}>
-          GLOVE: Global Counterfactual-based Visual Explanations
-        </Typography>
-        <Stepper activeStep={activeStep} alternativeLabel sx={{marginBottom:2, marginTop:2}} >
+      <Typography
+  variant="h4"
+  gutterBottom
+  sx={{
+    ...styles.header,
+    background: "linear-gradient(90deg, green, blue)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    fontWeight: "bold", // Optional, makes the text bold
+  }}
+>
+  GLOVES: Global Counterfactual-based Visual Explanations
+</Typography>
+
+        <Stepper activeStep={activeStep} alternativeLabel sx={{ marginBottom: 2, marginTop: 2 }} >
           {steps.map((label, index) => (
             <Step key={label} onClick={() => handleStepClick(index)}>
               <StepLabel
@@ -260,20 +271,20 @@ const GlanceComponent: React.FC = () => {
             </Step>
           ))}
         </Stepper>
-        
+
         {/* <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Dataset & Model Selection" />
 
           <Tab label="Data Exploration" />
           <Tab label="GLoVE Analysis" />
         </Tabs> */}
-        {selectedTab===0 &&(
- <DataModelSetup
- selectedDataset={selectedDataset}
- setSelectedDataset={setSelectedDataset}
- selectedModel={selectedModel}
- setSelectedModel={setSelectedModel}
-/>        )}
+        {selectedTab === 0 && (
+          <DataModelSetup
+            selectedDataset={selectedDataset}
+            setSelectedDataset={setSelectedDataset}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
+          />)}
         {selectedTab === 1 && (
           <Box>
             {glanceState.datasetLoading && (
@@ -288,7 +299,7 @@ const GlanceComponent: React.FC = () => {
                   Fetching Data...
                 </Typography>
               </Box>
-            )}          
+            )}
             {glanceState.loadDatasetAndModelResult && !glanceState.datasetLoading && (
               <Box>
                 <FormControlLabel
@@ -307,30 +318,30 @@ const GlanceComponent: React.FC = () => {
                 {viewOption === "affected" && glanceState.loadDatasetAndModelResult.affected && (
                   <>
                     <WorkflowCard
-                    title={`Affected Data for ${selectedDataset} with ${selectedModel} model`} 
-                    description="Instances from the test dataset where the model's prediction was equal to 0.">
+                      title={`Affected Data for ${selectedDataset} with ${selectedModel} model`}
+                      description="Instances from the test dataset where the model's prediction was equal to 0.">
                       <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={showUMAPScatter}
-                          onChange={(e) => setShowUMAPScatter(e.target.checked)}
-                          color="primary"
-                        />
-                      }
-                      label="Enable Dimensionality Reduction (UMAP)"
-                    />
-                    {renderScatterPlot()}
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            checked={showUMAPScatter}
+                            onChange={(e) => setShowUMAPScatter(e.target.checked)}
+                            color="primary"
+                          />
+                        }
+                        label="Enable Dimensionality Reduction (UMAP)"
+                      />
+                      {renderScatterPlot()}
                     </WorkflowCard>
 
                   </>
                 )}
                 {viewOption === "test" && glanceState.loadDatasetAndModelResult.X_test && (
                   <>
-                    <WorkflowCard 
-                    title={`Test Data for ${selectedDataset} with ${selectedModel} model`} 
+                    <WorkflowCard
+                      title={`Test Data for ${selectedDataset} with ${selectedModel} model`}
 
-                    description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
+                      description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
                       <DataTable title="Test Data" data={glanceState.loadDatasetAndModelResult.X_test} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
