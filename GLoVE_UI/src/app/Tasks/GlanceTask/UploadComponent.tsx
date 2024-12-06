@@ -59,7 +59,6 @@ const UploadComponent: React.FC = () => {
     }
   };
   const glanceState = useAppSelector((state) => state.glance);
-  console.log(glanceState)
 
 
 

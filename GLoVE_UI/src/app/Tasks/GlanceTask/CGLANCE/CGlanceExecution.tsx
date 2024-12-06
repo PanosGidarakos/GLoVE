@@ -41,17 +41,6 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
   const [selectedFeature, setSelectedFeature] = useState<string[]>([]); // Start with empty array
 
   const [results, setResults] = React.useState<any | null>(null);
-  // console.log("selectedFeatures",selectedFeatures)
-
-  // useEffect(() => {
-  //   if (availableCfMethods.length > 0 && !cfMethod) {
-  //     setCfMethod(availableCfMethods[0]);
-  //   }
-  //   if (availableFeatures.length > 0 ) {
-  //     setSelectedFeature(availableFeatures);
-  //   }
-
-  // }, [availableCfMethods,availableFeatures,selectedFeature.length]);
   useEffect(() => {
     if (availableCfMethods.length > 0 && !cfMethod) {
       setCfMethod(availableCfMethods[0]);

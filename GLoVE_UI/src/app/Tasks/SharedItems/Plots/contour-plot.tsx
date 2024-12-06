@@ -46,7 +46,6 @@ const ContourPlot = (props: IContourplot) => {
         })
       })
     })
-    console.log(data)
     return data
   }
 

@@ -311,19 +311,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               maxHeight={1000}
               maxWidth={1000}
               aspectRatio={2 / 1}
-            // onNewView={(view) => {
-            //   view.addEventListener("click", (_e, item) => {
-            //     if (item && item.datum) {
-            //       const clickedValue = item.datum[colorField];
-            //       const actionIndex = parseInt(clickedValue, 10) - 1;
-            //       if (actionIndex >= 0 && actionIndex < actions.length) {
-            //         console.log("Clicked Cluster:", clickedValue, "Value:", actions[actionIndex]);
-            //       } else {
-            //         console.log("Clicked Cluster:", clickedValue, "No corresponding action found");
-            //       }
-            //     }
-            //   });
-            // }} 
+            
             />
           </WorkflowCard>
         </Grid>

@@ -92,7 +92,6 @@ const GlanceComponent: React.FC = () => {
           : viewOption === "affected"
             ? "affectedData"
             : "testData";
-      console.log("dataseid", datasetIdentifier)
       // Check if UMAP data is already cached
       if (!umapCache[datasetIdentifier]) {
         dispatch(umapReduce({ dataset_identifier: datasetIdentifier, n_components: 2 }))
@@ -132,7 +131,6 @@ const GlanceComponent: React.FC = () => {
       });
 
       setProcessedDataset(newDataset); // Set the state
-      // console.log("processedDataset",processedDataset)
     }
   }, [glanceState.runGlanceResult,]);
 

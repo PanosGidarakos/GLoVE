@@ -168,7 +168,6 @@ export const runCGlance = createAsyncThunk(
           },
         }
       );
-      // console.log(response);
       return { data: response.data, size: gcf_size.toString(), method: cf_method, strategy: action_choice_strategy }; // Return data and use size as key for simplicity
     }
   );
@@ -208,7 +207,6 @@ export const applyAffectedActions = createAsyncThunk(
   "glance/applyAffectedActions",
   async () => {
     const response = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-    // console.log(response);
     return response.data;
   }
 );
@@ -260,14 +258,126 @@ export const uploadModel = createAsyncThunk(
   }
 );
 
+export const runCGlanceComparative = createAsyncThunk(
+  "glance/runCGlanceComparative",
+  async ({ sizes, methods, strategies, selectedFeatures, caseType }: ComparativeParams & { caseType: string }, { dispatch }) => {
+    const results: any = {};
+
+    const performUmapReduce = async (appliedData: any) => {
+      return await axios.post(
+        `${API_BASE_URL}umap-reduce/`,
+        { dataset_identifier: "appliedAffected", data: appliedData },
+        {
+          params: { n_components: 2 },
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    };
+
+    switch (caseType) {
+      case "Number of Counterfactual Actions":
+        for (const size of sizes || []) {
+          const response = await axios.post(
+            `${API_BASE_URL}run-c_glance`,
+            selectedFeatures?.length ? selectedFeatures : null,
+            {
+              params: {
+                gcf_size: size,
+                cf_method: methods?.[0],
+                action_choice_strategy: strategies?.[0],
+              },
+            }
+          );
+
+          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+          const umapResult = await dispatch(
+            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+          ).unwrap();
+
+          results[`size_${size}`] = {
+            ...response.data,
+            applyAffectedActions: applyAffectedResponse.data,
+            umapOfAppliedAffected: umapResult,
+          };
+        }
+        break;
+
+      case "Local Counterfactual Method":
+        for (const method of methods || []) {
+          const response = await axios.post(
+            `${API_BASE_URL}run-c_glance`,
+            selectedFeatures?.length ? selectedFeatures : null,
+            {
+              params: {
+                gcf_size: sizes?.[0],
+                cf_method: method,
+                action_choice_strategy: strategies?.[0],
+              },
+            }
+          );
+
+          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+          const umapResult = await dispatch(
+            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+          ).unwrap();
+
+          results[`method_${method}`] = {
+            ...response.data,
+            applyAffectedActions: applyAffectedResponse.data,
+            umapOfAppliedAffected: umapResult,
+          };
+        }
+        break;
+
+      case "Action Choice Strategy":
+        for (const strategy of strategies || []) {
+          const response = await axios.post(
+            `${API_BASE_URL}run-c_glance`,
+            selectedFeatures?.length ? selectedFeatures : null,
+            {
+              params: {
+                gcf_size: sizes?.[0],
+                cf_method: methods?.[0],
+                action_choice_strategy: strategy,
+              },
+            }
+          );
+
+          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+          const umapResult = await dispatch(
+            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+          ).unwrap();
+
+          results[`strategy_${strategy}`] = {
+            ...response.data,
+            applyAffectedActions: applyAffectedResponse.data,
+            umapOfAppliedAffected: umapResult,
+          };
+        }
+        break;
+
+      default:
+        throw new Error("Invalid caseType");
+    }
+
+    return results;
+  }
+);
+
 
 // export const runCGlanceComparative = createAsyncThunk(
 //   "glance/runCGlanceComparative",
-//   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams) => {
+//   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams, { dispatch }) => {
 //     const results: any = {};
 
-//     if (sizes?.length>1) {
-//       // Comparative by size
+//     // Fallbacks for sizes, methods, and strategies
+//     const sizeArray = sizes && sizes.length > 0 ? sizes : [undefined];
+//     const methodArray = methods && methods.length > 0 ? methods : [undefined];
+//     const strategyArray = strategies && strategies.length > 0 ? strategies : [undefined];
+
+    
+
+//     if (sizes?.length > 1) {
 //       for (const size of sizes) {
 //         const response = await axios.post(
 //           `${API_BASE_URL}run-c_glance`,
@@ -280,10 +390,21 @@ export const uploadModel = createAsyncThunk(
 //             },
 //           }
 //         );
-//         results[`size_${size}`] = response.data;
+
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
+        
+//         results[`size_${size}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+
+//         };
 //       }
-//     } else if (methods?.length>1) {
-//       // Comparative by method
+//     } 
+//     else if (methods?.length > 1) {
 //       for (const method of methods) {
 //         const response = await axios.post(
 //           `${API_BASE_URL}run-c_glance`,
@@ -296,10 +417,20 @@ export const uploadModel = createAsyncThunk(
 //             },
 //           }
 //         );
-//         results[`method_${method}`] = response.data;
+
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
+        
+//         results[`method_${method}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+
+//         };
 //       }
-//     }else if (strategies?.length>1) {
-//       // Comparative by strategy
+//     } else if (strategies?.length > 1) {
 //       for (const strategy of strategies) {
 //         const response = await axios.post(
 //           `${API_BASE_URL}run-c_glance`,
@@ -312,7 +443,18 @@ export const uploadModel = createAsyncThunk(
 //             },
 //           }
 //         );
-//         results[`strategy_${strategy}`] = response.data;
+
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
+        
+//         results[`strategy_${strategy}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+
+//         };
 //       }
 //     }
 
@@ -320,110 +462,177 @@ export const uploadModel = createAsyncThunk(
 //   }
 // );
 
-export const runCGlanceComparative = createAsyncThunk(
-  "glance/runCGlanceComparative",
-  async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams, { dispatch }) => {
-    const results: any = {};
+// export const runCGlanceComparative = createAsyncThunk(
+//   "glance/runCGlanceComparative",
+//   async ({ sizes, methods, strategies, selectedFeatures }: ComparativeParams, { dispatch }) => {
+//     const results: any = {};
 
-    const performUmapReduce = async (appliedData: any) => {
-      // Simulate a call to UMAP reduce for appliedAffected
-      return await axios.post(
-        `${API_BASE_URL}umap-reduce/`,
-        { dataset_identifier: "appliedAffected", data: appliedData },
-        {
-          params: { n_components: 2 },
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    };
+//     const performUmapReduce = async (appliedData: any) => {
+//       // Simulate a call to UMAP reduce for appliedAffected
+//       return await axios.post(
+//         `${API_BASE_URL}umap-reduce/`,
+//         { dataset_identifier: "appliedAffected", data: appliedData },
+//         {
+//           params: { n_components: 2 },
+//           headers: {
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+//     };
 
-    
+//     if (sizes?.length > 1) {
+//       for (const size of sizes) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: size,
+//               cf_method: methods?.[0], // Single method
+//               action_choice_strategy: strategies?.[0], // Single strategy
+//             },
+//           }
+//         );
 
-    if (sizes?.length > 1) {
-      for (const size of sizes) {
-        const response = await axios.post(
-          `${API_BASE_URL}run-c_glance`,
-          selectedFeatures?.length ? selectedFeatures : null,
-          {
-            params: {
-              gcf_size: size,
-              cf_method: methods?.[0], // Single method
-              action_choice_strategy: strategies?.[0], // Single strategy
-            },
-          }
-        );
-
-        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-        const umapResult = await dispatch(
-          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-        ).unwrap();
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
         
-        results[`size_${size}`] = {
-          ...response.data,
-          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
-          umapOfAppliedAffected: umapResult, // Add UMAP result
+//         results[`size_${size}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+//         };
+//       }
+//     } else if (sizes?.length === 1) {
+//       const size = sizes[0];
+//       const response = await axios.post(
+//         `${API_BASE_URL}run-c_glance`,
+//         selectedFeatures?.length ? selectedFeatures : null,
+//         {
+//           params: {
+//             gcf_size: size,
+//             cf_method: methods?.[0], // Single method
+//             action_choice_strategy: strategies?.[0], // Single strategy
+//           },
+//         }
+//       );
 
-        };
-      }
-    } else if (methods?.length > 1) {
-      for (const method of methods) {
-        const response = await axios.post(
-          `${API_BASE_URL}run-c_glance`,
-          selectedFeatures?.length ? selectedFeatures : null,
-          {
-            params: {
-              gcf_size: sizes?.[0], // Single size
-              cf_method: method,
-              action_choice_strategy: strategies?.[0],
-            },
-          }
-        );
+//       const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//       const umapResult = await dispatch(
+//         umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//       ).unwrap();
+      
+//       results[`size_${size}`] = {
+//         ...response.data,
+//         applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//         umapOfAppliedAffected: umapResult, // Add UMAP result
+//       };
+//     } else if (methods?.length > 1) {
+//       for (const method of methods) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: sizes?.[0], // Single size
+//               cf_method: method,
+//               action_choice_strategy: strategies?.[0],
+//             },
+//           }
+//         );
 
-        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-        const umapResult = await dispatch(
-          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-        ).unwrap();
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
         
-        results[`method_${method}`] = {
-          ...response.data,
-          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
-          umapOfAppliedAffected: umapResult, // Add UMAP result
+//         results[`method_${method}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+//         };
+//       }
+//     } else if (methods?.length === 1) {
+//       const method = methods[0];
+//       const response = await axios.post(
+//         `${API_BASE_URL}run-c_glance`,
+//         selectedFeatures?.length ? selectedFeatures : null,
+//         {
+//           params: {
+//             gcf_size: sizes?.[0], // Single size
+//             cf_method: method,
+//             action_choice_strategy: strategies?.[0],
+//           },
+//         }
+//       );
 
-        };
-      }
-    } else if (strategies?.length > 1) {
-      for (const strategy of strategies) {
-        const response = await axios.post(
-          `${API_BASE_URL}run-c_glance`,
-          selectedFeatures?.length ? selectedFeatures : null,
-          {
-            params: {
-              gcf_size: sizes?.[0], // Single size
-              cf_method: methods?.[0], // Single method
-              action_choice_strategy: strategy,
-            },
-          }
-        );
+//       const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//       const umapResult = await dispatch(
+//         umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//       ).unwrap();
+      
+//       results[`method_${method}`] = {
+//         ...response.data,
+//         applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//         umapOfAppliedAffected: umapResult, // Add UMAP result
+//       };
+//     } else if (strategies?.length > 1) {
+//       for (const strategy of strategies) {
+//         const response = await axios.post(
+//           `${API_BASE_URL}run-c_glance`,
+//           selectedFeatures?.length ? selectedFeatures : null,
+//           {
+//             params: {
+//               gcf_size: sizes?.[0], // Single size
+//               cf_method: methods?.[0], // Single method
+//               action_choice_strategy: strategy,
+//             },
+//           }
+//         );
 
-        const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-        const umapResult = await dispatch(
-          umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-        ).unwrap();
+//         const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//         const umapResult = await dispatch(
+//           umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//         ).unwrap();
         
-        results[`strategy_${strategy}`] = {
-          ...response.data,
-          applyAffectedActions: applyAffectedResponse.data, // Combine both responses
-          umapOfAppliedAffected: umapResult, // Add UMAP result
+//         results[`strategy_${strategy}`] = {
+//           ...response.data,
+//           applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//           umapOfAppliedAffected: umapResult, // Add UMAP result
+//         };
+//       }
+//     } else if (strategies?.length === 1) {
+//       const strategy = strategies[0];
+//       const response = await axios.post(
+//         `${API_BASE_URL}run-c_glance`,
+//         selectedFeatures?.length ? selectedFeatures : null,
+//         {
+//           params: {
+//             gcf_size: sizes?.[0], // Single size
+//             cf_method: methods?.[0], // Single method
+//             action_choice_strategy: strategy,
+//           },
+//         }
+//       );
 
-        };
-      }
-    }
+//       const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+//       const umapResult = await dispatch(
+//         umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+//       ).unwrap();
+      
+//       results[`strategy_${strategy}`] = {
+//         ...response.data,
+//         applyAffectedActions: applyAffectedResponse.data, // Combine both responses
+//         umapOfAppliedAffected: umapResult, // Add UMAP result
+//       };
+//     }
 
-    return results;
-  }
-);
+//     return results;
+//   }
+// );
 
 
 const glanceSlice = createSlice({

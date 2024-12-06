@@ -12,7 +12,6 @@ interface UmapGlanceComponentProps {
 }
 
 const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({ applied_aff_data,aff_data,actions ,eff_cost_actions}) => {
-console.log("applie",applied_aff_data)
 
   return (
   <>

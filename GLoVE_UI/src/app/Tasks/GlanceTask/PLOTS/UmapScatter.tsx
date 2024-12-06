@@ -29,7 +29,6 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data,color }) => {
     }, {} as { [key: string]: any });
   });
 
-  console.log("color",color)
 
 
   // Define the Vega-Lite scatter plot specification

@@ -61,8 +61,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
 
-
-
   const handleCfMethodChange = (value: string[]) => {
     setCfMethod(value);
 
@@ -102,6 +100,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         methods: cfMethod,
         strategies: actionChoiceStrategy,
         selectedFeatures,
+        caseType:executionMode
       })
     )
       .unwrap()
@@ -145,7 +144,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     }))
     : [];
 
-  console.log("dis", scatterPlotData)
 
 
   const scatterPlotSpec = {
