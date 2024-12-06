@@ -8,12 +8,21 @@ import {
 } from "@mui/material";
 import InfoIcon from '@mui/icons-material/Info';
 
-const DataModelSetup: React.FC = () => {
-  const dispatch = useAppDispatch();
+interface DataModelSetupProps {
+  selectedDataset: string;
+  setSelectedDataset: React.Dispatch<React.SetStateAction<string>>;
+  selectedModel: string;
+  setSelectedModel: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const DataModelSetup: React.FC<DataModelSetupProps> = ({
+  selectedDataset,
+  setSelectedDataset,
+  selectedModel,
+  setSelectedModel,
+}) => {  const dispatch = useAppDispatch();
   const availableResources = useAppSelector((state) => state.glance.availableResources);
   const datasetLoading = useAppSelector((state) => state.glance.datasetLoading);
-  const [selectedDataset, setSelectedDataset] = useState<string>("COMPAS Dataset");
-  const [selectedModel, setSelectedModel] = useState<string>("XGBoost");
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [newDatasetFile, setNewDatasetFile] = useState<File | null>(null);
   const [newTestDatasetFile, setNewTestDatasetFile] = useState<File | null>(null);
@@ -38,6 +47,7 @@ const DataModelSetup: React.FC = () => {
     if (newDataset && newModel) {
       const datasetParam = datasetMap[newDataset];
       const modelParam = modelMap[newModel];
+      setTimeout(() => { // Add 2-second delay
 
       dispatch(loadDatasetAndModel({ dataset_name: datasetParam, model_name: modelParam }))
         .unwrap()
@@ -47,6 +57,8 @@ const DataModelSetup: React.FC = () => {
         .catch((err) => {
           console.error("Failed to load dataset and model:", err);
         });
+      }, 2500); // 2-second delay
+
     }
   };
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import DataModelSetup from "./SIDEBAR/DataModelSetup";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import { fetchAvailableFeatures, fetchInitialGlanceData, loadDatasetAndModel, runCGlanceComparative, umapReduce } from "../../../store/slices/glanceSlice";
-import { Paper, Box, Typography, CircularProgress, Tabs, Tab, FormControlLabel, Radio, RadioGroup, Checkbox, Tooltip, Switch } from "@mui/material";
+import { Paper, Box, Typography, CircularProgress, Tabs, Tab, FormControlLabel, Radio, RadioGroup, Checkbox, Tooltip, Switch, Step, StepLabel, Stepper } from "@mui/material";
 import DataTable from "./PLOTS/DataTable";
 import MetricSummary from "./MetricSummary";
 import UmapScatter from "./PLOTS/UmapScatter";
@@ -71,6 +71,20 @@ const GlanceComponent: React.FC = () => {
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({});
 
+  const [activeStep, setActiveStep] = useState(0);
+  const steps = ["Select Dataset and Model", "Explore Dataset", "Analyze Counterfactuals"];
+  const [selectedDataset, setSelectedDataset] = useState<string>("COMPAS Dataset");
+  const [selectedModel, setSelectedModel] = useState<string>("XGBoost");
+
+  console.log("daa,model",selectedDataset,selectedModel)
+
+
+
+  const handleStepClick = (index) => {
+    setActiveStep(index);
+    setSelectedTab(index); // Sync tab with stepper
+  };
+
 
 
   useEffect(() => {
@@ -112,7 +126,8 @@ const GlanceComponent: React.FC = () => {
     if (glanceState.loadDatasetAndModelResult) {
       // Clear the UMAP cache when the dataset/model changes
       setUmapCache({});
-      setSelectedTab(0);
+      setSelectedTab(1);
+      setActiveStep(1);
     }
   }, [glanceState.loadDatasetAndModelResult]);
 
@@ -138,6 +153,8 @@ const GlanceComponent: React.FC = () => {
   // Handle Tab Change
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
+    setActiveStep(newValue); // Sync stepper with tabs
+
   };
 
 
@@ -224,19 +241,40 @@ const GlanceComponent: React.FC = () => {
 
   return (
     <Box sx={styles.layoutContainer}>
-      <Paper sx={styles.sidebar}>
-        <DataModelSetup />
-
-      </Paper>
+    
       <Box sx={styles.mainContent}>
         <Typography variant="h4" gutterBottom sx={styles.header}>
           GLOVE: Global Counterfactual-based Visual Explanations
         </Typography>
-        <Tabs value={selectedTab} onChange={handleTabChange} centered>
+        <Stepper activeStep={activeStep} alternativeLabel sx={{marginBottom:2, marginTop:2}} >
+          {steps.map((label, index) => (
+            <Step key={label} onClick={() => handleStepClick(index)}>
+              <StepLabel
+                sx={{
+                  cursor: "pointer",
+                  "& .MuiStepLabel-label": { textDecoration: "underline" },
+                }}
+              >
+                {label}
+              </StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+        
+        {/* <Tabs value={selectedTab} onChange={handleTabChange} centered>
+          <Tab label="Dataset & Model Selection" />
+
           <Tab label="Data Exploration" />
           <Tab label="GLoVE Analysis" />
-        </Tabs>
-        {selectedTab === 0 && (
+        </Tabs> */}
+        {selectedTab===0 &&(
+ <DataModelSetup
+ selectedDataset={selectedDataset}
+ setSelectedDataset={setSelectedDataset}
+ selectedModel={selectedModel}
+ setSelectedModel={setSelectedModel}
+/>        )}
+        {selectedTab === 1 && (
           <Box>
             {glanceState.datasetLoading && (
               <Box
@@ -266,28 +304,11 @@ const GlanceComponent: React.FC = () => {
 
                 />
 
-
-                {viewOption === "data" && glanceState.loadDatasetAndModelResult.data && (
-                  <>
-                    <DataTable title="Raw Data" data={glanceState.loadDatasetAndModelResult.data} showArrow={false} />
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={showUMAPScatter}
-                          onChange={(e) => setShowUMAPScatter(e.target.checked)}
-                          color="primary"
-                        />
-                      }
-                      label="Enable Dimensionality Reduction (UMAP)"
-                      sx={{ marginTop: 2 }} // Add spacing above the UMAP switch
-
-                    />
-                    {renderScatterPlot()}
-                  </>
-                )}
                 {viewOption === "affected" && glanceState.loadDatasetAndModelResult.affected && (
                   <>
-                    <WorkflowCard title="Affected Data" description="Instances from the test dataset where the model's prediction was equal to 0.">
+                    <WorkflowCard
+                    title={`Affected Data for ${selectedDataset} with ${selectedModel} model`} 
+                    description="Instances from the test dataset where the model's prediction was equal to 0.">
                       <DataTable title="Affected Test Data" data={glanceState.loadDatasetAndModelResult.affected} showArrow={false} />
                     <FormControlLabel
                       control={
@@ -306,7 +327,10 @@ const GlanceComponent: React.FC = () => {
                 )}
                 {viewOption === "test" && glanceState.loadDatasetAndModelResult.X_test && (
                   <>
-                    <WorkflowCard title="Test Data" description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
+                    <WorkflowCard 
+                    title={`Test Data for ${selectedDataset} with ${selectedModel} model`} 
+
+                    description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data.">
                       <DataTable title="Test Data" data={glanceState.loadDatasetAndModelResult.X_test} showArrow={false} />
                     </WorkflowCard>
                     <FormControlLabel
@@ -327,7 +351,7 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
 
-        {selectedTab === 1 && (
+        {selectedTab === 2 && (
           <>
             {glanceState.datasetLoading ? (
               <Box
