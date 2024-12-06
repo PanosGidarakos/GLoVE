@@ -240,7 +240,12 @@ const GlanceComponent: React.FC = () => {
   console.log("GlanceSate", glanceState)
 
   return (
-    <Box>
+    <Box
+    sx={{
+      padding: 2,        // Adds consistent padding
+      backgroundColor: "#f9f9f9", // Light background for the app
+      minHeight: "100vh", // Ensures full viewport height
+    }}>
 
       <Box sx={styles.mainContent}>
       <Typography
@@ -252,6 +257,9 @@ const GlanceComponent: React.FC = () => {
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     fontWeight: "bold", // Optional, makes the text bold
+    marginBottom:2,
+    marginTop:4   
+
   }}
 >
   GLOVES: Global Counterfactual-based Visual Explanations
