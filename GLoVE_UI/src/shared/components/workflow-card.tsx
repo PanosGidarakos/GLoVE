@@ -23,6 +23,8 @@ const WorkflowCard: React.FC<{
         rowGap: 0,
         minWidth: "300px",
         height: "100%",
+        overflow: "hidden", // Prevent children from spilling outside
+
       }}
     >
       <Box

@@ -290,9 +290,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               actions={false}
               minWidth={100}
               minHeight={100}
-              maxHeight={1000}
-              maxWidth={1000}
-              aspectRatio={2 / 1}
+              maxHeight={500}
+              maxWidth={500}
+              aspectRatio={1}
 
             />
           </WorkflowCard>
@@ -308,9 +308,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               actions={false}
               minWidth={100}
               minHeight={100}
-              maxHeight={1000}
-              maxWidth={1000}
-              aspectRatio={2 / 1}
+              maxHeight={500}
+              maxWidth={500}
+              aspectRatio={1}
             
             />
           </WorkflowCard>
@@ -378,8 +378,13 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
                 })}
               </Select>
             </FormControl>
-              <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} aspectRatio={10 / 1} />
+            <Box  display="flex"
+      justifyContent="center"
+      alignItems="center">
 
+           
+              <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={800} maxWidth={800} aspectRatio={1} />
+ </Box>
             </WorkflowCard>
           </Grid>
           {/* <WorkflowCard 

@@ -77,9 +77,9 @@ const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) =>
         actions={false}
         minWidth={100}
         minHeight={100}
-                      maxHeight={1000}
-                      maxWidth={1000}
-        aspectRatio={2/1}
+        maxHeight={800}
+        maxWidth={800}
+        aspectRatio={1}
         />
     </>
        

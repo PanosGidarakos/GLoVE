@@ -56,7 +56,11 @@ const ResponsiveVegaLite: React.FC<ResponsiveVegaLiteProps> = ({
   return (
     <Box
       ref={containerRef}
-      sx={{ width: "100%", height: "100%", justifyContent: "center", m: 1 }}
+      sx={{ width: "100%", height: "100%",  display:"flex",
+        justifyContent:"center",
+        alignItems:"center", m: 1, overflow: "hidden", // Prevent overflow
+      }}
+     
     >
       <VegaLite
         spec={{

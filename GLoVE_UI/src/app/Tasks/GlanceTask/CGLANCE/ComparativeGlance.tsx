@@ -231,12 +231,10 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   };
 
   return (
+    <WorkflowCard title="Counterfactual Analysis Configuration:" description="">
+
+
     <Box marginTop={2}>
-    <Box>
-        <Typography variant="h6" gutterBottom>
-      Counterfactual Analysis Configuration:
-    </Typography>
-    </Box>
   
       <Box display="flex" alignItems="center" gap={1} marginBottom={2} marginTop={2} flexWrap="wrap">
 
@@ -528,9 +526,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                     <ResponsiveVegaLite
                       minWidth={100}
                       minHeight={100}
-                      maxHeight={1000}
-                      maxWidth={1000}
-                      aspectRatio={2 / 1}
+                      maxHeight={500}
+                      maxWidth={500}
+                      aspectRatio={1}
                       actions={false}
                       spec={scatterPlotSpec as VisualizationSpec}
                     />
@@ -544,9 +542,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                     <ResponsiveVegaLite
                       minWidth={100}
                       minHeight={100}
-                      maxHeight={1000}
-                      maxWidth={1000}
-                      aspectRatio={2 / 1}
+                      maxHeight={500}
+                      maxWidth={500}
+                      aspectRatio={1}
                       actions={false}
                       spec={chart1 as VisualizationSpec}
                     />
@@ -560,9 +558,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                     <ResponsiveVegaLite
                       minWidth={100}
                       minHeight={100}
-                      maxHeight={1000}
-                      maxWidth={1000}
-                      aspectRatio={2 / 1}
+                      maxHeight={500}
+                      maxWidth={500}
+                      aspectRatio={1}
                       actions={false}
                       spec={chart2 as VisualizationSpec}
                     />
@@ -578,6 +576,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       </Box>
 
     </Box>
+    </WorkflowCard>
   );
 };
 
