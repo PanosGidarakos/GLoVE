@@ -7,6 +7,7 @@ import {
   Tooltip, SelectChangeEvent, Modal, Button, TextField 
 } from "@mui/material";
 import InfoIcon from '@mui/icons-material/Info';
+import WorkflowCard from "../../../../shared/components/workflow-card";
 
 interface DataModelSetupProps {
   selectedDataset: string;
@@ -92,16 +93,22 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Typography variant="h4">Dataset & Model Selection</Typography>
-        <Tooltip title="This section allows you to select a dataset and model for analysis.">
-          <IconButton>
-            {datasetLoading ? <CircularProgress size={24} /> : <InfoIcon />}
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <FormControl fullWidth>
+      
+      <WorkflowCard title={"Dataset & Model Selection"} description="This section allows you to select a dataset and model for analysis.">
+      {datasetLoading ? (
+            <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="300px" // Adjust the height to ensure proper centering
+          >
+            <CircularProgress size={50} />
+            <Typography variant="h6" sx={{ marginLeft: 2 }}>
+              Fetching Data...
+            </Typography>
+          </Box>
+        ):(<>
+      <FormControl fullWidth sx={{marginTop:2}}>
         <InputLabel id="dataset-select-label">Select Dataset</InputLabel>
         <Box display="flex" alignItems="center" gap={1}>
           <Select
@@ -176,7 +183,7 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
         </Box>
       </Modal>
 
-      <FormControl fullWidth>
+      <FormControl fullWidth sx={{marginTop:2}}>
         <InputLabel id="model-select-label">Select Model</InputLabel>
         <Select
           labelId="model-select-label"
@@ -185,13 +192,21 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
           onChange={handleModelChange}
           displayEmpty
           sx={{ width: '100%' }}
+
         >
           {availableResources.models.map((model) => (
             <MenuItem key={model} value={model}>{model}</MenuItem>
           ))}
         </Select>
       </FormControl>
+      </>
+        )}
+
+
+      </WorkflowCard>
+
     </Box>
+
   );
 };
 

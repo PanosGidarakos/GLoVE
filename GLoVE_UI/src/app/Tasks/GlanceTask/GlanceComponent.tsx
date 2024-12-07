@@ -281,12 +281,15 @@ const GlanceComponent: React.FC = () => {
       <Box sx={{ padding: 2 }}>
 
       {selectedTab === 0 && (
+        <Box>
         <DataModelSetup
           selectedDataset={selectedDataset}
           setSelectedDataset={setSelectedDataset}
           selectedModel={selectedModel}
           setSelectedModel={setSelectedModel}
-        />)}
+        />
+        </Box>
+      )}
       {selectedTab === 1 && (
         <Box>
           {glanceState.datasetLoading && (
