@@ -1,12 +1,11 @@
-import React, {useState } from "react";
+import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../../../store/store";
 import { fetchAvailableFeatures, loadDatasetAndModel } from "../../../../store/slices/glanceSlice";
-import { 
-  Select, MenuItem, Box, FormControl, InputLabel, 
-  OutlinedInput, IconButton, Typography, CircularProgress, 
-  Tooltip, SelectChangeEvent, Modal, Button, TextField 
+import {
+  Select, MenuItem, Box, FormControl, InputLabel,
+  OutlinedInput, Typography, CircularProgress,
+  SelectChangeEvent, Modal, Button, TextField
 } from "@mui/material";
-import InfoIcon from '@mui/icons-material/Info';
 import WorkflowCard from "../../../../shared/components/workflow-card";
 
 interface DataModelSetupProps {
@@ -21,7 +20,8 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
   setSelectedDataset,
   selectedModel,
   setSelectedModel,
-}) => {  const dispatch = useAppDispatch();
+}) => {
+  const dispatch = useAppDispatch();
   const availableResources = useAppSelector((state) => state.glance.availableResources);
   const datasetLoading = useAppSelector((state) => state.glance.datasetLoading);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
@@ -50,14 +50,14 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
       const modelParam = modelMap[newModel];
       setTimeout(() => { // Add 2-second delay
 
-      dispatch(loadDatasetAndModel({ dataset_name: datasetParam, model_name: modelParam }))
-        .unwrap()
-        .then(() => {
-          dispatch(fetchAvailableFeatures());
-        })
-        .catch((err) => {
-          console.error("Failed to load dataset and model:", err);
-        });
+        dispatch(loadDatasetAndModel({ dataset_name: datasetParam, model_name: modelParam }))
+          .unwrap()
+          .then(() => {
+            dispatch(fetchAvailableFeatures());
+          })
+          .catch((err) => {
+            console.error("Failed to load dataset and model:", err);
+          });
       }, 2500); // 2-second delay
 
     }
@@ -79,7 +79,7 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
     handleLoad(selectedDataset, newModel);
   };
 
- 
+
   const handleUploadSubmit = () => {
     // Implement logic to handle new dataset, test dataset, and model upload
     console.log("New Dataset File:", newDatasetFile);
@@ -93,10 +93,10 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
-      
+
       <WorkflowCard title={"Dataset & Model Selection"} description="This section allows you to select a dataset and model for analysis.">
-      {datasetLoading ? (
-            <Box
+        {datasetLoading ? (
+          <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -107,99 +107,99 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
               Fetching Data...
             </Typography>
           </Box>
-        ):(<>
-      <FormControl fullWidth sx={{marginTop:2}}>
-        <InputLabel id="dataset-select-label">Select Dataset</InputLabel>
-        <Box display="flex" alignItems="center" gap={1}>
-          <Select
-            labelId="dataset-select-label"
-            value={selectedDataset}
-            input={<OutlinedInput label="Select Dataset" />}
-            onChange={handleDatasetChange}
-            displayEmpty
-            sx={{ flex: 1 }}
+        ) : (<>
+          <FormControl fullWidth sx={{ marginTop: 2 }}>
+            <InputLabel id="dataset-select-label">Select Dataset</InputLabel>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Select
+                labelId="dataset-select-label"
+                value={selectedDataset}
+                input={<OutlinedInput label="Select Dataset" />}
+                onChange={handleDatasetChange}
+                displayEmpty
+                sx={{ flex: 1 }}
+              >
+                {availableResources.datasets.map((dataset) => (
+                  <MenuItem key={dataset} value={dataset}>{dataset}</MenuItem>
+                ))}
+                <MenuItem value="Upload a new dataset…" divider>
+                  <em>Upload a new dataset…</em>
+                </MenuItem>
+              </Select>
+            </Box>
+          </FormControl>
+
+          {/* Modal for uploading a new dataset */}
+          <Modal
+            open={isUploadModalOpen}
+            onClose={() => setIsUploadModalOpen(false)}
           >
-            {availableResources.datasets.map((dataset) => (
-              <MenuItem key={dataset} value={dataset}>{dataset}</MenuItem>
-            ))}
-            <MenuItem value="Upload a new dataset…" divider>
-              <em>Upload a new dataset…</em>
-            </MenuItem>
-          </Select>
-        </Box>
-      </FormControl>
+            <Box sx={{ ...styles.modalStyle }}>
+              <Typography variant="h6">Upload New Dataset</Typography>
+              <Box mt={2}>
+                <Typography variant="body1">Dataset File</Typography>
+                <TextField
+                  fullWidth
+                  type="file"
+                  onChange={(e) => setNewDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body1">Test Dataset File</Typography>
+                <TextField
+                  fullWidth
+                  type="file"
+                  onChange={(e) => setNewTestDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body1">Model File</Typography>
+                <TextField
+                  fullWidth
+                  type="file"
+                  onChange={(e) => setNewModelFile((e.target as HTMLInputElement).files?.[0] || null)}
+                  margin="normal"
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Box>
+              <Box mt={2}>
+                <Typography variant="body1">Target Label</Typography>
+                <TextField
+                  fullWidth
+                  label="Target Label"
+                  value={newTargetLabel}
+                  onChange={(e) => setNewTargetLabel(e.target.value)}
+                  margin="normal"
+                />
+              </Box>
+              <Box display="flex" justifyContent="space-between" mt={2}>
+                <Button onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
+                <Button variant="contained" color="primary" onClick={handleUploadSubmit}>Upload</Button>
+              </Box>
+            </Box>
+          </Modal>
 
-      {/* Modal for uploading a new dataset */}
-      <Modal
-        open={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-      >
-        <Box sx={{ ...styles.modalStyle }}>
-          <Typography variant="h6">Upload New Dataset</Typography>
-          <Box mt={2}>
-            <Typography variant="body1">Dataset File</Typography>
-            <TextField
-              fullWidth
-              type="file"
-              onChange={(e) => setNewDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-          <Box mt={2}>
-            <Typography variant="body1">Test Dataset File</Typography>
-            <TextField
-              fullWidth
-              type="file"
-              onChange={(e) => setNewTestDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-          <Box mt={2}>
-            <Typography variant="body1">Model File</Typography>
-            <TextField
-              fullWidth
-              type="file"
-              onChange={(e) => setNewModelFile((e.target as HTMLInputElement).files?.[0] || null)}
-              margin="normal"
-              InputLabelProps={{ shrink: true }}
-            />
-          </Box>
-          <Box mt={2}>
-            <Typography variant="body1">Target Label</Typography>
-            <TextField
-              fullWidth
-              label="Target Label"
-              value={newTargetLabel}
-              onChange={(e) => setNewTargetLabel(e.target.value)}
-              margin="normal"
-            />
-          </Box>
-          <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
-            <Button variant="contained" color="primary" onClick={handleUploadSubmit}>Upload</Button>
-          </Box>
-        </Box>
-      </Modal>
+          <FormControl fullWidth sx={{ marginTop: 2 }}>
+            <InputLabel id="model-select-label">Select Model</InputLabel>
+            <Select
+              labelId="model-select-label"
+              input={<OutlinedInput label="Select Model" />}
+              value={selectedModel}
+              onChange={handleModelChange}
+              displayEmpty
+              sx={{ width: '100%' }}
 
-      <FormControl fullWidth sx={{marginTop:2}}>
-        <InputLabel id="model-select-label">Select Model</InputLabel>
-        <Select
-          labelId="model-select-label"
-          input={<OutlinedInput label="Select Model" />}
-          value={selectedModel}
-          onChange={handleModelChange}
-          displayEmpty
-          sx={{ width: '100%' }}
-
-        >
-          {availableResources.models.map((model) => (
-            <MenuItem key={model} value={model}>{model}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      </>
+            >
+              {availableResources.models.map((model) => (
+                <MenuItem key={model} value={model}>{model}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </>
         )}
 
 

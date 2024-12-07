@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { VegaLite, VisualizationSpec } from 'react-vega';
+import { useEffect, useState } from 'react';
+import { VisualizationSpec } from 'react-vega';
 import { FormControl, InputLabel, Select, MenuItem, Paper } from '@mui/material';
 import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
 interface ScatterPlotComponentForMainPageProps {
@@ -8,7 +8,7 @@ interface ScatterPlotComponentForMainPageProps {
 }
 
 const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentForMainPageProps) => {
-  
+
   const modifiedData = data.map(item => ({
     ...item,
     label: item.label !== undefined ? item.label : 0, // Add 'label' with 0 if it doesn't exist
@@ -17,7 +17,7 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
   // Extract unique field names from the data for dropdown options
   const fields = Object.keys(modifiedData[0] || {}).filter(field => field !== 'index'); // Exclude 'index'
 
-  
+
 
   const determineType = (field: string) => {
     if (!modifiedData.length || modifiedData[0][field] === undefined) {
@@ -28,7 +28,7 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
   };
 
 
-  
+
   // State variables to track user selection for axes and color field
   const [xField, setXField] = useState(fields[0]);
   const [yField, setYField] = useState(fields[1]);
@@ -81,61 +81,61 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
   } as VisualizationSpec;
   return (
     <Paper>
-     
+
       {/* Selection box for X-Axis */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem',marginTop: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', marginTop: '1rem' }}>
 
-      <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-        <InputLabel>X-Axis</InputLabel>
-        <Select
-          value={xField}
-          label="X-Axis"
-          onChange={(e) => setXField(e.target.value)}
-          MenuProps={{
-            PaperProps: {
-            style: {
-                maxHeight: 250,
-                maxWidth: 300,
-            },
-            },
-        }}
-        >
-          {fields.map((field) => (
-            <MenuItem key={field} value={field}>
-              {field}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        <FormControl fullWidth style={{ marginBottom: '1rem' }}>
+          <InputLabel>X-Axis</InputLabel>
+          <Select
+            value={xField}
+            label="X-Axis"
+            onChange={(e) => setXField(e.target.value)}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 250,
+                  maxWidth: 300,
+                },
+              },
+            }}
+          >
+            {fields.map((field) => (
+              <MenuItem key={field} value={field}>
+                {field}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      {/* Selection box for Y-Axis */}
-      <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-        <InputLabel>Y-Axis</InputLabel>
-        <Select
-          value={yField}
-          label="Y-Axis"
-          onChange={(e) => setYField(e.target.value)}
-          MenuProps={{
-            PaperProps: {
-            style: {
-                maxHeight: 250,
-                maxWidth: 300,
-            },
-            },
-        }}
-        >
-          {fields.map((field) => (
-            <MenuItem key={field} value={field}>
-              {field}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        {/* Selection box for Y-Axis */}
+        <FormControl fullWidth style={{ marginBottom: '1rem' }}>
+          <InputLabel>Y-Axis</InputLabel>
+          <Select
+            value={yField}
+            label="Y-Axis"
+            onChange={(e) => setYField(e.target.value)}
+            MenuProps={{
+              PaperProps: {
+                style: {
+                  maxHeight: 250,
+                  maxWidth: 300,
+                },
+              },
+            }}
+          >
+            {fields.map((field) => (
+              <MenuItem key={field} value={field}>
+                {field}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-      <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} aspectRatio={2/1} maxHeight={1000} maxWidth={1000} />
-    </div>
+        <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} aspectRatio={2 / 1} maxHeight={1000} maxWidth={1000} />
+      </div>
     </Paper>
   );
 };

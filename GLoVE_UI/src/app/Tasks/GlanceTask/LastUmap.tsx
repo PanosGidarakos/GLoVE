@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { VegaLite } from 'react-vega';
-import { FormControl, InputLabel, Select, MenuItem, Paper, Box, Typography } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Paper, Box } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import WorkflowCard from '../../../shared/components/workflow-card';
 import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
@@ -9,10 +8,10 @@ interface ScatterPlotProps {
   data: any; // The data you want to plot
   actions: any | null; // The actions to be plotted
   name: string;
-  eff_cost_actions:any
+  eff_cost_actions: any
 }
 
-const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_actions }) => {
+const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, name, eff_cost_actions }) => {
   // State to store selected action
   const [selectedAction, setSelectedAction] = useState<string>('Action1_Prediction');
 
@@ -25,21 +24,21 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
 
   const tableRows = Object.keys(eff_cost_actions).map((key) => ({
     id: key,
-    eff: (eff_cost_actions[key].eff*100).toFixed(2) ,
+    eff: (eff_cost_actions[key].eff * 100).toFixed(2),
     cost: (eff_cost_actions[key].cost).toFixed(2),
   }));
-  
+
   const tableColumns = [
-    { field: 'id', headerName: 'Action', flex: 1  },
-    { field: 'eff', headerName: 'Effectiveness %', flex: 1,},
-    { field: 'cost', headerName: 'Cost', flex: 1  },
+    { field: 'id', headerName: 'Action', flex: 1 },
+    { field: 'eff', headerName: 'Effectiveness %', flex: 1, },
+    { field: 'cost', headerName: 'Cost', flex: 1 },
   ];
 
   // Vega-Lite specification
   const spec = {
     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
     description: "A scatter plot with tooltips",
-   
+
     selection: {
       // Interval selection for zoom and pan
       grid: {
@@ -97,31 +96,32 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
 
   return (
     <Paper>
-       
 
-   
-<Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
+
+
+      <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
 
         <Box width="100%" minWidth="100px">
-            <DataGrid
-              rows={tableRows}
-              columns={tableColumns}
-              autoHeight
-              disableColumnMenu
-              sx={{ marginTop: 1 }}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 5,
-                  },
-                }}
+          <DataGrid
+            rows={tableRows}
+            columns={tableColumns}
+            autoHeight
+            disableColumnMenu
+            sx={{ marginTop: 1 }}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 5,
+                },
               }
-              pageSizeOptions={[5, 10]}
-            />
-          </Box>
+            }
+            }
+            pageSizeOptions={[5, 10]}
+          />
         </Box>
+      </Box>
 
-        <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
+      <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
         <FormControl fullWidth margin="normal">
           <InputLabel id="select-action-label">Apply</InputLabel>
           <Select
@@ -132,20 +132,20 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions,name,eff_cost_acti
           >
             {/* Dynamically create dropdown options from actions */}
             {actions.map((action: any) => {
-  // Extract the number from the key dynamically
-  const displayText = action.key.replace(/^Action(\d+)_Prediction$/, 'Action$1');
-  
-  return (
-    <MenuItem key={action.key} value={action.key}>
-      {displayText}
-    </MenuItem>
-  );
-})}
+              // Extract the number from the key dynamically
+              const displayText = action.key.replace(/^Action(\d+)_Prediction$/, 'Action$1');
+
+              return (
+                <MenuItem key={action.key} value={action.key}>
+                  {displayText}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
-        <ResponsiveVegaLite spec={spec} minWidth={100} aspectRatio={2/1} actions={false} />
-    </WorkflowCard>   
-     </Paper>  
+        <ResponsiveVegaLite spec={spec} minWidth={100} aspectRatio={2 / 1} actions={false} />
+      </WorkflowCard>
+    </Paper>
   );
 };
 

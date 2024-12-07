@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Vega, VegaLite, VisualizationSpec } from 'react-vega';
-import { FormControl, InputLabel, Select, MenuItem, Box, Paper, Table, TableBody, TableCell, Grid, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { VisualizationSpec } from 'react-vega';
+import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import WorkflowCard from '../../../../shared/components/workflow-card';
 import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
@@ -311,7 +311,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               maxHeight={500}
               maxWidth={500}
               aspectRatio={1}
-            
+
             />
           </WorkflowCard>
         </Grid>
@@ -324,7 +324,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', marginTop: '20px' }}>
             {/* Left side (Dropdown and DataGrid) */}
             {/* Dropdown (Form Control) */}
-           
+
 
             {/* DataGrid (just below the dropdown) */}
             <Box width="100%" minWidth="100px">
@@ -348,43 +348,43 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
           </Box>
 
           <Grid >
-          
+
 
             {/* Right side (Vega-Lite Chart) */}
             <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
-            <FormControl variant="outlined" fullWidth>
-              <InputLabel>Apply</InputLabel>
-              <Select
-                value={colorField}
-                onChange={(e) => setColorField(e.target.value)}
-                label="Apply"
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 250,
-                      maxWidth: 300,
+              <FormControl variant="outlined" fullWidth>
+                <InputLabel>Apply</InputLabel>
+                <Select
+                  value={colorField}
+                  onChange={(e) => setColorField(e.target.value)}
+                  label="Apply"
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 250,
+                        maxWidth: 300,
+                      },
                     },
-                  },
-                }}
-              >
-                {colorOptions.map((option) => {
-                  // Extract the part before "_Prediction"
-                  const displayText = option.replace(/_Prediction$/, '');
-                  return (
-                    <MenuItem key={option} value={option}>
-                      {displayText}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-            <Box  display="flex"
-      justifyContent="center"
-      alignItems="center">
+                  }}
+                >
+                  {colorOptions.map((option) => {
+                    // Extract the part before "_Prediction"
+                    const displayText = option.replace(/_Prediction$/, '');
+                    return (
+                      <MenuItem key={option} value={option}>
+                        {displayText}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+              <Box display="flex"
+                justifyContent="center"
+                alignItems="center">
 
-           
-              <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={800} maxWidth={800} aspectRatio={1} />
- </Box>
+
+                <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={800} maxWidth={800} aspectRatio={1} />
+              </Box>
             </WorkflowCard>
           </Grid>
           {/* <WorkflowCard 

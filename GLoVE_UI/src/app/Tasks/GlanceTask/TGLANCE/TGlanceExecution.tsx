@@ -123,75 +123,75 @@ const TGlanceExecution: React.FC<TGlanceExecutionProps> = ({
     //   )}
     // </>
     <>
-  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mt={2}>
-    {/* Counterfactual Method Selection Dropdown */}
-    <FormControl variant="outlined" style={{ flex: 1, marginRight: 16 }}>
-      <InputLabel>Counterfactual Method</InputLabel>
-      <Select
-        label="Counterfactual Method"
-        value={cfMethod}
-        onChange={(e) => setCfMethod(e.target.value as string)}
-        fullWidth
-      >
-        {availableCfMethods.map((method) => (
-          <MenuItem key={method} value={method}>
-            {method}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-
-    {/* Multi-Select for Features */}
-    <FormControl variant="outlined" style={{ flex: 2, marginRight: 16 }}>
-      <InputLabel>Select Features for Split</InputLabel>
-      <Select
-        multiple
-        label="Select Features for Split"
-        value={splitFeatures}
-        onChange={(e) => setSplitFeatures(e.target.value as string[])}
-        renderValue={(selected) => (
-          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-            {selected.map((value) => (
-              <Chip key={value} label={value} />
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2} mt={2}>
+        {/* Counterfactual Method Selection Dropdown */}
+        <FormControl variant="outlined" style={{ flex: 1, marginRight: 16 }}>
+          <InputLabel>Counterfactual Method</InputLabel>
+          <Select
+            label="Counterfactual Method"
+            value={cfMethod}
+            onChange={(e) => setCfMethod(e.target.value as string)}
+            fullWidth
+          >
+            {availableCfMethods.map((method) => (
+              <MenuItem key={method} value={method}>
+                {method}
+              </MenuItem>
             ))}
-          </Box>
-        )}
-      >
-        {availableFeatures.map((feature) => (
-          <MenuItem key={feature} value={feature}>
-            {feature}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
+          </Select>
+        </FormControl>
 
-    {/* Run Button */}
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={handleRunTGlance}
-      disabled={loading || !cfMethod}
-      style={{ flexShrink: 0 }} // Prevent button from resizing
-    >
-      Run T-GLANCE
-    </Button>
+        {/* Multi-Select for Features */}
+        <FormControl variant="outlined" style={{ flex: 2, marginRight: 16 }}>
+          <InputLabel>Select Features for Split</InputLabel>
+          <Select
+            multiple
+            label="Select Features for Split"
+            value={splitFeatures}
+            onChange={(e) => setSplitFeatures(e.target.value as string[])}
+            renderValue={(selected) => (
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+          >
+            {availableFeatures.map((feature) => (
+              <MenuItem key={feature} value={feature}>
+                {feature}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-    {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />}
-  </Box>
+        {/* Run Button */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleRunTGlance}
+          disabled={loading || !cfMethod}
+          style={{ flexShrink: 0 }} // Prevent button from resizing
+        >
+          Run T-GLANCE
+        </Button>
 
-  {error && (
-    <Typography color="error" style={{ marginTop: 16 }}>
-      {error}
-    </Typography>
-  )}
+        {loading && <CircularProgress size={24} style={{ marginLeft: 16 }} />}
+      </Box>
 
-  {results && (
-    <div style={{ marginTop: 16 }}>
-      <Typography variant="h6">Results Tree</Typography>
-      {/* You would render your results here */}
-    </div>
-  )}
-</>
+      {error && (
+        <Typography color="error" style={{ marginTop: 16 }}>
+          {error}
+        </Typography>
+      )}
+
+      {results && (
+        <div style={{ marginTop: 16 }}>
+          <Typography variant="h6">Results Tree</Typography>
+          {/* You would render your results here */}
+        </div>
+      )}
+    </>
 
   );
 };

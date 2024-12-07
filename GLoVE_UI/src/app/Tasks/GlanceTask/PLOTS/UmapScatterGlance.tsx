@@ -1,29 +1,27 @@
 
 
 import React from 'react'
-import { Vega, VegaLite, VisualizationSpec,  } from 'react-vega';
-import { Box, Typography, Paper } from '@mui/material';
+import { VisualizationSpec } from 'react-vega';
 import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
-import WorkflowCard from '../../../../shared/components/workflow-card';
 
 
 interface ScatterPlotProps {
   data: any; // The data you want to plot
   actions: any | null;
-  name:string;
-  color:string;
+  name: string;
+  color: string;
 }
 
 
-const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data,color,actions,name }) => {
+const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, name }) => {
 
-const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) => {
+  const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) => {
     const reshapedObject = Object.keys(data).reduce((acc, curr) => {
       acc[curr] = data[curr][index];
       return acc;
     }, {} as { [key: string]: any });
-    
-  
+
+
     // Add the Chosen_Action key only if actions exist, otherwise use a default or null value
     reshapedObject['Chosen_Action'] = actions ? actions[index] || null : null;
 
@@ -31,7 +29,7 @@ const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) =>
   });
 
   const scatterPlotSpec = {
- 
+
     mark: 'point',
     selection: {
       // Interval selection for zoom and pan
@@ -49,9 +47,9 @@ const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) =>
     encoding: {
       x: { field: "0", type: "quantitative", title: "Component 0" },
       y: { field: "1", type: "quantitative", title: "Component 1" },
-      color: { 
-        field: "Chosen_Action", 
-        type: "nominal", 
+      color: {
+        field: "Chosen_Action",
+        type: "nominal",
         title: "Chosen Action",
       },
       tooltip: [
@@ -68,11 +66,11 @@ const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) =>
       values: reshapedData, // Provide reshaped data
     },
   } as VisualizationSpec;
-  
+
   return (
-    
+
     <>
-     <ResponsiveVegaLite
+      <ResponsiveVegaLite
         spec={scatterPlotSpec}
         actions={false}
         minWidth={100}
@@ -80,10 +78,10 @@ const reshapedData = Object.keys(data[Object.keys(data)[0]]).map((key, index) =>
         maxHeight={800}
         maxWidth={800}
         aspectRatio={1}
-        />
+      />
     </>
-       
-     
+
+
   );
 };
 

@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { RootState, useAppDispatch, useAppSelector } from "../../../store/store";
 import { uploadDataset, uploadModel, uploadTestDataset } from "../../../store/slices/glanceSlice";
 import axios from "axios";
 
 const UploadComponent: React.FC = () => {
-    const dispatch = useAppDispatch();
-    const [file, setFile] = useState<File | null>(null);
+  const dispatch = useAppDispatch();
+  const [file, setFile] = useState<File | null>(null);
   const [uploadType, setUploadType] = useState("dataset");
   const loading = useSelector((state: RootState) => state.glance.loading);
   const error = useSelector((state: RootState) => state.glance.error);
