@@ -58,7 +58,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const [results, setResults] = React.useState<any | null>(null);
   const isMultiSelect = (type: string) => executionMode === type;
   const getSuffix = (value: string) => value.split('_').pop() || value;
-  const [showUMAPInTab1, setShowUMAPInTab1] = useState(false); // New state for UMAP in Tab 1
+  const [showUMAPInTab1, setShowUMAPInTab1] = useState(true); // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null);
 
   const handleCfMethodChange = (value: string[]) => {
