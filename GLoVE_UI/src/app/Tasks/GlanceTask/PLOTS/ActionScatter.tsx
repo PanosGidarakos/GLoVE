@@ -119,17 +119,17 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
     },
     data: { values: data },
 
-    config: {
-      legend: {
-        orient: "top", // Position the legend at the top
-        direction: "horizontal", // Arrange items in a row
-        padding: 10, // Space between legend items
-        labelFontSize: 12, // Font size for legend labels
-        symbolSize: 100, // Size of the legend symbols
-        symbolType: "circle", // Make the symbols circles
-        titleFontSize: 14, // Font size for the legend title
-      },
-    }
+    // config: {
+    //   legend: {
+    //     orient: "top", // Position the legend at the top
+    //     direction: "horizontal", // Arrange items in a row
+    //     padding: 10, // Space between legend items
+    //     labelFontSize: 12, // Font size for legend labels
+    //     symbolSize: 100, // Size of the legend symbols
+    //     symbolType: "circle", // Make the symbols circles
+    //     titleFontSize: 14, // Font size for the legend title
+    //   },
+    // }
 
   }) as VisualizationSpec;
 
@@ -290,8 +290,8 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               actions={false}
               minWidth={100}
               minHeight={100}
-              maxHeight={500}
-              maxWidth={500}
+              maxHeight={400}
+              maxWidth={800}
               aspectRatio={1}
 
             />
@@ -309,7 +309,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               minWidth={100}
               minHeight={100}
               maxHeight={500}
-              maxWidth={500}
+              maxWidth={800}
               aspectRatio={1}
 
             />
@@ -351,8 +351,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
             {/* Right side (Vega-Lite Chart) */}
-            <WorkflowCard title='' description="Displays affected instances with color-coded predictions, showing the prediction outcome for each instance after applying the selected action.">
-              <FormControl variant="outlined" fullWidth>
+            <Box style={{marginBottom: '20px'}}>
+
+              <FormControl variant="outlined" fullWidth sx={{marginTop:2}}>
                 <InputLabel>Apply</InputLabel>
                 <Select
                   value={colorField}
@@ -383,9 +384,9 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
                 alignItems="center">
 
 
-                <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={800} maxWidth={800} aspectRatio={1} />
+                <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} />
               </Box>
-            </WorkflowCard>
+              </Box>
           </Grid>
           {/* <WorkflowCard 
         title='' 

@@ -134,7 +134,7 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} aspectRatio={2 / 1} maxHeight={1000} maxWidth={1000} />
+        <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} />
       </div>
     </Paper>
   );
