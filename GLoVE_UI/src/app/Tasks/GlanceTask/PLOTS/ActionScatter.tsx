@@ -290,8 +290,8 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               actions={false}
               minWidth={100}
               minHeight={100}
-              maxHeight={400}
-              maxWidth={800}
+              maxHeight={500}
+              maxWidth={500}
               aspectRatio={1}
 
             />
@@ -309,7 +309,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               minWidth={100}
               minHeight={100}
               maxHeight={500}
-              maxWidth={800}
+              maxWidth={500}
               aspectRatio={1}
 
             />
@@ -384,7 +384,7 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
                 alignItems="center">
 
 
-                <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} />
+                <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} />
               </Box>
               </Box>
           </Grid>

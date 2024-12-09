@@ -142,7 +142,7 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, name, eff_cost_ac
             })}
           </Select>
         </FormControl>
-        <ResponsiveVegaLite spec={spec} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} actions={false} />
+        <ResponsiveVegaLite spec={spec} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} actions={false} />
     </Paper>
   );
 };

@@ -108,7 +108,7 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-const API_BASE_URL="http://glove.imsi.athenarc.gr:8000/";
+const API_BASE_URL="http://gloves.imsi.athenarc.gr:8000/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",

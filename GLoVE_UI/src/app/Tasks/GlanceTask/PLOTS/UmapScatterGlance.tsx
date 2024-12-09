@@ -75,8 +75,8 @@ const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, n
         actions={false}
         minWidth={100}
         minHeight={100}
-        maxHeight={400}
-        maxWidth={800}
+        maxHeight={500}
+        maxWidth={700}
         aspectRatio={1}
       />
     </>
