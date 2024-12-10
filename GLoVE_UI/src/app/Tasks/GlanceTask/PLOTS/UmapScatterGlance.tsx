@@ -23,10 +23,12 @@ const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, n
 
 
     // Add the Chosen_Action key only if actions exist, otherwise use a default or null value
-    reshapedObject['Chosen_Action'] = actions ? actions[index] || null : null;
+    reshapedObject['Chosen_Action'] = actions ? actions[index] || "-" : "-";
 
     return reshapedObject;
   });
+
+  console.log("taexwgamhsei3",reshapedData)
 
   const scatterPlotSpec = {
 
