@@ -1,118 +1,186 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState, useAppDispatch, useAppSelector } from "../../../store/store";
-import { uploadDataset, uploadModel, uploadTestDataset } from "../../../store/slices/glanceSlice";
-import axios from "axios";
+import { RootState, useAppDispatch } from "../../../store/store";
+import {
+  fetchAvailableFeatures,
+  fetchGetData,
+  fetchTargetName,
+  uploadDataset,
+  uploadModel,
+  uploadTestDataset,
+} from "../../../store/slices/glanceSlice";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+  Stack,
+} from "@mui/material";
 
-const UploadComponent: React.FC = () => {
+interface UploadComponentProps {
+  onUploadComplete?: (type: 'dataset' | 'model', name: string) => void;
+}
+
+const UploadComponent: React.FC<UploadComponentProps> = ({ onUploadComplete }) => {
   const dispatch = useAppDispatch();
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadType, setUploadType] = useState("dataset");
-  const loading = useSelector((state: RootState) => state.glance.loading);
+  const [fileDataset, setFileDataset] = useState<File | null>(null);
+  const [fileModel, setFileModel] = useState<File | null>(null);
+  const [fileTest, setFileTest] = useState<File | null>(null);
+  const [target, setTarget] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string>("");
+
   const error = useSelector((state: RootState) => state.glance.error);
-  const [dataResponse, setDataResponse] = useState<any>(null);
-  const [statusMessage, setStatusMessage] = useState<string>('');
 
-
-
-  // Handle file selection
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file selection for dataset, model, and test dataset
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     if (e.target.files) {
-      setFile(e.target.files[0]);
+      switch (type) {
+        case "dataset":
+          setFileDataset(e.target.files[0]);
+          break;
+        case "model":
+          setFileModel(e.target.files[0]);
+          break;
+        case "test":
+          setFileTest(e.target.files[0]);
+          break;
+        default:
+          break;
+      }
     }
   };
-
-  // Handle type selection
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setUploadType(e.target.value);
+  const removeFileExtension = (filename: string): string => {
+    return filename.slice(0, filename.lastIndexOf('.')) || filename;
+  };
+  // Handle input for target value
+  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTarget(e.target.value);
   };
 
   // Handle upload
-  const handleUpload = () => {
-    if (!file) {
-      alert("Please select a file to upload.");
-      return;
-    }
-
-    switch (uploadType) {
-      case "dataset":
-        dispatch(uploadDataset(file));
-        break;
-      case "testDataset":
-        dispatch(uploadTestDataset(file));
-        break;
-      case "model":
-        dispatch(uploadModel(file));
-        break;
-      default:
-        alert("Invalid upload type selected.");
-    }
-  };
-
-  const handleData = async () => {
+  const handleUpload = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get('http://127.0.0.1:8000/get-data/');
-      setDataResponse(response.data);
-      setStatusMessage('Data fetched successfully.');
-    } catch (error) {
-      setStatusMessage('Error fetching data.');
+      // Upload dataset if selected
+      if (fileDataset) {
+        await dispatch(uploadDataset(fileDataset));
+        if (onUploadComplete) {
+          onUploadComplete('dataset', removeFileExtension(fileDataset.name)); // Notify parent of the uploaded dataset
+        }
+      }
+
+      // Upload model if selected
+      if (fileModel) {
+        await dispatch(uploadModel(fileModel));
+        if (onUploadComplete) {
+          onUploadComplete('model', removeFileExtension(fileModel.name)); // Notify parent of the uploaded model
+        }
+      }
+
+      // Upload test dataset if selected
+      if (fileTest) {
+        await dispatch(uploadTestDataset(fileTest));
+      }
+
+      // Upload target value
+      if (target.trim() !== "") {
+        await dispatch(fetchTargetName(target));
+      }
+
+      // Fetch data after uploading everything
+      await dispatch(fetchGetData());
+      await dispatch(fetchAvailableFeatures());
+
+      setStatusMessage("All uploads and data fetch completed successfully!");
+    } catch (err) {
+      console.error("Error during upload:", err);
+      setStatusMessage("An error occurred during upload.");
+    } finally {
+      setLoading(false);
     }
   };
-  const glanceState = useAppSelector((state) => state.glance);
-
-
-
-
 
   return (
-    <div style={styles.container}>
-      <h2>Upload File</h2>
-      <input type="file" onChange={handleFileChange} style={styles.fileInput} />
-      <select value={uploadType} onChange={handleTypeChange} style={styles.select}>
-        <option value="dataset">Dataset</option>
-        <option value="testDataset">Test Dataset</option>
-        <option value="model">Model</option>
-      </select>
-      <button onClick={handleUpload} style={styles.uploadButton} disabled={loading}>
-        {loading ? "Uploading..." : "Upload files"}
-      </button>
-      <button onClick={handleData} style={styles.uploadButton} disabled={loading}>
-        {loading ? "Uploading..." : "Get DAta"}
-      </button>
-      {error && <p style={styles.error}>{error}</p>}
-    </div>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 2,
+        padding: 3,
+        border: "1px solid #ddd",
+        borderRadius: 2,
+        width: "400px",
+        margin: "0 auto",
+      }}
+    >
+      <Typography variant="h6">Upload Files</Typography>
+      <Stack spacing={2} sx={{ width: "100%" }}>
+        <Box>
+          <Typography variant="body1">Upload Dataset:</Typography>
+          <TextField
+            type="file"
+            fullWidth
+            onChange={(e) => handleFileChange(e, "dataset")}
+            sx={{ marginBottom: 2 }}
+          />
+        </Box>
+        <Box>
+          <Typography variant="body1">Upload Model:</Typography>
+          <TextField
+            type="file"
+            fullWidth
+            onChange={(e) => handleFileChange(e, "model")}
+            sx={{ marginBottom: 2 }}
+          />
+        </Box>
+        <Box>
+          <Typography variant="body1">Upload Test Dataset:</Typography>
+          <TextField
+            type="file"
+            fullWidth
+            onChange={(e) => handleFileChange(e, "test")}
+            sx={{ marginBottom: 2 }}
+          />
+        </Box>
+        <Box>
+          <Typography variant="body1">Target Value:</Typography>
+          <TextField
+            value={target}
+            onChange={handleTargetChange}
+            fullWidth
+            variant="outlined"
+            sx={{ marginBottom: 2 }}
+          />
+        </Box>
+      </Stack>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleUpload}
+        disabled={loading}
+        sx={{ width: "100%" }}
+      >
+        {loading ? (
+          <CircularProgress size={24} color="inherit" />
+        ) : (
+          "Upload and Get Data"
+        )}
+      </Button>
+      {statusMessage && (
+        <Typography variant="body2" color="green" sx={{ marginTop: 2 }}>
+          {statusMessage}
+        </Typography>
+      )}
+      {error && (
+        <Typography variant="body2" color="error" sx={{ marginTop: 1 }}>
+          {error}
+        </Typography>
+      )}
+    </Box>
   );
-};
-
-// Inline styles for simplicity
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column" as "column",
-    alignItems: "center",
-    gap: "10px",
-    padding: "20px",
-    border: "1px solid #ddd",
-    borderRadius: "8px",
-    width: "300px",
-    margin: "0 auto",
-  },
-  fileInput: {
-    width: "100%",
-    padding: "8px",
-  },
-  select: {
-    width: "100%",
-    padding: "8px",
-  },
-  uploadButton: {
-    padding: "8px 12px",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-  error: {
-    color: "red",
-  },
 };
 
 export default UploadComponent;

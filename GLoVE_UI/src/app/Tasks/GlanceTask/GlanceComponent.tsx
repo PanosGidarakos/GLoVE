@@ -8,6 +8,7 @@ import UmapScatter from "./PLOTS/UmapScatter";
 import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage";
 import ComparativeGlance from "./CGLANCE/ComparativeGlance";
 import WorkflowCard from "../../../shared/components/workflow-card";
+import UploadComponent from "./UploadComponent";
 
 const styles = {
   sidebar: {
@@ -282,6 +283,7 @@ const GlanceComponent: React.FC = () => {
               selectedModel={selectedModel}
               setSelectedModel={setSelectedModel}
             />
+
           </Box>
         )}
         {selectedTab === 1 && (

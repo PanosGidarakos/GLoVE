@@ -2,11 +2,21 @@ import React, { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../../../store/store";
 import { fetchAvailableFeatures, loadDatasetAndModel } from "../../../../store/slices/glanceSlice";
 import {
-  Select, MenuItem, Box, FormControl, InputLabel,
-  OutlinedInput, Typography, CircularProgress,
-  SelectChangeEvent, Modal, Button, TextField
+  Select,
+  MenuItem,
+  Box,
+  FormControl,
+  InputLabel,
+  OutlinedInput,
+  Typography,
+  CircularProgress,
+  SelectChangeEvent,
+  Modal,
+  Button,
+  Stack
 } from "@mui/material";
 import WorkflowCard from "../../../../shared/components/workflow-card";
+import UploadComponent from "../UploadComponent";
 
 interface DataModelSetupProps {
   selectedDataset: string;
@@ -24,12 +34,8 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
   const dispatch = useAppDispatch();
   const availableResources = useAppSelector((state) => state.glance.availableResources);
   const datasetLoading = useAppSelector((state) => state.glance.datasetLoading);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
-  const [newDatasetFile, setNewDatasetFile] = useState<File | null>(null);
-  const [newTestDatasetFile, setNewTestDatasetFile] = useState<File | null>(null);
-  const [newModelFile, setNewModelFile] = useState<File | null>(null);
-  const [newTargetLabel, setNewTargetLabel] = useState<string>("");
 
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
   const datasetMap: { [key: string]: string } = {
     "COMPAS Dataset": "compas",
@@ -48,8 +54,7 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
     if (newDataset && newModel) {
       const datasetParam = datasetMap[newDataset];
       const modelParam = modelMap[newModel];
-      setTimeout(() => { // Add 2-second delay
-
+      setTimeout(() => {
         dispatch(loadDatasetAndModel({ dataset_name: datasetParam, model_name: modelParam }))
           .unwrap()
           .then(() => {
@@ -58,8 +63,7 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
           .catch((err) => {
             console.error("Failed to load dataset and model:", err);
           });
-      }, 2500); // 2-second delay
-
+      }, 2500);
     }
   };
 
@@ -79,134 +83,89 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
     handleLoad(selectedDataset, newModel);
   };
 
-
-  const handleUploadSubmit = () => {
-    // Implement logic to handle new dataset, test dataset, and model upload
-    console.log("New Dataset File:", newDatasetFile);
-    console.log("New Test Dataset File:", newTestDatasetFile);
-    console.log("New Model File:", newModelFile);
-    console.log("New Target Label:", newTargetLabel);
-
-    // Close the modal after submission
+  // Callback to handle when a new dataset or model is uploaded
+  const handleUploadComplete = (type: 'dataset' | 'model', name: string) => {
+    if (type === 'dataset') {
+      setSelectedDataset(name);
+    } else if (type === 'model') {
+      setSelectedModel(name);
+    }
     setIsUploadModalOpen(false);
   };
 
   return (
     <Box display="flex" flexDirection="column" gap={2}>
-
       <WorkflowCard title={"Dataset & Model Selection"} description="This section allows you to select a dataset and model for analysis.">
         {datasetLoading ? (
           <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
-            height="300px" // Adjust the height to ensure proper centering
+            height="300px"
           >
             <CircularProgress size={50} />
             <Typography variant="h6" sx={{ marginLeft: 2 }}>
               Fetching Data...
             </Typography>
           </Box>
-        ) : (<>
-          <FormControl fullWidth sx={{ marginTop: 2 }}>
-            <InputLabel id="dataset-select-label">Select Dataset</InputLabel>
-            <Box display="flex" alignItems="center" gap={1}>
+        ) : (
+          <>
+            <FormControl fullWidth sx={{ marginTop: 2 }}>
+              <InputLabel id="dataset-select-label">Select Dataset</InputLabel>
+              <Box display="flex" alignItems="center" gap={1}>
+                <Select
+                  labelId="dataset-select-label"
+                  value={selectedDataset}
+                  input={<OutlinedInput label="Select Dataset" />}
+                  onChange={handleDatasetChange}
+                  displayEmpty
+                  sx={{ flex: 1 }}
+                >
+                  {availableResources.datasets.map((dataset) => (
+                    <MenuItem key={dataset} value={dataset}>{dataset}</MenuItem>
+                  ))}
+                  <MenuItem value="Upload a new dataset…" divider>
+                    <em>Upload a new dataset…</em>
+                  </MenuItem>
+                </Select>
+              </Box>
+            </FormControl>
+
+            <FormControl fullWidth sx={{ marginTop: 2 }}>
+              <InputLabel id="model-select-label">Select Model</InputLabel>
               <Select
-                labelId="dataset-select-label"
-                value={selectedDataset}
-                input={<OutlinedInput label="Select Dataset" />}
-                onChange={handleDatasetChange}
+                labelId="model-select-label"
+                input={<OutlinedInput label="Select Model" />}
+                value={selectedModel}
+                onChange={handleModelChange}
                 displayEmpty
-                sx={{ flex: 1 }}
+                sx={{ width: '100%' }}
               >
-                {availableResources.datasets.map((dataset) => (
-                  <MenuItem key={dataset} value={dataset}>{dataset}</MenuItem>
+                {availableResources.models.map((model) => (
+                  <MenuItem key={model} value={model}>{model}</MenuItem>
                 ))}
-                <MenuItem value="Upload a new dataset…" divider>
-                  <em>Upload a new dataset…</em>
-                </MenuItem>
               </Select>
-            </Box>
-          </FormControl>
-
-          {/* Modal for uploading a new dataset */}
-          <Modal
-            open={isUploadModalOpen}
-            onClose={() => setIsUploadModalOpen(false)}
-          >
-            <Box sx={{ ...styles.modalStyle }}>
-              <Typography variant="h6">Upload New Dataset</Typography>
-              <Box mt={2}>
-                <Typography variant="body1">Dataset File</Typography>
-                <TextField
-                  fullWidth
-                  type="file"
-                  onChange={(e) => setNewDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
-              <Box mt={2}>
-                <Typography variant="body1">Test Dataset File</Typography>
-                <TextField
-                  fullWidth
-                  type="file"
-                  onChange={(e) => setNewTestDatasetFile((e.target as HTMLInputElement).files?.[0] || null)}
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
-              <Box mt={2}>
-                <Typography variant="body1">Model File</Typography>
-                <TextField
-                  fullWidth
-                  type="file"
-                  onChange={(e) => setNewModelFile((e.target as HTMLInputElement).files?.[0] || null)}
-                  margin="normal"
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Box>
-              <Box mt={2}>
-                <Typography variant="body1">Target Label</Typography>
-                <TextField
-                  fullWidth
-                  label="Target Label"
-                  value={newTargetLabel}
-                  onChange={(e) => setNewTargetLabel(e.target.value)}
-                  margin="normal"
-                />
-              </Box>
-              <Box display="flex" justifyContent="space-between" mt={2}>
-                <Button onClick={() => setIsUploadModalOpen(false)}>Cancel</Button>
-                <Button variant="contained" color="primary" onClick={handleUploadSubmit}>Upload</Button>
-              </Box>
-            </Box>
-          </Modal>
-
-          <FormControl fullWidth sx={{ marginTop: 2 }}>
-            <InputLabel id="model-select-label">Select Model</InputLabel>
-            <Select
-              labelId="model-select-label"
-              input={<OutlinedInput label="Select Model" />}
-              value={selectedModel}
-              onChange={handleModelChange}
-              displayEmpty
-              sx={{ width: '100%' }}
-
-            >
-              {availableResources.models.map((model) => (
-                <MenuItem key={model} value={model}>{model}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </>
+            </FormControl>
+          </>
         )}
-
-
       </WorkflowCard>
 
-    </Box>
+      {/* Modal for uploading new dataset and model */}
+      <Modal
+        open={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        aria-labelledby="upload-modal-title"
+        aria-describedby="upload-modal-description"
+      >
+        <Box sx={styles.modalStyle}>
 
+          <UploadComponent onUploadComplete={handleUploadComplete} />
+          <Stack direction="row" justifyContent="center" sx={{ marginTop: 2 }}>
+            <Button onClick={() => setIsUploadModalOpen(false)}>Close</Button>
+          </Stack>
+        </Box>
+      </Modal>
+    </Box>
   );
 };
 
@@ -217,11 +176,19 @@ const styles = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '90%', // Use a percentage or a fixed value
+    maxWidth: 600, // Set a max-width for larger screens
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
+    overflow: 'hidden', // Prevent scrolling
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 'auto', // Adjust height as needed
+    maxHeight: '90vh', // Ensure modal height is responsive and doesn't overflow vertically
   },
 };
 

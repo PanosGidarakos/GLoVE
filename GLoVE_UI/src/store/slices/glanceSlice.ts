@@ -23,21 +23,22 @@ interface GlanceState {
   comparativeResults: {
     [key: string]: any;
   };
- 
 
 
-  applyAffectedActionsResult: { [key: string]: any } | null; 
-  processedSizes: number[]; 
+
+  applyAffectedActionsResult: { [key: string]: any } | null;
+  processedSizes: number[];
   umapReduceResults: {
     rawData?: any;
     affectedData?: any;
     testData?: any;
     appliedAffected?: any;
-    
+
   };
-    
-  getDataResults:any | null;
+
+  getDataResults: any | null;
   comparativeLoading: boolean; // New state for comparative process
+  targetName: string | null; // Add this field
 
 
 }
@@ -61,12 +62,14 @@ const initialState: GlanceState = {
   error: null,
   initialLoading: true,
 
-  applyAffectedActionsResult:null,
+  applyAffectedActionsResult: null,
   processedSizes: [],
   umapReduceResults: {},
-  getDataResults:null,
-  comparativeResults:{},
+  getDataResults: null,
+  comparativeResults: {},
   comparativeLoading: false,
+  targetName: null, // Initialize it
+
 
 
 
@@ -92,11 +95,11 @@ interface ComparativeParams {
 
 // Type for the runCGlance parameters
 interface RunCGlanceParams {
-    gcf_size: number;
-    cf_method: string;
-    action_choice_strategy: string;
-    selected_features?: string[]; // Optional array of selected features
-  }
+  gcf_size: number;
+  cf_method: string;
+  action_choice_strategy: string;
+  selected_features?: string[]; // Optional array of selected features
+}
 // Type for the loadDatasetAndModel parameters
 interface LoadDatasetAndModelParams {
   dataset_name: string;
@@ -108,12 +111,12 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-const API_BASE_URL="http://gloves.imsi.athenarc.gr:8000/";
+const API_BASE_URL = "http://gloves.imsi.athenarc.gr:8000/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
   async () => {
-    const [resourcesResponse, cfMethodsResponse, welcomeMessageResponse,actionsStrategiesResponse,loadDatasetAndModelResponse,loadGetDataResponse] = await Promise.all([
+    const [resourcesResponse, cfMethodsResponse, welcomeMessageResponse, actionsStrategiesResponse, loadDatasetAndModelResponse, loadGetDataResponse] = await Promise.all([
       axios.get(`${API_BASE_URL}available-resources/`),
       axios.get(`${API_BASE_URL}available-cf-methods/`),
       axios.get(`${API_BASE_URL}`),
@@ -127,7 +130,7 @@ export const fetchInitialGlanceData = createAsyncThunk(
       availableResources: resourcesResponse.data,
       availableCfMethods: cfMethodsResponse.data,
       welcomeMessage: welcomeMessageResponse.data,
-      availableActionStrategies:actionsStrategiesResponse.data,
+      availableActionStrategies: actionsStrategiesResponse.data,
       loadDatasetAndModelResult: loadDatasetAndModelResponse.data,
       // getDataResults:loadGetDataResponse.data
       // runCGlanceResult: GlanceResponse.data
@@ -155,22 +158,22 @@ export const umapReduce = createAsyncThunk(
 
 // Define a thunk for runCGlance with parameters
 export const runCGlance = createAsyncThunk(
-    "glance/runCGlance",
-    async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams) => {
-      const response = await axios.post(
-        `${API_BASE_URL}run-c_glance`,
-        selected_features?.length ? selected_features : null, // Pass selected features or null
-        {
-          params: {
-            gcf_size,
-            cf_method,
-            action_choice_strategy,
-          },
-        }
-      );
-      return { data: response.data, size: gcf_size.toString(), method: cf_method, strategy: action_choice_strategy }; // Return data and use size as key for simplicity
-    }
-  );
+  "glance/runCGlance",
+  async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams) => {
+    const response = await axios.post(
+      `${API_BASE_URL}run-c_glance`,
+      selected_features?.length ? selected_features : null, // Pass selected features or null
+      {
+        params: {
+          gcf_size,
+          cf_method,
+          action_choice_strategy,
+        },
+      }
+    );
+    return { data: response.data, size: gcf_size.toString(), method: cf_method, strategy: action_choice_strategy }; // Return data and use size as key for simplicity
+  }
+);
 // Define a thunk for loadDatasetAndModel with query parameters
 export const loadDatasetAndModel = createAsyncThunk(
   "glance/loadDatasetAndModel",
@@ -179,6 +182,14 @@ export const loadDatasetAndModel = createAsyncThunk(
       params: { dataset_name, model_name }
     });
     return response.data;
+  }
+);
+
+export const fetchGetData = createAsyncThunk(
+  "glance/fetchGetData",
+  async () => {
+    const response = await axios.get(`${API_BASE_URL}get-data`);
+    return response.data; // Assuming the response structure matches loadDatasetAndModelResult
   }
 );
 
@@ -255,6 +266,23 @@ export const uploadModel = createAsyncThunk(
       },
     });
     return response.data;
+  }
+);
+
+export const fetchTargetName = createAsyncThunk(
+  "glance/fetchTargetName",
+  async (target_name: string) => {
+    const response = await axios.post(
+      `${API_BASE_URL}get-target_name`,
+      null,
+      {
+        params: { target_name },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data; // Assuming the response is just the target name string
   }
 );
 
@@ -370,7 +398,7 @@ const glanceSlice = createSlice({
       }
     },
   },
-    extraReducers: (builder) => {
+  extraReducers: (builder) => {
     builder
       .addCase(fetchInitialGlanceData.pending, (state) => {
         state.initialLoading = true;
@@ -409,7 +437,7 @@ const glanceSlice = createSlice({
         state.datasetLoading = false;
         state.loadDatasetAndModelResult = action.payload;
         state.runGlanceResult = null;
-        state.comparativeResults={};
+        state.comparativeResults = {};
         state.error = null;
       })
       .addCase(loadDatasetAndModel.rejected, (state, action) => {
@@ -439,8 +467,8 @@ const glanceSlice = createSlice({
       })
       .addCase(runCGlance.fulfilled, (state, action: PayloadAction<{
         strategy: any;
-        method: any; data: any, size: string 
-}>) => {
+        method: any; data: any, size: string
+      }>) => {
         state.loading = false;
         state.runGlanceResult = state.datasetLoading ? null : action.payload.data; // Ensure null if datasetLoading is true
 
@@ -514,10 +542,35 @@ const glanceSlice = createSlice({
       .addCase(runCGlanceComparative.rejected, (state, action) => {
         state.comparativeLoading = false; // End the loader
         state.error = action.error.message || "Error in comparative analysis";
+      })
+      .addCase(fetchGetData.pending, (state) => {
+        state.loading = true; // Optional: Set a loading state
+      })
+      .addCase(fetchGetData.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.loadDatasetAndModelResult = action.payload; // Update the result with get-data response
+        state.error = null;
+      })
+      .addCase(fetchGetData.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Error fetching data from get-data";
+      })
+      .addCase(fetchTargetName.pending, (state) => {
+        state.loading = true; // Optional: Add a loading state for target name
+      })
+      .addCase(fetchTargetName.fulfilled, (state, action: PayloadAction<string>) => {
+        state.loading = false;
+        state.targetName = action.payload; // Update the target name in state
+
+        state.error = null;
+      })
+      .addCase(fetchTargetName.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Error fetching target name";
       });
   },
 });
-export const { setSelectedFeatures} = glanceSlice.actions
+export const { setSelectedFeatures } = glanceSlice.actions
 export default glanceSlice.reducer;
 
 
