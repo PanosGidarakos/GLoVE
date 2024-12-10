@@ -230,6 +230,10 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     },
   };
 
+  const hasErrors = glanceState.comparativeResults 
+  ? Object.values(glanceState.comparativeResults).some((result: any) => result.error)
+  : false;
+
   return (
     <WorkflowCard title="Counterfactual Analysis Configuration:" description="">
 
@@ -403,7 +407,31 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 Running Experiments...
               </Typography>
             </Box>
-          ) : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
+          ) : hasErrors ? (
+            <WorkflowCard title="Analysis Errors" description="The analysis encountered the following errors:">
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Parameter Configuration</TableCell>
+                      <TableCell>Error Message</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.entries(glanceState.comparativeResults).map(([key, result]: any) =>
+                      result.error ? (
+                        <TableRow key={key}>
+                          <TableCell>{key}</TableCell>
+                          <TableCell>{result.error}</TableCell>
+                        </TableRow>
+                      ) : null
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </WorkflowCard>
+          ) 
+           : glanceState.comparativeResults && Object.keys(glanceState.comparativeResults).length > 0 ? (
             <>
               <WorkflowCard title="Counterfactual Analysis Results" description="">
                 <TableContainer component={Paper}>

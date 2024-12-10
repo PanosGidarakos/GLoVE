@@ -159,19 +159,28 @@ export const umapReduce = createAsyncThunk(
 // Define a thunk for runCGlance with parameters
 export const runCGlance = createAsyncThunk(
   "glance/runCGlance",
-  async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams) => {
-    const response = await axios.post(
-      `${API_BASE_URL}run-c_glance`,
-      selected_features?.length ? selected_features : null, // Pass selected features or null
-      {
-        params: {
-          gcf_size,
-          cf_method,
-          action_choice_strategy,
-        },
+  async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}run-c_glance`,
+        selected_features?.length ? selected_features : null, // Pass selected features or null
+        {
+          params: {
+            gcf_size,
+            cf_method,
+            action_choice_strategy,
+          },
+        }
+      );
+      return { data: response.data, size: gcf_size.toString(), method: cf_method, strategy: action_choice_strategy };
+    } catch (error: any) {
+      if (error.response?.status === 400 && error.response.data?.detail) {
+        // Return specific error message if it matches the expected structure
+        return rejectWithValue(error.response.data.detail);
       }
-    );
-    return { data: response.data, size: gcf_size.toString(), method: cf_method, strategy: action_choice_strategy }; // Return data and use size as key for simplicity
+      // Return a generic error message for other cases
+      return rejectWithValue("An error occurred while running C-Glance");
+    }
   }
 );
 // Define a thunk for loadDatasetAndModel with query parameters
@@ -288,93 +297,126 @@ export const fetchTargetName = createAsyncThunk(
 
 export const runCGlanceComparative = createAsyncThunk(
   "glance/runCGlanceComparative",
-  async ({ sizes, methods, strategies, selectedFeatures, caseType }: ComparativeParams & { caseType: string }, { dispatch }) => {
+  async (
+    { sizes, methods, strategies, selectedFeatures, caseType }: ComparativeParams & { caseType: string },
+    { dispatch, rejectWithValue }
+  ) => {
     const results: any = {};
+
+    const handleRunCGlanceError = (error: any) => {
+      if (error.response && error.response.status === 400) {
+        return {
+          error: true,
+          message: error.response.data?.detail || "Unknown error occurred.",
+        };
+      }
+      throw error; // Re-throw non-400 errors to be handled globally
+    };
+
+    const runAndHandleErrors = async (params: any) => {
+      try {
+        const response = await axios.post(`${API_BASE_URL}run-c_glance`, selectedFeatures?.length ? selectedFeatures : null, {
+          params,
+        });
+        return response.data;
+      } catch (error) {
+        return handleRunCGlanceError(error);
+      }
+    };
 
     switch (caseType) {
       case "Number of Counterfactual Actions":
         for (const size of sizes || []) {
-          const response = await axios.post(
-            `${API_BASE_URL}run-c_glance`,
-            selectedFeatures?.length ? selectedFeatures : null,
-            {
-              params: {
-                gcf_size: size,
-                cf_method: methods?.[0],
-                action_choice_strategy: strategies?.[0],
-              },
-            }
-          );
+          const runCGlanceResponse = await runAndHandleErrors({
+            gcf_size: size,
+            cf_method: methods?.[0],
+            action_choice_strategy: strategies?.[0],
+          });
 
-          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-          const umapResult = await dispatch(
-            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-          ).unwrap();
+          if (runCGlanceResponse.error) {
+            results[`size_${size}`] = { error: runCGlanceResponse.message };
+            continue;
+          }
 
-          results[`size_${size}`] = {
-            ...response.data,
-            applyAffectedActions: applyAffectedResponse.data,
-            umapOfAppliedAffected: umapResult,
-          };
+          try {
+            const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+            const umapResult = await dispatch(
+              umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+            ).unwrap();
+
+            results[`size_${size}`] = {
+              ...runCGlanceResponse,
+              applyAffectedActions: applyAffectedResponse.data,
+              umapOfAppliedAffected: umapResult,
+            };
+          } catch (error) {
+            results[`size_${size}`] = { error: "Error in downstream processing." };
+          }
         }
         break;
 
       case "Local Counterfactual Method":
         for (const method of methods || []) {
-          const response = await axios.post(
-            `${API_BASE_URL}run-c_glance`,
-            selectedFeatures?.length ? selectedFeatures : null,
-            {
-              params: {
-                gcf_size: sizes?.[0],
-                cf_method: method,
-                action_choice_strategy: strategies?.[0],
-              },
-            }
-          );
+          const runCGlanceResponse = await runAndHandleErrors({
+            gcf_size: sizes?.[0],
+            cf_method: method,
+            action_choice_strategy: strategies?.[0],
+          });
 
-          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-          const umapResult = await dispatch(
-            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-          ).unwrap();
+          if (runCGlanceResponse.error) {
+            results[`method_${method}`] = { error: runCGlanceResponse.message };
+            continue;
+          }
 
-          results[`method_${method}`] = {
-            ...response.data,
-            applyAffectedActions: applyAffectedResponse.data,
-            umapOfAppliedAffected: umapResult,
-          };
+          try {
+            const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+            const umapResult = await dispatch(
+              umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+            ).unwrap();
+
+            results[`method_${method}`] = {
+              ...runCGlanceResponse,
+              applyAffectedActions: applyAffectedResponse.data,
+              umapOfAppliedAffected: umapResult,
+            };
+          } catch (error) {
+            results[`method_${method}`] = { error: "Error in downstream processing." };
+          }
         }
         break;
 
       case "Action Choice Strategy":
         for (const strategy of strategies || []) {
-          const response = await axios.post(
-            `${API_BASE_URL}run-c_glance`,
-            selectedFeatures?.length ? selectedFeatures : null,
-            {
-              params: {
-                gcf_size: sizes?.[0],
-                cf_method: methods?.[0],
-                action_choice_strategy: strategy,
-              },
-            }
-          );
+          const runCGlanceResponse = await runAndHandleErrors({
+            gcf_size: sizes?.[0],
+            cf_method: methods?.[0],
+            action_choice_strategy: strategy,
+          });
 
-          const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
-          const umapResult = await dispatch(
-            umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
-          ).unwrap();
+          if (runCGlanceResponse.error) {
+            results[`strategy_${strategy}`] = { error: runCGlanceResponse.message };
+            continue;
+          }
 
-          results[`strategy_${strategy}`] = {
-            ...response.data,
-            applyAffectedActions: applyAffectedResponse.data,
-            umapOfAppliedAffected: umapResult,
-          };
+          try {
+            const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+            const umapResult = await dispatch(
+              umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+            ).unwrap();
+
+            results[`strategy_${strategy}`] = {
+              ...runCGlanceResponse,
+              applyAffectedActions: applyAffectedResponse.data,
+              umapOfAppliedAffected: umapResult,
+            };
+          } catch (error) {
+            results[`strategy_${strategy}`] = { error: "Error in downstream processing." };
+          }
         }
         break;
 
       default:
-        throw new Error("Invalid caseType");
+        return rejectWithValue("Invalid caseType");
     }
 
     return results;
@@ -413,15 +455,9 @@ const glanceSlice = createSlice({
         state.runGlanceResult = action.payload.runCGlanceResult || null;
         state.getDataResults = action.payload.getDataResults || null;
       })
-      .addCase(runCGlance.rejected, (state, action) => {
+      .addCase(runCGlance.rejected, (state, action: PayloadAction<any, string, never, string | undefined>) => {
         state.loading = false;
-
-        // Handle 400 error for runCGlance
-        if (action.error && action.error.response && action.error.response.status === 400) {
-          state.error = "No counterfactuals found for the given configuration. Please check your configuration.";
-        } else {
-          state.error = action.error?.message || "Error generating counterfactuals";
-        }
+        state.error = action.payload || "Error generating counterfactuals"; // Use specific error message if available
       })
       .addCase(fetchInitialGlanceData.rejected, (state, action) => {
         state.initialLoading = false;
@@ -429,6 +465,8 @@ const glanceSlice = createSlice({
       })
       .addCase(runCGlance.pending, (state) => {
         state.loading = true;
+        state.error = null; // Clear any previous error
+
       })
       .addCase(loadDatasetAndModel.pending, (state) => {
         state.datasetLoading = true;
@@ -467,11 +505,12 @@ const glanceSlice = createSlice({
       })
       .addCase(runCGlance.fulfilled, (state, action: PayloadAction<{
         strategy: any;
-        method: any; data: any, size: string
+        method: any; 
+        data: any; 
+        size: string;
       }>) => {
         state.loading = false;
         state.runGlanceResult = state.datasetLoading ? null : action.payload.data; // Ensure null if datasetLoading is true
-
         state.error = null;
       })
       .addCase(applyAffectedActions.pending, (state) => {
