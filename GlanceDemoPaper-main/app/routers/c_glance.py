@@ -171,7 +171,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
             rd.set(cache_key,json.dumps(cache_ret), ex=3600)
 
             return {"actions": actions_returned,
-                    "TotalEffectiveness": round(eff/len(affected),2),
+                    "TotalEffectiveness": round(eff/len(affected),3),
                     "TotalCost": round(cost/eff,2),
                     "affected_clusters": result.to_dict(),
                     "eff_cost_actions": eff_cost_actions} 
