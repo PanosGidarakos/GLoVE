@@ -9,14 +9,17 @@ const routes = createBrowserRouter([
  
   {
     path: "/",
-    element: <ProtectedRoute element={<GlanceComponent />} />, // Protect this route
+    element: <GlanceComponent />,
     errorElement: <NotFound />
   },
-  {
-    path: "/login",
-    element: <Login />,
-    errorElement: <ErrorPage />,
-  },
+  // {
+  //   path: "/login",
+  //   element: <Login />,
+  //   errorElement: <ErrorPage />,
+  // },
 ]);
 
 export default routes;
+
+
+
