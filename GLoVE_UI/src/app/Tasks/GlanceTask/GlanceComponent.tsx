@@ -71,7 +71,6 @@ const GlanceComponent: React.FC = () => {
   const [selectedDataset, setSelectedDataset] = useState<string>("COMPAS Dataset");
   const [selectedModel, setSelectedModel] = useState<string>("XGBoost");
 
-  console.log("daa,model", selectedDataset, selectedModel)
 
 
 
@@ -229,7 +228,6 @@ const GlanceComponent: React.FC = () => {
   }
 
 
-  console.log("GlanceSate", glanceState)
 
   return (
     <Box

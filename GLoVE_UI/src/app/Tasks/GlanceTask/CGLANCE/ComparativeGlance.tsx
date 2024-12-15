@@ -110,7 +110,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       .catch((error) => {
         setResults(null); // Clear results if there's an error
         if (error?.detail) {
-          console.log("error", error)
           setErrorMessage(error.detail); // Set the error message from the response
         } else {
           setErrorMessage("An unexpected error occurred."); // Default error message

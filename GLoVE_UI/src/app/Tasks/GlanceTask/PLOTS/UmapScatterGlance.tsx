@@ -28,7 +28,6 @@ const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, n
     return reshapedObject;
   });
 
-  console.log("taexwgamhsei3",reshapedData)
 
   const scatterPlotSpec = {
 
