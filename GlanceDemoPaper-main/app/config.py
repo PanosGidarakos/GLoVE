@@ -1,5 +1,6 @@
 
 shared_resources = {
+    "method": None,
     "train_dataset": None,
     "data": None,
     "X_train": None,
