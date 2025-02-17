@@ -66,7 +66,7 @@ class Group_CF():
         print("Finding key difference features")
         key_difference_features_list = []
         direction_info_list = []
-        for i in  range(len(cfs_list)):
+        for i in range(len(cfs_list)):
             #direction_info below if you put directions
             key_difference_features,change_counts = get_key_difference_features(cfs_list[i], clusters[i],'target')
             key_difference_features_list.append(key_difference_features)
@@ -106,15 +106,11 @@ class Group_CF():
             display(best_counterfactual.to_frame().T)
             print(f"Effectiveness : {round(best_coverage,2)*100}% with cost: {best_cost} ")
                   
-        total_eff, total_cost = cumulative(self.affected, best_cfs, self.model,dist_func_dataframe)
+        total_eff, total_cost,all_predictions, chosen_actions, costs_list = cumulative(self.affected, best_cfs, self.model,dist_func_dataframe)
         print(f"Total Effectiveness : {round(total_eff,2)*100}% with cost {total_cost}")
         
-        return best_cfs,effs,costs,total_eff,total_cost
+        return best_cfs,effs,costs,total_eff,total_cost,all_predictions, chosen_actions, costs_list
             
-        
-        
-        
-        
         
 
 def _generate_clusters(
@@ -259,23 +255,35 @@ def select_best_counterfactual(model, candidate_counterfactuals, similar_instanc
     return best_counterfactual , best_coverage , best_cost
 
 def cumulative(instances, best_cfs, model,dist_func_dataframe):
-    total_changed = 0
-    total_instances = len(instances)
+
+    all_predictions = {}
     original_instances = instances.copy(deep=True)
     costs = [] 
+    i=0
     for series in best_cfs:
         # Apply the changes from the series to the instances DataFrame
         for col, value in series.items():
             instances[col] = value
         # Predict new labels
         new_predictions = model.predict(instances)
+        all_predictions[i+1]=new_predictions
+        i=i+1
         cur_costs = dist_func_dataframe(original_instances.reset_index(drop=True), instances.reset_index(drop=True))
 
         cur_costs[new_predictions == 0] = np.inf
         costs.append(cur_costs)
         instances = original_instances.copy(deep=True)
+
     final_costs = np.column_stack(costs).min(axis=1)
     effectiveness = (final_costs != np.inf).sum()
     cost = final_costs[final_costs != np.inf].sum()
+    final_output = []
 
-    return effectiveness/len(original_instances), cost/effectiveness
+    for row in np.column_stack(costs):
+        if np.all(row == np.inf):
+            final_output.append(np.inf)
+        else:
+            min_index = np.argmin(row)  
+            final_output.append(min_index)
+
+    return effectiveness/len(original_instances), cost/effectiveness, all_predictions, final_output , costs
