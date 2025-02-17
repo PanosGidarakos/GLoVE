@@ -23,6 +23,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
     if cache:
         print("Cache hit")
         cache_res = json.loads(cache)
+        shared_resources["method"] = cache_res["method"]
         shared_resources["clusters_res"] = {
             int(k): {  # Ensure key is Python int
             "action": pd.Series(v["action"]),
@@ -49,7 +50,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
     else:
         print(f"Cache key {cache_key} does not exist - Running C_GLANCE Algorithm")
         from methods.glance.utils.utils_data import preprocess_datasets, load_models
-
+        shared_resources["method"] = "glance"
         data = shared_resources.get("data").copy(deep=True)
         X_test = shared_resources.get("X_test").copy(deep=True)
         affected = shared_resources.get("affected").copy(deep=True)
@@ -160,6 +161,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                 for k, v in clusters_res.items()
             }
             cache_ret = {
+                "method": "glance",
                 "actions": actions_returned,
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
