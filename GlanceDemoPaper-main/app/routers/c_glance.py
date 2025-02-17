@@ -3,10 +3,10 @@ import logging
 from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
 from app.services.resources_service import load_dataset_and_model
-from src.glance.iterative_merges.iterative_merges import C_GLANCE
+from methods.glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
 from raiutils.exceptions import UserConfigValidationException
-from src.glance.iterative_merges.iterative_merges import apply_action_pandas,cumulative
+from methods.glance.iterative_merges.iterative_merges import apply_action_pandas,cumulative
 import pandas as pd
 import numpy as np
 import redis
@@ -48,7 +48,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                     "eff_cost_actions": cache_res['eff_cost_actions']} 
     else:
         print(f"Cache key {cache_key} does not exist - Running C_GLANCE Algorithm")
-        from src.glance.utils.utils_data import preprocess_datasets, load_models
+        from methods.glance.utils.utils_data import preprocess_datasets, load_models
 
         data = shared_resources.get("data").copy(deep=True)
         X_test = shared_resources.get("X_test").copy(deep=True)

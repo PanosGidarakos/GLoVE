@@ -3,7 +3,7 @@ import logging
 from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
 from app.services.resources_service import load_dataset_and_model
-from src.glance.counterfactual_tree.counterfactual_tree import T_GLANCE
+from methods.glance.counterfactual_tree.counterfactual_tree import T_GLANCE
 from typing import Union, List
 from app.services.resources_t_glance import to_json_structure
 from pydantic import BaseModel

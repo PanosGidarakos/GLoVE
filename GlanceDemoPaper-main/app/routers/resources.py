@@ -55,7 +55,7 @@ async def load_dataset_and_model_endpoint(dataset_name: str, model_name: str):
     try:
         # Call the service to load the dataset and model
         
-        train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name = load_dataset_and_model(dataset_name, model_name)
+        train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(dataset_name, model_name)
         affected = X_test[X_test.label == 0].reset_index()
         affected = affected.drop(columns='label')
         logging.debug("Model loaded successfully.")
