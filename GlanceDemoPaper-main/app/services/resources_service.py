@@ -73,13 +73,10 @@ def load_dataset_and_model_globece(dataset_name,model_name):
         B = pickle.load(f)
     normalise = [x_means, x_std] if normalisers[dataset_name] else None
 
-    predictions = B.predict(x_test)
-
     X_test = pd.DataFrame(x_test)
     X_test.columns = dataset.features[:-1]
-    affected = X_test[predictions==0]
 
-    return dataset , X_test, affected, B, normalise
+    return dataset , X_test, B, normalise
 
 
 def round_categorical(cf,features,features_tree):

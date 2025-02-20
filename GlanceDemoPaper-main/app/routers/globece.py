@@ -54,7 +54,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
         from methods.globe_ce.globe_ce import GLOBE_CE
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
         shared_resources["method"] = 'globece'
-        dataset , X_test, affected, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
+        dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
 
         n_bins = 10
         ordinal_features = []
@@ -63,7 +63,6 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
         bin_widths = ares_widths.bin_widths
 
         shared_resources["data"] = dataset.data
-        shared_resources["affected"] = affected
         shared_resources["X_test"] = X_test
         target_name = shared_resources.get("target_name")
 
@@ -79,6 +78,9 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                                 plot=False, seed=0, scheme='random',
                                 dropped_features=dropped_features)
         
+        x_aff = globe_ce.x_aff
+        affected = pd.DataFrame(x_aff,columns=globe_ce.feature_values)
+        shared_resources['affected'] = affected
         delta = globe_ce.best_delta
         if direction > 1:
             globe_ce.select_n_deltas(n_div=direction)
@@ -159,12 +161,12 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                     column_name = f"Action{z+1}_Prediction"
                     affected_clusters[column_name] = [val/100 for val in value]
                     if (sum(value)/100) == 0.0:
-                        eff_cost_actions[z] = {'eff':0.0 , 'cost':0.0}
+                        eff_cost_actions[z+1] = {'eff':0.0 , 'cost':0.0}
                         z=z+1
                     else:
                         eff_act = (sum(value)/100)/len(affected)
                         cost_act = sum(costs[i])/(sum(value)/100)
-                        eff_cost_actions[z] = {'eff':round(eff_act,3) , 'cost':round(cost_act,3)}
+                        eff_cost_actions[z+1] = {'eff':round(eff_act,3) , 'cost':round(cost_act,3)}
                         z=z+1
             affected_clusters['action_idxs'] = idxs
             print(idxs)
