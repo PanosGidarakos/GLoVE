@@ -11,6 +11,14 @@ from methods.globe_ce.globe_ce import GLOBE_CE
 def bold(string):
     return '\033[1m' + string + '\033[0m'
 
+def find_actions(scalars, delta):
+    actions = []
+    for i in range(scalars.shape[0]):
+        if i==0:
+            continue
+        actions.append(delta * scalars[i])
+    return actions
+
 def find_actions_costs(costs, idxs, scalars, delta):
     actions = []
     action_costs = []
@@ -134,7 +142,7 @@ def report_globece_actions(
         globe_ce_object=globe_ce_object,
         num_show=num_show,
     )
-    return unique_actions, avg_cost, effectiveness
+    return unique_actions, actions_unique, avg_cost, effectiveness
 
 def load_models(dataset_name, means, stds, dnn_normalisers, lr_normalisers):
     normalisers = {"dnn": dnn_normalisers, "lr": lr_normalisers, "xgb": {dataset_name: False}}

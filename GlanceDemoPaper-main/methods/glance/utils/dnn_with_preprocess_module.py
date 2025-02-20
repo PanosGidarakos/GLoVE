@@ -627,8 +627,9 @@ class dnn_with_preprocess():
             X_train = self.X_train
             X = X.to_numpy()
         elif self.dataset == "default":
-
+            self.X_train[self.num_features] = self.X_train[self.num_features].astype('int32')
             X_train = pd.get_dummies(self.X_train)
+            X[self.num_features] = X[self.num_features].astype('int32')
             X = pd.get_dummies(X)
             cols = [
                 "LIMIT_BAL",

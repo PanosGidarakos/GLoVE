@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import logging
 from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
-from app.services.resources_service import load_dataset_and_model
+from app.services.resources_service import round_categorical,reverse_one_hot
 from methods.glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
 from raiutils.exceptions import UserConfigValidationException
@@ -14,20 +14,19 @@ router = APIRouter()
 
 @router.get("/apply_affected_actions")
 async def apply_affected_actions():
-    affected = shared_resources.get("affected")
-    affected = affected.drop(columns=['index'])
-    clusters_res = shared_resources.get("clusters_res")
-    affected_clusters  = shared_resources.get("affected_clusters")
-    index = affected_clusters['index']
-    affected_clusters = affected_clusters.drop(columns='index')
-    sorted_actions_dict = dict(sorted(clusters_res.items(), key=lambda item: item[1]['cost']))
-    actions = [stats["action"] for i, stats in sorted_actions_dict.items()]
-
-    num_features = affected._get_numeric_data().columns.to_list()
-    cate_features = affected.columns.difference(num_features)
-    applied_affected = pd.DataFrame()
     if shared_resources["method"] == "glance":
+        affected = shared_resources.get("affected")
+        affected = affected.drop(columns=['index'])
+        clusters_res = shared_resources.get("clusters_res")
+        affected_clusters  = shared_resources.get("affected_clusters")
+        index = affected_clusters['index']
+        affected_clusters = affected_clusters.drop(columns='index')
+        sorted_actions_dict = dict(sorted(clusters_res.items(), key=lambda item: item[1]['cost']))
+        actions = [stats["action"] for i, stats in sorted_actions_dict.items()]
 
+        num_features = affected._get_numeric_data().columns.to_list()
+        cate_features = affected.columns.difference(num_features)
+        applied_affected = pd.DataFrame()
         for i,val in enumerate(list(affected_clusters.Chosen_Action.unique())):
             aff = affected_clusters[affected_clusters['Chosen_Action'] == val]
             if val != '-':
@@ -51,8 +50,21 @@ async def apply_affected_actions():
         shared_resources['applied_affected'] = applied_affected
         return applied_affected.to_dict()
     elif shared_resources["method"] == "groupcfe":
+        affected = shared_resources.get("affected")
+        affected = affected.drop(columns=['index'])
+        clusters_res = shared_resources.get("clusters_res")
+        affected_clusters  = shared_resources.get("affected_clusters")
+        index = affected_clusters['index']
+        affected_clusters = affected_clusters.drop(columns='index')
+        sorted_actions_dict = dict(sorted(clusters_res.items(), key=lambda item: item[1]['cost']))
+        actions = [stats["action"] for i, stats in sorted_actions_dict.items()]
+
+        num_features = affected._get_numeric_data().columns.to_list()
+        cate_features = affected.columns.difference(num_features)
+        applied_affected = pd.DataFrame()
         for i,val in enumerate(list(affected_clusters.Chosen_Action.unique())):
             aff = affected_clusters[affected_clusters['Chosen_Action'] == val]
+            print(aff)
             if val != '-':
                 for col, value in actions[int(val) - 1].items():
                     aff[col] = value
@@ -69,6 +81,50 @@ async def apply_affected_actions():
         applied_affected['index'] = index
         shared_resources['applied_affected'] = applied_affected
         return applied_affected.to_dict()
+    elif shared_resources["method"] == "globece":
+        affected = shared_resources.get("affected")
+        clusters_res = shared_resources.get("clusters_res")
+        affected_clusters  = shared_resources.get("affected_clusters")
+        # actions = [stats["action"] for i, stats in clusters_res.items()]
+
+        num_features = affected._get_numeric_data().columns.to_list()
+        cate_features = affected.columns.difference(num_features)
+        applied_affected = pd.DataFrame()
+        actions = shared_resources["actions"]
+        feature_values = shared_resources["features"]
+        feature_tree = shared_resources["features_tree"]
+        features = np.array(list(feature_tree))
+        # actions['idx'] = actions['idx'].astype(float)
+        # actions['idx'] = actions['idx'].astype(str)
+        for i,val in enumerate(list(affected_clusters.action_idxs.unique())):
+            print(val)
+            aff = affected_clusters[affected_clusters['action_idxs'] == val]
+            print(aff)
+            if val != '-':
+                print(actions[actions.idx == val].drop(columns=['idx','mean_cost','sum_flipped']))
+                action = actions[actions.idx == val].drop(columns=['idx','mean_cost','sum_flipped']).values
+                applied = round_categorical(aff[feature_values].values + action,features,feature_tree)
+                applied_df = pd.DataFrame(applied,columns=feature_values)
+                applied_df['Chosen_Action'] = aff.Chosen_Action.values[0]
+                applied_affected = pd.concat([applied_affected,applied_df])
+                print(applied_affected)
+            else:
+                aff['Chosen_Action'] = '-'
+                cols = affected.columns.to_list()
+                cols.append('Chosen_Action')
+                applied_affected = pd.concat([applied_affected,aff[cols]])
+        print(applied_affected.Chosen_Action.unique())
+        print(reverse_one_hot(applied_affected).Chosen_Action.unique())
+        
+        # shared_resources['applied_affected'] = applied_affected
+        print(reverse_one_hot(applied_affected))
+        print(applied_affected.shape)
+        shared_resources['applied_affected'] = applied_affected.reset_index(drop=True)
+        return reverse_one_hot(applied_affected).reset_index(drop=True).to_dict()
+
+        
+
+
 
 
     

@@ -1,0 +1,219 @@
+from fastapi import APIRouter, HTTPException
+import logging
+from app.config import shared_resources
+logging.basicConfig(level=logging.DEBUG)
+from methods.glance.iterative_merges.iterative_merges import C_GLANCE
+from typing import List, Optional
+from raiutils.exceptions import UserConfigValidationException
+from methods.groupcfe.group_cfe import cumulative
+import pandas as pd
+import numpy as np
+import redis
+import json
+from methods.globe_ce.helper_functions import find_actions,report_globece_actions
+from methods.globe_ce.ares import AReS
+from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot
+import math
+
+router = APIRouter()
+
+rd = redis.Redis(host="localhost", port=6379, db=0)
+
+@router.post("/run-globece", summary="Run GLOBE_CE")
+async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
+    cache_key = f"run-globece:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{features_to_change}:{direction}"
+    cache = rd.get(cache_key)
+    if cache:
+        print("Cache hit")
+        cache_res = json.loads(cache)
+        shared_resources["method"] = cache_res["method"]
+        shared_resources["clusters_res"] = {
+            int(k): {  # Ensure key is Python int
+            "action": pd.Series(v["action"]),
+        }
+        for k, v in cache_res["clusters_res"].items()}
+        shared_resources["affected"] = pd.DataFrame(cache_res["affected"])
+        shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])
+        shared_resources['actions'] = pd.DataFrame(cache_res['actions'])
+        shared_resources['features'] = cache_res['features']
+        shared_resources['features_tree'] = cache_res['features_tree']
+        # Change numeric columns to int32 for affected
+        numeric_cols_affected = shared_resources["affected"].select_dtypes(include=["number"]).columns
+        shared_resources["affected"][numeric_cols_affected] = shared_resources["affected"][numeric_cols_affected].astype("int32")
+
+        # Change numeric columns to int32 for affected_clusters
+        numeric_cols_affected_clusters = shared_resources["affected_clusters"].select_dtypes(include=["number"]).columns
+        shared_resources["affected_clusters"][numeric_cols_affected_clusters] = shared_resources["affected_clusters"][numeric_cols_affected_clusters].astype("int32")
+        # shared_resources["affected_clusters"]['Chosen_Action'] = shared_resources["affected_clusters"]['Chosen_Action'].astype('int64')
+        return {"actions": cache_res['actions_ret'],
+                    "TotalEffectiveness": cache_res['TotalEffectiveness'],
+                    "TotalCost": cache_res['TotalCost'],
+                    "affected_clusters": reverse_one_hot(shared_resources["affected_clusters"]).drop(columns=['action_idxs']).to_dict(),
+                    "eff_cost_actions": cache_res['eff_cost_actions']} 
+    else:
+        from methods.globe_ce.globe_ce import GLOBE_CE
+        print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
+        shared_resources["method"] = 'globece'
+        dataset , X_test, affected, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
+
+        n_bins = 10
+        ordinal_features = []
+        dropped_features = []
+        ares_widths = AReS(model=model, dataset=dataset, X=dataset.data.drop(columns='Status'), n_bins=10, normalise=normalise)
+        bin_widths = ares_widths.bin_widths
+
+        shared_resources["data"] = dataset.data
+        shared_resources["affected"] = affected
+        shared_resources["X_test"] = X_test
+        target_name = shared_resources.get("target_name")
+
+        bin_widths = ares_widths.bin_widths
+        
+        globe_ce = GLOBE_CE(model=model, dataset=dataset, X=X_test, affected_subgroup=None,
+                            dropped_features=dropped_features, delta_init='zeros',
+                            ordinal_features=ordinal_features, normalise=normalise,
+                            bin_widths=bin_widths, monotonicity=None, p=1)
+        
+        globe_ce.sample(n_sample=1000, magnitude=1, sparsity_power=5,
+                                idxs=None, n_features=features_to_change, disable_tqdm=False,
+                                plot=False, seed=0, scheme='random',
+                                dropped_features=dropped_features)
+        
+        delta = globe_ce.best_delta
+        if direction > 1:
+            globe_ce.select_n_deltas(n_div=direction)
+        
+        if direction == 1:
+            corrects, costs, scalars = globe_ce.scale(delta=delta, vector=True, plot=True, n_scalars=gcf_size)
+            min_costs, idxs = globe_ce.min_scalar_costs(costs=costs, return_idxs=True)
+
+            unique_actions, actions, avg_cost, effectiveness = report_globece_actions(
+                globe_ce_object=globe_ce,
+                idxs=idxs,
+                min_costs=min_costs,
+                scalars=scalars,
+                delta=delta,
+            )
+        else:
+            n_div = globe_ce.deltas_div.shape[0]
+            min_costs = np.zeros((n_div, globe_ce.x_aff.shape[0]))
+            min_costs_idxs = np.zeros((n_div, globe_ce.x_aff.shape[0]))
+            scalars = []
+            for i in range(n_div):  
+                cor_s, cos_s, k_s = globe_ce.scale(globe_ce.deltas_div[i], disable_tqdm=False, vector=True,n_scalars=gcf_size)
+                scalars.append(k_s)
+                min_costs[i], min_costs_idxs[i] = globe_ce.min_scalar_costs(cos_s, return_idxs=True, inf=True)
+
+            for i in range(n_div):
+                unique_actions, _, avg_cost, effectiveness = report_globece_actions(
+                    globe_ce_object=globe_ce,
+                    idxs=min_costs_idxs[i],
+                    min_costs=min_costs[i],
+                    scalars=scalars[i],
+                    delta=globe_ce.deltas_div[i],
+                )
+            min_costs = min_costs.min(axis=0)
+        
+        if direction > 1:
+            costs_bound, corrects_bound = globe_ce.accuracy_cost_bounds(min_costs)
+            print(f"Average cost : {costs_bound[-1]}")
+            print(f"Total Effectiveness : {corrects_bound[-1]}")
+        else:
+            costs_bound, corrects_bound = globe_ce.accuracy_cost_bounds(min_costs)
+            print(f"Average cost : {avg_cost}")
+            print(f"Total Effectiveness : {effectiveness}")
+            print(f"Average cost : {costs_bound[-1]}")
+            print(f"Total Effectiveness : {corrects_bound[-1]}")
+            print(actions)
+            #all actions
+            # actions = find_actions(scalars,delta)
+            # actions = pd.DataFrame(actions,columns=globe_ce.feature_values)
+            # processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(actions.to_numpy()),columns=globe_ce.feature_values))
+            processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(actions.drop(columns=['idx','sum_flipped','mean_cost']).to_numpy()),columns=globe_ce.feature_values))
+            flipped_idxs = idxs[~np.isnan(idxs)]
+            counterfactual_dict = {
+                i + 1: {
+                    "action": action,
+                }
+                for i, (action) in processed_actions.iterrows()
+            }
+            filtered_data = {
+                    k: {
+                        **{
+                            'action': {ak: av for ak, av in v['action'].items() if av != '-'}
+                        },
+                        **{kk: vv for kk, vv in v.items() if kk != 'action'}
+                    }
+                    for k, v in counterfactual_dict.items()
+            }
+
+            actions_returned = [stats["action"] for i,stats in filtered_data.items()]
+            affected_clusters = affected.copy(deep=True)
+
+            eff_cost_actions = {}
+            z=0
+            for i,value in enumerate(corrects.tolist()):
+                if i in np.unique(flipped_idxs):
+                    print(i)
+
+                    column_name = f"Action{z+1}_Prediction"
+                    affected_clusters[column_name] = [val/100 for val in value]
+                    if (sum(value)/100) == 0.0:
+                        eff_cost_actions[z] = {'eff':0.0 , 'cost':0.0}
+                        z=z+1
+                    else:
+                        eff_act = (sum(value)/100)/len(affected)
+                        cost_act = sum(costs[i])/(sum(value)/100)
+                        eff_cost_actions[z] = {'eff':round(eff_act,3) , 'cost':round(cost_act,3)}
+                        z=z+1
+            affected_clusters['action_idxs'] = idxs
+            print(idxs)
+            affected_clusters = affected_clusters.replace(np.nan , '-')
+            z=0
+            x = pd.DataFrame()
+            for i in list(np.unique(flipped_idxs)):
+                print(i)
+                aff = affected_clusters[affected_clusters.action_idxs == i]
+                print(aff)
+                aff['Chosen_Action'] = z+1
+                z = z+1
+                x = pd.concat([aff,x])
+            y = affected_clusters[affected_clusters.action_idxs =='-']
+            y['Chosen_Action'] = '-'
+            x = pd.concat([x,y])
+            print(x)
+
+            shared_resources['affected_clusters'] = x
+            shared_resources["actions"] = actions
+            shared_resources['features'] = globe_ce.feature_values
+            shared_resources['features_tree'] = globe_ce.features_tree
+            
+
+            serialized_clusters_res = {
+                int(k): {  # Convert key to Python int
+                    "action": v["action"].to_dict(),
+                }
+                for k, v in counterfactual_dict.items()
+            }
+            shared_resources["clusters_res"] = serialized_clusters_res
+            # print(affected_clusters)
+            cache_ret = {
+                "method" : 'globece',
+                "actions_ret": actions_returned,
+                "clusters_res": serialized_clusters_res,
+                "affected": affected.to_dict(orient='records'),
+                "TotalEffectiveness": round(corrects_bound[-1]/100,2),
+                "TotalCost": round(costs_bound[-1],2),
+                "affected_clusters": x.to_dict(orient='records'),
+                "eff_cost_actions": eff_cost_actions,
+                "actions": actions.to_dict(orient='records'),
+                "features": globe_ce.feature_values,
+                "features_tree": globe_ce.features_tree} 
+            rd.set(cache_key,json.dumps(cache_ret), ex=3600)
+            return {"actions": actions_returned,
+                    "TotalEffectiveness": round(corrects_bound[-1]/100,3),
+                    "TotalCost": round(costs_bound[-1],2),
+                    "affected_clusters": reverse_one_hot(x).drop(columns=['action_idxs']).to_dict(),
+                    "eff_cost_actions": eff_cost_actions
+                    } 
+            

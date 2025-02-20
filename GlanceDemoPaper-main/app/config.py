@@ -16,7 +16,9 @@ shared_resources = {
     "clusters_res": None,
     "affected_clusters": None,
     "umap_model": None,
-    "preprocess_pipeline": None
+    "preprocess_pipeline": None,
+    "umap_model_globece": None,
+    "preprocess_pipeline_globece": None
 }
 
 
