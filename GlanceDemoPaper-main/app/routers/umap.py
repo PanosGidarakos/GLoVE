@@ -23,14 +23,12 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
             raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
  
         request_data = shared_resources[dataset_key].copy(deep=True)
-        print(request_data)
+        request_data.reset_index(drop=True,inplace=True)
         data_all = shared_resources["data"]
-        print(data_all)
         feat = data_all.columns.to_list()
         target_name = shared_resources["target_name"]
         feat.remove(target_name)
         data = request_data.reindex(columns=feat, fill_value=0)
-        print(data)
         numeric_columns = data.select_dtypes(include="number").columns.to_list()
         categorical_columns = data.columns.difference(numeric_columns)
         
@@ -116,6 +114,10 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
                 umap_data['Chosen_Action'] = request_data.Chosen_Action
             elif dataset_key =='data':
                 umap_data = pd.DataFrame(reduced_data)
+                umap_data.reset_index(drop=True,inplace=True)
+                umap_data['label'] = request_data[target_name]
+                print(umap_data.shape)
+                print(umap_data.isna().sum())
                 umap_data['label'] = request_data[target_name]
             return {"reduced_data": umap_data.to_dict()}
 

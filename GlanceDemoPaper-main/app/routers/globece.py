@@ -45,26 +45,32 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
         numeric_cols_affected_clusters = shared_resources["affected_clusters"].select_dtypes(include=["number"]).columns
         shared_resources["affected_clusters"][numeric_cols_affected_clusters] = shared_resources["affected_clusters"][numeric_cols_affected_clusters].astype("int32")
         # shared_resources["affected_clusters"]['Chosen_Action'] = shared_resources["affected_clusters"]['Chosen_Action'].astype('int64')
-        return {"actions": cache_res['actions_ret'],
-                    "TotalEffectiveness": cache_res['TotalEffectiveness'],
-                    "TotalCost": cache_res['TotalCost'],
-                    "affected_clusters": reverse_one_hot(shared_resources["affected_clusters"]).drop(columns=['action_idxs']).to_dict(),
-                    "eff_cost_actions": cache_res['eff_cost_actions']} 
+        if 'action_idxs' in shared_resources["affected_clusters"].columns.tolist():
+            return {"actions": cache_res['actions_ret'],
+                        "TotalEffectiveness": cache_res['TotalEffectiveness'],
+                        "TotalCost": cache_res['TotalCost'],
+                        "affected_clusters": reverse_one_hot(shared_resources["affected_clusters"]).drop(columns=['action_idxs']).to_dict(),
+                        "eff_cost_actions": cache_res['eff_cost_actions']} 
+        else:
+            return {"actions": cache_res['actions_ret'],
+                        "TotalEffectiveness": cache_res['TotalEffectiveness'],
+                        "TotalCost": cache_res['TotalCost'],
+                        "affected_clusters": reverse_one_hot(shared_resources["affected_clusters"]).to_dict(),
+                        "eff_cost_actions": cache_res['eff_cost_actions']} 
     else:
         from methods.globe_ce.globe_ce import GLOBE_CE
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
         shared_resources["method"] = 'globece'
+
         dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
-
-        n_bins = 10
-        ordinal_features = []
-        dropped_features = []
-        ares_widths = AReS(model=model, dataset=dataset, X=dataset.data.drop(columns='Status'), n_bins=10, normalise=normalise)
-        bin_widths = ares_widths.bin_widths
-
         shared_resources["data"] = dataset.data
         shared_resources["X_test"] = X_test
         target_name = shared_resources.get("target_name")
+        n_bins = 10
+        ordinal_features = []
+        dropped_features = []
+        ares_widths = AReS(model=model, dataset=dataset, X=dataset.data.drop(columns=target_name), n_bins=10, normalise=normalise)
+        bin_widths = ares_widths.bin_widths
 
         bin_widths = ares_widths.bin_widths
         
@@ -101,11 +107,14 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             min_costs = np.zeros((n_div, globe_ce.x_aff.shape[0]))
             min_costs_idxs = np.zeros((n_div, globe_ce.x_aff.shape[0]))
             scalars = []
+            costs = []
+            corrects = []
             for i in range(n_div):  
                 cor_s, cos_s, k_s = globe_ce.scale(globe_ce.deltas_div[i], disable_tqdm=False, vector=True,n_scalars=gcf_size)
                 scalars.append(k_s)
                 min_costs[i], min_costs_idxs[i] = globe_ce.min_scalar_costs(cos_s, return_idxs=True, inf=True)
-
+                costs.append(cos_s)
+                corrects.append(cor_s)
             for i in range(n_div):
                 unique_actions, _, avg_cost, effectiveness = report_globece_actions(
                     globe_ce_object=globe_ce,
@@ -113,20 +122,117 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                     min_costs=min_costs[i],
                     scalars=scalars[i],
                     delta=globe_ce.deltas_div[i],
-                )
-            min_costs = min_costs.min(axis=0)
-        
+                )        
+            min_costs_for_eff = min_costs.min(axis=0)
+
         if direction > 1:
-            costs_bound, corrects_bound = globe_ce.accuracy_cost_bounds(min_costs)
+            costs_bound, corrects_bound = globe_ce.accuracy_cost_bounds(min_costs_for_eff)
             print(f"Average cost : {costs_bound[-1]}")
             print(f"Total Effectiveness : {corrects_bound[-1]}")
+
+            min_indices = np.argmin(min_costs, axis=0)  # direction from which the action was selected
+
+            # Get the actual minimum values
+            min_values = np.take_along_axis(min_costs, min_indices[None, :], axis=0).squeeze() 
+
+            # Get the corresponding values from second_array
+            corresponding_values = np.take_along_axis(min_costs_idxs, min_indices[None, :], axis=0).squeeze() #scalar used for the action
+            actions = []
+            actions_df = pd.DataFrame()
+            for i in range(min_indices.shape[0]):
+                if min_values[i] != np.inf:
+                    direct = min_indices[i]
+                    scalar = corresponding_values[i]
+                    action = find_actions(scalars[0][int(scalar)],globe_ce.deltas_div[direct])
+                    # actions.append(action)
+                    x = pd.DataFrame(action.reshape(1,-1),columns=globe_ce.feature_values)
+                    x['direction'] = direct
+                    x['scalar'] = scalar
+                    actions_df = pd.concat([actions_df,x])
+                else:
+                    x = pd.DataFrame(columns=['direction','scalar'])
+                    x.loc[0] = ['-', '-']
+                    actions_df = pd.concat([actions_df,x])
+                    actions_df=actions_df.fillna('-')    
+            unique_actions = actions_df[actions_df["direction"] != "-"].drop_duplicates().reset_index(drop=True)
+            unique_actions["Chosen_Action"] = range(1, len(unique_actions) + 1)
+            actions_df = actions_df.merge(unique_actions, on=["direction", "scalar"], how="left")
+            actions_df["Chosen_Action"] = actions_df["Chosen_Action"].fillna("-")
+            affected_clusters = pd.DataFrame(globe_ce.x_aff,columns=globe_ce.feature_values)
+            affected_clusters["Chosen_Action"] = actions_df["Chosen_Action"]
+
+
+            eff_cost_actions = {}
+            for i in unique_actions["Chosen_Action"].tolist():
+                column_name = f"Action{i}_Prediction"
+                action = unique_actions[unique_actions['Chosen_Action'] == i]
+
+                affected_clusters[column_name] = [val/100 for val in corrects[action.direction.values[0]][int(action.scalar.values[0])]]
+                if (sum(corrects[action.direction.values[0]][int(action.scalar.values[0])])/100) == 0.0:
+                    eff_cost_actions[i] = {'eff':0.0 , 'cost':0.0}
+                else:
+                    eff_act = (sum(corrects[action.direction.values[0]][int(action.scalar.values[0])])/100)/len(affected_clusters)
+                    cost_act = sum(costs[action.direction.values[0]][int(action.scalar.values[0])])/(sum(corrects[action.direction.values[0]][int(action.scalar.values[0])])/100)
+                    eff_cost_actions[i] = {'eff':round(eff_act,3) , 'cost':round(cost_act,3)}
+            
+
+
+            processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(unique_actions.drop(columns=['direction','scalar','Chosen_Action']).to_numpy()),columns=globe_ce.feature_values))
+            counterfactual_dict = {
+                i + 1: {
+                    "action": action,
+                }
+                for i, (action) in processed_actions.iterrows()
+            }
+            filtered_data = {
+                    k: {
+                        **{
+                            'action': {ak: av for ak, av in v['action'].items() if av != '-'}
+                        },
+                        **{kk: vv for kk, vv in v.items() if kk != 'action'}
+                    }
+                    for k, v in counterfactual_dict.items()
+            }
+            actions_returned = [stats["action"] for i,stats in filtered_data.items()]
+            shared_resources['affected_clusters'] = affected_clusters
+            shared_resources["actions"] = unique_actions
+            shared_resources['features'] = globe_ce.feature_values
+            shared_resources['features_tree'] = globe_ce.features_tree
+            
+
+            serialized_clusters_res = {
+                int(k): {  # Convert key to Python int
+                    "action": v["action"].to_dict(),
+                }
+                for k, v in counterfactual_dict.items()
+            }
+            shared_resources["clusters_res"] = serialized_clusters_res
+            # print(affected_clusters)
+            cache_ret = {
+                "method" : 'globece',
+                "actions_ret": actions_returned,
+                "clusters_res": serialized_clusters_res,
+                "affected": affected.to_dict(orient='records'),
+                "TotalEffectiveness": round(corrects_bound[-1]/100,2),
+                "TotalCost": round(costs_bound[-1],2),
+                "affected_clusters": affected_clusters.to_dict(orient='records'),
+                "eff_cost_actions": eff_cost_actions,
+                "actions": unique_actions.to_dict(orient='records'),
+                "features": globe_ce.feature_values,
+                "features_tree": globe_ce.features_tree} 
+            rd.set(cache_key,json.dumps(cache_ret), ex=3600)
+            return {"actions": actions_returned,
+                    "TotalEffectiveness": round(corrects_bound[-1]/100,3),
+                    "TotalCost": round(costs_bound[-1],2),
+                    "affected_clusters": reverse_one_hot(affected_clusters).to_dict(),
+                    "eff_cost_actions": eff_cost_actions
+                    } 
         else:
             costs_bound, corrects_bound = globe_ce.accuracy_cost_bounds(min_costs)
             print(f"Average cost : {avg_cost}")
             print(f"Total Effectiveness : {effectiveness}")
             print(f"Average cost : {costs_bound[-1]}")
             print(f"Total Effectiveness : {corrects_bound[-1]}")
-            print(actions)
             #all actions
             # actions = find_actions(scalars,delta)
             # actions = pd.DataFrame(actions,columns=globe_ce.feature_values)
@@ -156,7 +262,6 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             z=0
             for i,value in enumerate(corrects.tolist()):
                 if i in np.unique(flipped_idxs):
-                    print(i)
 
                     column_name = f"Action{z+1}_Prediction"
                     affected_clusters[column_name] = [val/100 for val in value]
@@ -169,14 +274,11 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                         eff_cost_actions[z+1] = {'eff':round(eff_act,3) , 'cost':round(cost_act,3)}
                         z=z+1
             affected_clusters['action_idxs'] = idxs
-            print(idxs)
             affected_clusters = affected_clusters.replace(np.nan , '-')
             z=0
             x = pd.DataFrame()
             for i in list(np.unique(flipped_idxs)):
-                print(i)
                 aff = affected_clusters[affected_clusters.action_idxs == i]
-                print(aff)
                 aff['Chosen_Action'] = z+1
                 z = z+1
                 x = pd.concat([aff,x])

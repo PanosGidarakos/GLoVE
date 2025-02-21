@@ -12,12 +12,12 @@ def bold(string):
     return '\033[1m' + string + '\033[0m'
 
 def find_actions(scalars, delta):
-    actions = []
-    for i in range(scalars.shape[0]):
-        if i==0:
-            continue
-        actions.append(delta * scalars[i])
-    return actions
+    # actions = []
+    # for i in range(scalars.shape[0]):
+    #     if i==0:
+    #         continue
+    # actions.append(delta * scalars)
+    return delta * scalars
 
 def find_actions_costs(costs, idxs, scalars, delta):
     actions = []
