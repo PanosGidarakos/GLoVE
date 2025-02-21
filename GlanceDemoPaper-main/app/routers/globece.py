@@ -62,10 +62,14 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
         shared_resources["method"] = 'globece'
 
-        dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
-        shared_resources["data"] = dataset.data
-        shared_resources["X_test"] = X_test
-        target_name = shared_resources.get("target_name")
+        if shared_resources['dataset_name'] in ['compas','heloc','german_credit','default_credit']:
+            dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
+            shared_resources["data"] = dataset.data
+            shared_resources["X_test"] = X_test
+            target_name = shared_resources.get("target_name")
+        else:
+            pass
+
         n_bins = 10
         ordinal_features = []
         dropped_features = []

@@ -50,14 +50,38 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
     else:
         print(f"Cache key {cache_key} does not exist - Running C_GLANCE Algorithm")
         from methods.glance.utils.utils_data import preprocess_datasets, load_models
+        
+        if shared_resources["method"] == 'globece':
+            train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
+            affected = X_test[X_test.label == 0].reset_index()
+            affected = affected.drop(columns='label')
+            logging.debug("Model loaded successfully.")
+
+            # shared_resources['dataset_name'] = dataset_name
+            # shared_resources['model_name'] = model_name
+            shared_resources["train_dataset"] = train_dataset
+            shared_resources["data"] = data
+            shared_resources["X_train"] = X_train
+            shared_resources["y_train"] = y_train
+            shared_resources["X_test"] = X_test
+            shared_resources["y_test"] = y_test
+            shared_resources["affected"] = affected
+            shared_resources["_unaffected"] = _unaffected
+            shared_resources["model"] = model
+            shared_resources["feat_to_vary"] = feat_to_vary
+            shared_resources["target_name"] = target_name
+            shared_resources["umap_model"] = None
+            shared_resources["preprocess_pipeline"] = None
+
+
         shared_resources["method"] = "glance"
         data = shared_resources.get("data").copy(deep=True)
         X_test = shared_resources.get("X_test").copy(deep=True)
         affected = shared_resources.get("affected").copy(deep=True)
         model = shared_resources.get("model")
         target_name = shared_resources.get("target_name")
-
         X_test.rename(columns={"label": "target"},inplace=True)
+        print(X_test)
         
             # Retrieve values from the shared global state
         # train_dataset, data, X_train, y_train, X_test, y_test, affected, _unaffected, model, feat_to_vary, target_name = load_dataset_and_model(dataset_name, model_name)

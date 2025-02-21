@@ -59,17 +59,18 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
         target_name = shared_resources.get("target_name")
         train_dataset = shared_resources.get("train_dataset")
         _unaffected = shared_resources.get("_unaffected")
-
+        
         num_features = X_test.drop(columns='label')._get_numeric_data().columns.to_list()
         cate_features = X_test.drop(columns='label').columns.difference(num_features)
         features = data.columns.to_list()
         features.remove(target_name)
         feat_to_vary = features_to_change if features_to_change else features
+        X_test.rename(columns={"label": "target"},inplace=True)
 
         group_cfe = Group_CF(
             model = model,
             data = data,
-            train_dataset = train_dataset,
+            train_dataset = X_test,
             affected = affected.drop(columns='index'),
             unaffected = _unaffected,
             numerical_features = num_features,
