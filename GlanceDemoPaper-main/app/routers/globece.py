@@ -33,6 +33,8 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
         }
         for k, v in cache_res["clusters_res"].items()}
         shared_resources["affected"] = pd.DataFrame(cache_res["affected"])
+        shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
+        shared_resources["data"] = pd.DataFrame(cache_res["data"])
         shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])
         shared_resources['actions'] = pd.DataFrame(cache_res['actions'])
         shared_resources['features'] = cache_res['features']
@@ -215,6 +217,8 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             cache_ret = {
                 "method" : 'globece',
                 "actions_ret": actions_returned,
+                "data": shared_resources["data"].to_dict(orient='records'),
+                "X_test": X_test.to_dict(orient='records'),
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
                 "TotalEffectiveness": round(corrects_bound[-1]/100,2),

@@ -32,8 +32,9 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
             "size": v["size"]
         }for k, v in cache_res["clusters_res"].items()}
         shared_resources["affected"] = pd.DataFrame(cache_res["affected"])
-        shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])\
-
+        shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])
+        shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
+        shared_resources["data"] = pd.DataFrame(cache_res["data"])
         # Change numeric columns to int32 for affected
         numeric_cols_affected = shared_resources["affected"].select_dtypes(include=["number"]).columns
         shared_resources["affected"][numeric_cols_affected] = shared_resources["affected"][numeric_cols_affected].astype("int32")
@@ -186,9 +187,11 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
             }
             cache_ret = {
                 "method": "glance",
+                "data": shared_resources["data"].to_dict(orient='records'),
                 "actions": actions_returned,
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
+                "X_test": X_test.to_dict(orient='records'),
                 "TotalEffectiveness": round(eff/len(affected),2),
                 "TotalCost": round(cost/eff,2),
                 "affected_clusters": result.to_dict(orient='records'),

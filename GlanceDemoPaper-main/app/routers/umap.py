@@ -24,6 +24,8 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
  
         request_data = shared_resources[dataset_key].copy(deep=True)
         request_data.reset_index(drop=True,inplace=True)
+        print(request_data)
+        print(request_data.isna().sum())
         data_all = shared_resources["data"]
         feat = data_all.columns.to_list()
         target_name = shared_resources["target_name"]
