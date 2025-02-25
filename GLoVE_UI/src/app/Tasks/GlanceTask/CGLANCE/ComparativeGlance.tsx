@@ -29,8 +29,6 @@ import WorkflowCard from "../../../../shared/components/workflow-card"
 import MetricSummary from "../MetricSummary"
 import ActionScatter from "../PLOTS/ActionScatter"
 import UmapGlanceComponent from "../UmapGlanceComponent"
-import { a } from "vitest/dist/suite-dWqIFb_-.js"
-import { set } from "lodash"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -271,7 +269,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           {/*algo*/}
 
           <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-            <InputLabel id="Algorithm Selection">Algorithm Selection</InputLabel>
+            <InputLabel id="Algorithm Selection">
+              Algorithm Selection
+            </InputLabel>
             <Select
               labelId="Algorithm Selection"
               value={algorithm}
@@ -340,7 +340,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 </Select>
               </FormControl>
               <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
-                <InputLabel id="Features to change">Features to change</InputLabel>
+                <InputLabel id="Features to change">
+                  Features to change
+                </InputLabel>
                 <Select
                   labelId="Features to change"
                   value={features_to_change}
@@ -667,6 +669,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                                 "Chosen_Action"
                               ]
                             }
+                            eff_cost_actions={selectedDetails.eff_cost_actions}
                           />
                         </WorkflowCard>
                         <FormControlLabel
@@ -693,7 +696,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                               <ActionScatter
                                 data1={selectedDetails.affected_clusters}
                                 data2={selectedDetails.applyAffectedActions}
-                                actions={selectedDetails.actions}
                                 eff_cost_actions={
                                   selectedDetails.eff_cost_actions
                                 }

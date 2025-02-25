@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Paper, Box } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
-import WorkflowCard from '../../../shared/components/workflow-card';
 import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
 
 interface ScatterPlotProps {
   data: any; // The data you want to plot
   actions: any | null; // The actions to be plotted
-  name: string;
   eff_cost_actions: any
 }
 
-const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, name, eff_cost_actions }) => {
+const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, eff_cost_actions }) => {
   // State to store selected action
   const [selectedAction, setSelectedAction] = useState<string>('Action1_Prediction');
 
@@ -96,29 +93,7 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, name, eff_cost_ac
 
   return (
     <Paper>
-
-
-
       <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-
-        <Box width="100%" minWidth="100px">
-          <DataGrid
-            rows={tableRows}
-            columns={tableColumns}
-            autoHeight
-            disableColumnMenu
-            sx={{ marginTop: 1 }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 5,
-                },
-              }
-            }
-            }
-            pageSizeOptions={[5, 10]}
-          />
-        </Box>
       </Box>
 
         <FormControl fullWidth margin="normal">

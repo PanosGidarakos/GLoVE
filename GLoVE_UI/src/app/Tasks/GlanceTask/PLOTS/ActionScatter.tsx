@@ -8,10 +8,9 @@ import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalit
 interface ActionScatterProps {
   data1: any;
   data2: any;
-  actions: any;
   eff_cost_actions: any;
 }
-const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatterProps) => {
+const ActionScatter = ({ data1, data2, eff_cost_actions }: ActionScatterProps) => {
 
 
   const tableRows = Object.keys(eff_cost_actions).map((key) => ({
@@ -293,12 +292,10 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               maxHeight={500}
               maxWidth={500}
               aspectRatio={1}
-
             />
           </WorkflowCard>
         </Grid>
         <Grid item xs={12} md={6}>
-
 
 
           <WorkflowCard title="Post-Action Selection"
@@ -319,40 +316,13 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
 
 
       {selectedEffCost && (
-        <WorkflowCard title="Action Effectiveness and Cost Summary" description="Displays the effectiveness and cost of each action when applied to all affected instances, providing a detailed overview of how each action impacts performance.">
+        <>
 
           <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap', marginTop: '20px' }}>
-            {/* Left side (Dropdown and DataGrid) */}
-            {/* Dropdown (Form Control) */}
-
-
-            {/* DataGrid (just below the dropdown) */}
-            <Box width="100%" minWidth="100px">
-              <DataGrid
-                rows={tableRows}
-                columns={tableColumns}
-                autoHeight
-                disableColumnMenu
-                sx={{ marginTop: 1 }}
-                initialState={{
-                  pagination: {
-                    paginationModel: {
-                      pageSize: 5,
-                    },
-                  }
-                }
-                }
-                pageSizeOptions={[5, 10]}
-              />
-            </Box>
           </Box>
-
           <Grid >
-
-
             {/* Right side (Vega-Lite Chart) */}
             <Box style={{marginBottom: '20px'}}>
-
               <FormControl variant="outlined" fullWidth sx={{marginTop:2}}>
                 <InputLabel>Apply</InputLabel>
                 <Select
@@ -382,29 +352,11 @@ const ActionScatter = ({ data1, data2, actions, eff_cost_actions }: ActionScatte
               <Box display="flex"
                 justifyContent="center"
                 alignItems="center">
-
-
                 <ResponsiveVegaLite spec={Colorspec(transformedData1)} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} />
               </Box>
               </Box>
           </Grid>
-          {/* <WorkflowCard 
-        title='' 
-        description=
-        'Action Selection Scatter Plot : Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction. Post-Action Selection Scatter Plot: Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.'>
-        <ResponsiveVegaLite
-    spec={sharedLegendSpec(transformedData1, transformedData2)}
-    actions={false}
-    minWidth={100}
-    aspectRatio={2/1}
-  />
-
-        </WorkflowCard> */}
-
-
-        </WorkflowCard>
-
-
+        </>
       )}
     </>
 

@@ -9,9 +9,10 @@ interface MetricSummaryProps {
     eff: number;
     actions: any;
     instances: any;
+    eff_cost_actions:any;
 }
 
-const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff, actions, instances }) => {
+const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff, actions, instances,eff_cost_actions }) => {
 
 
     const counts: { [key: string]: number } = {};
@@ -71,7 +72,7 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff, actions, insta
             </Box>
             <Box>
                 <WorkflowCard title={"CounterFactual Actions"} description="Set of final global counterfactual actions generated">
-                    <ActionsTable data={actionsWithAction} title={""} showArrow={true} />
+                    <ActionsTable data={actionsWithAction} title={""} showArrow={true} eff_cost_actions={eff_cost_actions} />
                 </WorkflowCard>
             </Box>
 
