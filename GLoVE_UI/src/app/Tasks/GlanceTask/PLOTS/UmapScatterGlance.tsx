@@ -50,6 +50,8 @@ const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, n
  
 
     mark: 'point',
+    width:300,
+    height:300,
     selection: {
       // Interval selection for zoom and pan
       grid: {
@@ -90,6 +92,8 @@ const UmapScatterGlance: React.FC<ScatterPlotProps> = ({ data, color, actions, n
  
 
     mark: 'point',
+    width:300,
+    height:300,
     selection: {
       // Interval selection for zoom and pan
       grid: {

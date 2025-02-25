@@ -5,10 +5,9 @@ import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
 interface ScatterPlotProps {
   data: any; // The data you want to plot
   actions: any | null; // The actions to be plotted
-  eff_cost_actions: any
 }
 
-const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, eff_cost_actions }) => {
+const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions }) => {
   // State to store selected action
   const [selectedAction, setSelectedAction] = useState<string>('Action1_Prediction');
 
@@ -18,18 +17,6 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, eff_cost_actions 
     y: data[1][key], // Second dimension (e.g., Y-axis)
     [selectedAction]: actions.find((action: any) => action.key === selectedAction)?.value[key],
   }));
-
-  const tableRows = Object.keys(eff_cost_actions).map((key) => ({
-    id: key,
-    eff: (eff_cost_actions[key].eff * 100).toFixed(2),
-    cost: (eff_cost_actions[key].cost).toFixed(2),
-  }));
-
-  const tableColumns = [
-    { field: 'id', headerName: 'Action', flex: 1 },
-    { field: 'eff', headerName: 'Effectiveness %', flex: 1, },
-    { field: 'cost', headerName: 'Cost', flex: 1 },
-  ];
 
   // Vega-Lite specification
   const spec = {
@@ -92,10 +79,8 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, eff_cost_actions 
   };
 
   return (
-    <Paper>
-      <Box className="panel" style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-      </Box>
-
+    <>
+        <Box sx={{padding:2}}>
         <FormControl fullWidth margin="normal">
           <InputLabel id="select-action-label">Apply</InputLabel>
           <Select
@@ -118,7 +103,8 @@ const LastUmap: React.FC<ScatterPlotProps> = ({ data, actions, eff_cost_actions 
           </Select>
         </FormControl>
         <ResponsiveVegaLite spec={spec} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} actions={false} />
-    </Paper>
+        </Box>
+    </>
   );
 };
 

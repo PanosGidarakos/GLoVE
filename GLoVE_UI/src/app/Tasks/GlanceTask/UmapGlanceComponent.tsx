@@ -8,14 +8,12 @@ interface UmapGlanceComponentProps {
   applied_aff_data: any
   aff_data: any
   actions: any
-  eff_cost_actions: any
 }
 
 const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
   applied_aff_data,
   aff_data,
   actions,
-  eff_cost_actions,
 }) => {
   return (
     <>
@@ -39,7 +37,6 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
             const number = parseInt(key.match(/\d+/)?.[0] || "", 10)
             return { key, value: actions[key], number }
           })}
-        eff_cost_actions={eff_cost_actions}
       />
     </>
   )

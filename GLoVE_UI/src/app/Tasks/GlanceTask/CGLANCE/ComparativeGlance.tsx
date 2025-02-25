@@ -585,7 +585,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
               {/* Render Valid Results */}
               {validResults.length > 0 && (
-                <Box sx={{ marginTop: 2 }}>
+                <Box sx={{ marginTop: 2,  padding:2}}>
                   <WorkflowCard
                     title="Counterfactual Analysis Results"
                     description=""
@@ -698,7 +698,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             }
                             aff_data={glanceState.umapReduceResults}
                             actions={selectedDetails.affected_clusters}
-                            eff_cost_actions={selectedDetails.eff_cost_actions}
                           />
                           </Box>
                         )}
