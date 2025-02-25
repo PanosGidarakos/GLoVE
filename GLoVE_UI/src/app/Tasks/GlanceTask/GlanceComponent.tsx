@@ -251,7 +251,7 @@ const GlanceComponent: React.FC = () => {
 
         }}
       >
-        GLOVES: Global Counterfactual-based Visual Explanations
+        GLOVES: Global Counterfactual-based Visual Explanations NEW BRANCH NEW ME
       </Typography>
 
       <Stepper activeStep={activeStep} alternativeLabel sx={{ marginBottom: 2, marginTop: 2 }} >
