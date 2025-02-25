@@ -17,7 +17,6 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
 }) => {
   return (
     <>
-      <Grid container spacing={2}>
           
             <UmapScatterGlance
               data={aff_data["affectedData"].reduced_data}
@@ -27,7 +26,6 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
               otherdata={applied_aff_data.reduced_data}
             />
       
-      </Grid>
 
       <LastUmap
         data={aff_data["affectedData"].reduced_data}

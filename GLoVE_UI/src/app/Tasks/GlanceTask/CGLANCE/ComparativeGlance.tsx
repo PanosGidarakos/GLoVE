@@ -679,7 +679,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             flexWrap="wrap"
                             gap={2}
                           >
-                            <Box flex={1} minWidth={0}>
+                            <Box sx={{padding:2}}>
                               <ActionScatter
                                 data1={selectedDetails.affected_clusters}
                                 data2={selectedDetails.applyAffectedActions}
