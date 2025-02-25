@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { VisualizationSpec } from 'react-vega';
+import { VegaLite, VisualizationSpec } from 'react-vega';
 import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import WorkflowCard from '../../../../shared/components/workflow-card';
@@ -230,10 +230,11 @@ const ActionScatter = ({ data1, data2, eff_cost_actions }: ActionScatterProps) =
 
       },
 
-    ],
 
-    width: 200, // Width for each plot
-    height: 500, // Height for each plot
+    ],
+  
+
+    
   }) as VisualizationSpec;
 
 
@@ -277,42 +278,20 @@ const ActionScatter = ({ data1, data2, eff_cost_actions }: ActionScatterProps) =
         </FormControl>
       </Box>
 
-      <Grid container spacing={2}>
-        <Grid item xs={12} md={6}>
+      <Box >
 
 
 
-          <WorkflowCard title="Action Selection"
-            description="Visualizes affected instances, each labeled with the number corresponding to the global counterfactual action they selected to flip their prediction.">
-            <ResponsiveVegaLite
-              spec={spec(transformedData1)}
+          
+            <VegaLite
+              spec={sharedLegendSpec(transformedData1,transformedData2)}
               actions={false}
-              minWidth={100}
-              minHeight={100}
-              maxHeight={500}
-              maxWidth={500}
-              aspectRatio={1}
+              width={1000}
+              height={500}
+             
             />
-          </WorkflowCard>
-        </Grid>
-        <Grid item xs={12} md={6}>
-
-
-          <WorkflowCard title="Post-Action Selection"
-
-            description="Displays affected instances after the selected actions have been applied, with updated feature values and labeled by the chosen action.">
-            <ResponsiveVegaLite spec={spec(transformedData2)}
-              actions={false}
-              minWidth={100}
-              minHeight={100}
-              maxHeight={500}
-              maxWidth={500}
-              aspectRatio={1}
-
-            />
-          </WorkflowCard>
-        </Grid>
-      </Grid>
+    
+      </Box>
 
 
       {selectedEffCost && (

@@ -22,15 +22,17 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
     return Array.from(keysSet);
   };
 
-  // Function to generate columns dynamically, placing Eff and Cost next to Action
+  // Function to generate columns dynamically, including eff and cost
   const getColumns = (data: any[]): GridColDef[] => {
     const keys = getUniqueKeys(data);
 
-    // Find the index of the Action column
-    const actionIndex = keys.indexOf("Action");
+    // Move "Population" key to the end
+    const reorderedKeys = keys.filter((key) => key !== "Population");
+    if (keys.includes("Population")) {
+      reorderedKeys.push("Population");
+    }
 
-    // Create base columns
-    const baseColumns = keys.map((key) => ({
+    const baseColumns = reorderedKeys.map((key) => ({
       field: key,
       headerName: key.charAt(0).toUpperCase() + key.slice(1),
       width: 200,
@@ -53,12 +55,16 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
           );
         }
 
-        return value ?? <span style={{ color: "#aaa" }}>-</span>;
+        if (value === undefined || value === null) {
+          return <span style={{ color: "#aaa" }}>-</span>;
+        }
+
+        return value;
       },
     }));
 
-    // Define Effectiveness and Cost columns
-    const effCostColumns: GridColDef[] = [
+    // Add Eff and Cost columns
+    const additionalColumns: GridColDef[] = [
       {
         field: "eff",
         headerName: "Effectiveness %",
@@ -69,23 +75,16 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
         field: "cost",
         headerName: "Cost",
         width: 150,
-        renderCell: (params) => (params.value ? params.value.toFixed(2) : "-"),
+        renderCell: (params) => params.value?.toFixed(2) ?? "-",
       },
     ];
 
-    // Insert Eff and Cost right after the Action column
-    if (actionIndex !== -1) {
-      baseColumns.splice(actionIndex + 1, 0, ...effCostColumns);
-    } else {
-      baseColumns.push(...effCostColumns);
-    }
-
-    return baseColumns;
+    return [...baseColumns, ...additionalColumns];
   };
 
   // Merge eff_cost_actions into data rows
   const enrichedData = data.map((item, index) => {
-    const actionId = item.Action?.toString();
+    const actionId = item.Action?.toString(); // Assuming the "Action" field matches the eff_cost_actions keys
     const effCost = actionId ? eff_cost_actions[actionId] : { eff: null, cost: null };
     return { id: index, ...item, ...effCost };
   });
@@ -110,7 +109,7 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
           },
         }}
         pageSizeOptions={[5, 10]}
-        // hideFooter
+        hideFooter
       />
     </Box>
   );

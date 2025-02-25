@@ -43,7 +43,7 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff, actions, insta
     }
 
     return (
-        <Paper>
+        <>
             {/* <Typography variant="h6" fontWeight={"bold"} sx={{ padding: 1 }}>Metric Summary</Typography> */}
 
             <Box
@@ -70,13 +70,11 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({ cost, eff, actions, insta
                     </Box>
                 </Paper>
             </Box>
-            <Box>
-                <WorkflowCard title={"CounterFactual Actions"} description="Set of final global counterfactual actions generated">
+            <Box sx={{ padding: 2 }}>
                     <ActionsTable data={actionsWithAction} title={""} showArrow={true} eff_cost_actions={eff_cost_actions} />
-                </WorkflowCard>
             </Box>
 
-        </Paper>
+        </>
 
     );
 };

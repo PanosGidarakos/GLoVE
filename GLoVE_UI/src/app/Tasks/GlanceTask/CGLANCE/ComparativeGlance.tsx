@@ -255,7 +255,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     : []
 
   return (
-    <WorkflowCard title="Counterfactual Analysis Configuration:" description="">
+    <WorkflowCard title="Counterfactual Analysis Configuration" description="">
       <Box marginTop={2}>
         <Box
           display="flex"
@@ -264,6 +264,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           marginBottom={2}
           marginTop={2}
           flexWrap="wrap"
+          padding={2}
         >
           {/* Execution Mode Dropdown */}
           {/*algo*/}
@@ -639,27 +640,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   </WorkflowCard>
                   {selectedDetails && (
                     <>
-                      <Box marginTop={4}>
+                      <Box marginTop={4} padding={2}>
                         <WorkflowCard
                           title={"Metric Summary"}
                           description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
             Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
                         >
-                          {/* <Box
-                  display="flex"
-                  justifyContent="flex-end"
-                  alignItems="flex-end"
-                  position="absolute"
-
-                >
-                  <Button
-                    variant="text"
-                    onClick={clearDetails} // Clear the details view
-                    style={{ minWidth: "40px", padding: "4px" }}
-                  >
-                    ✕
-                  </Button>
-                </Box> */}
                           <MetricSummary
                             cost={selectedDetails.TotalCost}
                             eff={selectedDetails.TotalEffectiveness}
@@ -672,6 +658,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             eff_cost_actions={selectedDetails.eff_cost_actions}
                           />
                         </WorkflowCard>
+                        
                         <FormControlLabel
                           control={
                             <Switch
@@ -703,6 +690,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             </Box>
                           </Box>
                         ) : (
+                          
+                          <Box sx={{padding:2}}>
                           <UmapGlanceComponent
                             applied_aff_data={
                               selectedDetails.umapOfAppliedAffected.data
@@ -711,6 +700,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             actions={selectedDetails.affected_clusters}
                             eff_cost_actions={selectedDetails.eff_cost_actions}
                           />
+                          </Box>
                         )}
                       </Box>
                     </>
