@@ -6,6 +6,7 @@ import axios from "axios";
 
 interface GlanceState {
   welcomeMessage: string;
+
   availableResources: AvailableResources;
   availableCfMethods: string[];
   availableFeatures: string[];
@@ -57,8 +58,10 @@ const initialState: GlanceState = {
   runTGlanceResult: null,
   loading: false,
   datasetLoading: false, // Specific loading state for dataset/model loading
+
   error: null,
   initialLoading: true,
+
   applyAffectedActionsResult: null,
   processedSizes: [],
   umapReduceResults: {},
@@ -66,6 +69,11 @@ const initialState: GlanceState = {
   comparativeResults: {},
   comparativeLoading: false,
   targetName: null, // Initialize it
+
+
+
+
+
 };
 
 interface AvailableResources {
@@ -83,10 +91,6 @@ interface ComparativeParams {
   methods?: string[];
   strategies?: string[];
   selectedFeatures?: string[];
-  algorithm?: string | number | boolean;
-  direction:number;
-  features_to_change:number;
-
 }
 
 // Type for the runCGlance parameters
@@ -95,9 +99,6 @@ interface RunCGlanceParams {
   cf_method: string;
   action_choice_strategy: string;
   selected_features?: string[]; // Optional array of selected features
-  algorithm?: string | number | boolean;
-  features_to_change?:number;
-  direction?:number;
 }
 // Type for the loadDatasetAndModel parameters
 interface LoadDatasetAndModelParams {
@@ -110,7 +111,7 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-const API_BASE_URL = "http://localhost:8000/";
+const API_BASE_URL = "http://gloves.imsi.athenarc.gr:8000/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
@@ -158,18 +159,16 @@ export const umapReduce = createAsyncThunk(
 // Define a thunk for runCGlance with parameters
 export const runCGlance = createAsyncThunk(
   "glance/runCGlance",
-  async ({ gcf_size, cf_method, action_choice_strategy, selected_features,algorithm,direction,features_to_change }: RunCGlanceParams, { rejectWithValue }) => {
+  async ({ gcf_size, cf_method, action_choice_strategy, selected_features }: RunCGlanceParams, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}${encodeURIComponent(algorithm ?? '')}`,
+        `${API_BASE_URL}run-c_glance`,
         selected_features?.length ? selected_features : null, // Pass selected features or null
         {
           params: {
             gcf_size,
             cf_method,
             action_choice_strategy,
-            direction,
-            features_to_change
           },
         }
       );
@@ -299,7 +298,7 @@ export const fetchTargetName = createAsyncThunk(
 export const runCGlanceComparative = createAsyncThunk(
   "glance/runCGlanceComparative",
   async (
-    { sizes, methods, strategies, selectedFeatures, caseType, algorithm,direction,features_to_change }: ComparativeParams & { caseType: string },
+    { sizes, methods, strategies, selectedFeatures, caseType }: ComparativeParams & { caseType: string },
     { dispatch, rejectWithValue }
   ) => {
     const results: any = {};
@@ -314,9 +313,9 @@ export const runCGlanceComparative = createAsyncThunk(
       throw error; // Re-throw non-400 errors to be handled globally
     };
 
-    const runAndHandleErrors = async (params: any ) => {
+    const runAndHandleErrors = async (params: any) => {
       try {
-        const response = await axios.post(`${API_BASE_URL}${algorithm}`, selectedFeatures?.length ? selectedFeatures : null, {
+        const response = await axios.post(`${API_BASE_URL}run-c_glance`, selectedFeatures?.length ? selectedFeatures : null, {
           params,
         });
         return response.data;
@@ -332,9 +331,6 @@ export const runCGlanceComparative = createAsyncThunk(
             gcf_size: size,
             cf_method: methods?.[0],
             action_choice_strategy: strategies?.[0],
-            algorithm,
-            direction,
-            features_to_change
           });
 
           if (runCGlanceResponse.error) {
@@ -365,9 +361,6 @@ export const runCGlanceComparative = createAsyncThunk(
             gcf_size: sizes?.[0],
             cf_method: method,
             action_choice_strategy: strategies?.[0],
-            algorithm,
-            direction,
-            features_to_change
           });
 
           if (runCGlanceResponse.error) {
@@ -398,9 +391,6 @@ export const runCGlanceComparative = createAsyncThunk(
             gcf_size: sizes?.[0],
             cf_method: methods?.[0],
             action_choice_strategy: strategy,
-            algorithm,
-            direction,
-            features_to_change
           });
 
           if (runCGlanceResponse.error) {

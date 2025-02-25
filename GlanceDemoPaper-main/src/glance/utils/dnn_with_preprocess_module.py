@@ -56,18 +56,15 @@ def one_hot(data,categorical_features,dataset_name):
         return data_oh, features
 
 
-class dnn_with_preprocess():
-    def __init__(self, dnn, dataset, X_train, X_test,num_features,cate_features):
+class dnn_with_preprocess:
+    def __init__(self, dnn, dataset, X_train, X_test):
         self.dnn = dnn
         self.dataset = dataset
         self.X_train = X_train
         self.X_test = X_test
-        self.num_features = num_features
-        self.cate_features = cate_features
 
 
     def transform(self, X):
-        X[self.num_features] = X[self.num_features].astype('int32')
         X = pd.get_dummies(X)
 
         if self.dataset == "german_credit":
@@ -264,6 +261,7 @@ class dnn_with_preprocess():
         return X
 
     def fit(self, X, y):
+        self.X_train = X
         if self.dataset == "german":
             X = pd.get_dummies(X)
             cols = [
@@ -345,7 +343,6 @@ class dnn_with_preprocess():
             X = X.to_numpy()
 
         elif self.dataset == "compas":
-            X[self.num_features] = X[self.num_features].astype('int32')
             X = pd.get_dummies(X)
             cols = [
                 "Sex_Female",
@@ -376,7 +373,6 @@ class dnn_with_preprocess():
             X = X.to_numpy()
 
         elif self.dataset == "default":
-            X[self.num_features] = X[self.num_features].astype('int32')
             X = pd.get_dummies(X)
             cols = [
                 "LIMIT_BAL",
@@ -496,7 +492,7 @@ class dnn_with_preprocess():
         preds = self.predict(X)
         return accuracy_score(y_true=y_true, y_pred=preds)
 
-    def predict(self, X):
+    def predict(self, X_test):
         
         if self.dataset == "german":
             cate_features = ['Existing-Account-Status', 'Credit-History', 'Purpose',
@@ -505,7 +501,7 @@ class dnn_with_preprocess():
                               'Housing', 'Existing-Credits', 'Job', 'Num-People',
                               'Telephone', 'Foreign-Worker']
             X_train, feat = one_hot(self.X_train,cate_features,'german')
-            X , feat= one_hot(X,cate_features,'german')
+            X_test , feat= one_hot(X_test,cate_features,'german')
             # X_train = pd.get_dummies(X_train)
             # X_test = pd.get_dummies(X_test)
 
@@ -583,17 +579,15 @@ class dnn_with_preprocess():
                 "Foreign-Worker_A202",
             ]
 
-            X = X.reindex(columns=X_train.columns)
+            X_test = X_test.reindex(columns=X_train.columns)
             # X_train = X_train.reindex(columns=cols)
             # X_train = X_train.fillna(int(0))
-            X = X.fillna(int(0))
-            X = X.to_numpy()
+            X_test = X_test.fillna(int(0))
+            X_test = X_test.to_numpy()
 
         elif self.dataset == "compas":
-            self.X_train[self.num_features] = self.X_train[self.num_features].astype('int32')
             X_train = pd.get_dummies(self.X_train)
-            X[self.num_features] = X[self.num_features].astype('int32')
-            X = pd.get_dummies(X)
+            X_test = pd.get_dummies(X_test)
             cols = [
                 "Sex_Female",
                 "Sex_Male",
@@ -612,25 +606,23 @@ class dnn_with_preprocess():
                 "Time_Served",
             ]
 
-            X = X.reindex(columns=cols)
+            X_test = X_test.reindex(columns=cols)
             X_train = X_train.reindex(columns=cols)
             X_train = X_train.fillna(int(0))
-            X = X.fillna(int(0))
-            X = X.to_numpy()
-            
+            X_test = X_test.fillna(int(0))
+            X_test = X_test.to_numpy()
 
         elif self.dataset == "heloc":
             X_train = self.X_train
-            X = X.to_numpy()
+            X_test = X_test.to_numpy()
 
         elif self.dataset == "german_credit_numeric":
             X_train = self.X_train
-            X = X.to_numpy()
+            X_test = X_test.to_numpy()
         elif self.dataset == "default":
-            self.X_train[self.num_features] = self.X_train[self.num_features].astype('int32')
+
             X_train = pd.get_dummies(self.X_train)
-            X[self.num_features] = X[self.num_features].astype('int32')
-            X = pd.get_dummies(X)
+            X_test = pd.get_dummies(X_test)
             cols = [
                 "LIMIT_BAL",
                 "SEX_1",
@@ -725,19 +717,18 @@ class dnn_with_preprocess():
                 "PAY_AMT6",
             ]
 
-            X = X.reindex(columns=cols)
+            X_test = X_test.reindex(columns=cols)
             X_train = X_train.reindex(columns=cols)
             X_train = X_train.fillna(int(0))
-            X = X.fillna(int(0))
-            X = X.to_numpy()
+            X_test = X_test.fillna(int(0))
+            X_test = X_test.to_numpy()
 
         if self.dataset in ["german", "default", "german_credit_numeric"]:
             x_means, x_stds = X_train.to_numpy().mean(axis=0), X_train.to_numpy().std(
                 axis=0
             )
-            X = (X - x_means) / x_stds
-        
-        return self.dnn.predict(X)
+            X_test = (X_test - x_means) / x_stds
+        return self.dnn.predict(X_test)
 
     def predict_proba(self, x):
 

@@ -10,7 +10,7 @@ from pathlib import Path
 from sklearn.metrics import accuracy_score
 import pickle
 import datetime
-from methods.glance.utils.dnn_with_preprocess_module import dnn_with_preprocess
+from glance.utils.dnn_with_preprocess_module import dnn_with_preprocess
 
 from xgboost import XGBClassifier
 
@@ -146,7 +146,7 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         num_features = X_train._get_numeric_data().columns.to_list()
         cate_features = X_train.columns.difference(num_features)
         if model_name == "dnn":
-            model = dnn_with_preprocess(B, "german_credit_numeric", X_train, X_test,num_features,cate_features)
+            model = dnn_with_preprocess(B, "german_credit_numeric", X_train, X_test)
         else:
 
             class IdentityTransformer(BaseEstimator, TransformerMixin):
@@ -240,7 +240,7 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         X_test.reset_index(drop=True, inplace=True)
 
         if model_name == "dnn":
-            model = dnn_with_preprocess(B, "german", X_train, X_test,num_features,cate_features)
+            model = dnn_with_preprocess(B, "german", X_train, X_test)
 
         else:
             preprocessor = ColumnTransformer(
@@ -313,7 +313,7 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         X_train.reset_index(drop=True, inplace=True)
         X_test.reset_index(drop=True, inplace=True)
         if model_name == "dnn":
-            model = dnn_with_preprocess(B, "compas", X_train, X_test,num_features,cate_features)
+            model = dnn_with_preprocess(B, "compas", X_train, X_test)
         else:
 
             preprocessor = ColumnTransformer(
@@ -379,7 +379,7 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         num_features = X_train._get_numeric_data().columns.to_list()
         cate_features = X_train.columns.difference(num_features)
         if model_name == "dnn":
-            model = dnn_with_preprocess(B, "heloc", X_train, X_test,num_features,cate_features)
+            model = dnn_with_preprocess(B, "heloc", X_train, X_test)
         else:
 
             class IdentityTransformer(BaseEstimator, TransformerMixin):
@@ -489,7 +489,7 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         cate_features = X_train.columns.difference(num_features)
 
         if model_name == "dnn":
-            model = dnn_with_preprocess(B, "default", X_train, X_test,num_features,cate_features)
+            model = dnn_with_preprocess(B, "default", X_train, X_test)
         elif model_name == "lr":
 
             preprocessor = ColumnTransformer(
@@ -563,6 +563,4 @@ def preprocess_datasets(dataset, B, model_name, dataset_folder="datasets/"):
         model,
         feat_to_vary,
         target_name,
-        num_features,
-        cate_features
     )

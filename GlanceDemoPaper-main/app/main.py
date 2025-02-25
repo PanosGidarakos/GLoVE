@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import resources,c_glance,t_glance,apply_actions,umap,upload,groupcfe,globece  # Import your router
+from app.routers import resources,c_glance,t_glance,apply_actions,umap,upload  # Import your router
 from fastapi.middleware.cors import CORSMiddleware
  
 app = FastAPI()
@@ -13,9 +13,7 @@ app.add_middleware(
                    "http://leviathan.imsi.athenarc.gr",
                    "http://gloves.imsi.athenarc.gr",
                    "http://gloves.imsi.athenarc.gr:8000/",
-                   "http://localhost:5175",
-                   "http://localhost:8000",
-                   ],
+                   "http://localhost:5175",],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,8 +24,6 @@ app.include_router(upload.router)
 app.include_router(resources.router)
 app.include_router(c_glance.router)
 app.include_router(t_glance.router)
-app.include_router(groupcfe.router)
-app.include_router(globece.router)
 app.include_router(apply_actions.router)
 app.include_router(umap.router)
 
