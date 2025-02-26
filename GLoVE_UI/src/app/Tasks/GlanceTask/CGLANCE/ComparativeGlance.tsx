@@ -672,13 +672,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                           label="Enable Dimensionality Reduction (UMAP)"
                         />
                         {!showUMAPInTab1 ? (
-                          <Box
-                            mt={2}
-                            display="flex"
-                            justifyContent="space-between"
-                            flexWrap="wrap"
-                            gap={2}
-                          >
+                          
                             <Box sx={{padding:2}}>
                               <ActionScatter
                                 data1={selectedDetails.affected_clusters}
@@ -688,7 +682,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                                 }
                               />
                             </Box>
-                          </Box>
                         ) : (
                           
                           <Box sx={{padding:2}}>

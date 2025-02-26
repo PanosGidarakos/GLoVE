@@ -24,10 +24,11 @@ const reshapeData = (inputData: Record<string, any>, actions: string[] | null) =
   }));
 
 // Scatter plot spec generator
-const generateScatterPlotSpec = (data: any[]): VisualizationSpec => ({
+const generateScatterPlotSpec = (data: any[],title?: string): VisualizationSpec => ({
   mark: 'point',
-  width: 300,
-  height: 300,
+  title: title || "Scatter Plot", // Default title if none is provided
+  width: 500,
+  height: 500,
   selection: {
     grid: { type: 'interval', bind: 'scales' }, // Zoom & pan
     industry: { type: 'point', fields: ['Chosen_Action'], bind: 'legend' }, // Legend interaction
@@ -59,10 +60,17 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
   const reshapedData = reshapeData(aff_data["affectedData"].reduced_data, applied_aff_data.reduced_data.Chosen_Action);
   const reshapedOtherData = reshapeData(applied_aff_data.reduced_data, applied_aff_data.reduced_data.Chosen_Action);
   
-  const spec: VisualizationSpec = {
-      description: 'Two scatter plots with a shared legend',
-      hconcat: [reshapedData, reshapedOtherData].map(generateScatterPlotSpec),
-    };
+ 
+
+    const scatterPlotTitles = ["Action Selection", "Post-Action Selection"];
+
+const spec: VisualizationSpec = {
+  description: "Two scatter plots with a shared legend",
+  hconcat: [reshapedData, reshapedOtherData].map((data, index) =>
+    generateScatterPlotSpec(data, scatterPlotTitles[index])
+  ),
+};
+
 
 
   const [selectedAction, setSelectedAction] = useState<string>('Action1_Prediction');
@@ -137,11 +145,22 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
   return (
     
     <>
+     <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={2}
+        padding={2}
+      >
           
             
     <VegaLite spec={spec} actions={false} />
-    <Box sx={{padding:2}}>
-        <FormControl fullWidth margin="normal">
+    </Box>
+    <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
+    <Box display="flex" justifyContent="center" gap={2}>
+
+    <FormControl fullWidth margin="normal"             style={{ minWidth: 200, marginRight: "20px" }}
+    >
           <InputLabel id="select-action-label">Apply</InputLabel>
           <Select
             labelId="select-action-label"
@@ -167,6 +186,7 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
             })}
           </Select>
         </FormControl>
+        </Box>
         <ResponsiveVegaLite spec={specLast} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} actions={false} />
         </Box>
       
