@@ -75,6 +75,8 @@ async def load_dataset_and_model_endpoint(dataset_name: str, model_name: str):
         shared_resources["target_name"] = target_name
         shared_resources["umap_model"] = None
         shared_resources["preprocess_pipeline"] = None
+        shared_resources["umap_model_globece"] = None
+        shared_resources["preprocess_pipeline_globece"] = None
         return {
             # "train_dataset": train_dataset.to_dict(orient="records"),
             "data": data.to_dict(orient="records"),
