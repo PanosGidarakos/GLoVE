@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../../store/store"
 import { runCGlanceComparative } from "../../../../store/slices/glanceSlice"
 import {
@@ -69,8 +69,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const [showUMAPInTab1, setShowUMAPInTab1] = useState(true) // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null)
   const [algorithm, setAlgorithm] = useState<string>("run-c_glance")
-  const [direction, setDirection] = useState<number>(2)
-  const [features_to_change, setFeaturestoChange] = useState<number>(2)
+  const [direction, setDirection] = useState<number[]>([2])
+  const [features_to_change, setFeaturestoChange] = useState<number[]>([2])
   const handleCfMethodChange = (value: string[]) => {
     setCfMethod(value)
 
@@ -237,6 +237,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     },
   }
 
+
   const hasErrors = glanceState.comparativeResults
     ? Object.values(glanceState.comparativeResults).some(
         (result: any) => result.error,
@@ -253,6 +254,24 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         ([, result]: any) => result.error,
       )
     : []
+
+
+    const executionModesByAlgorithm = {
+      "run-c_glance": [
+        "Number of Counterfactual Actions",
+        "Local Counterfactual Method",
+        "Action Choice Strategy",
+      ],
+      "run-groupcfe": ["Number of Counterfactual Actions"],
+      "run-globece": ["Number of Counterfactual Actions","Direction", "Features to change"],
+    };
+    
+    useEffect(() => {
+      if (!executionModesByAlgorithm[algorithm]?.includes(executionMode)) {
+        setExecutionMode(executionModesByAlgorithm[algorithm]?.[0] || "");
+      }
+    }, [algorithm]);
+    
 
   return (
     <WorkflowCard title="Counterfactual Analysis Configuration" description="">
@@ -309,15 +328,11 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               }}
               input={<OutlinedInput label="Execution Mode" />}
             >
-              <MenuItem value="Number of Counterfactual Actions">
-                Number of Counterfactual Actions
-              </MenuItem>
-              <MenuItem value="Local Counterfactual Method">
-                Local Counterfactual Method
-              </MenuItem>
-              <MenuItem value="Action Choice Strategy">
-                Action Choice Strategy
-              </MenuItem>
+             {executionModesByAlgorithm[algorithm]?.map((mode) => (
+    <MenuItem key={mode} value={mode}>
+      {mode}
+    </MenuItem>
+  ))}
             </Select>
           </FormControl>
 
@@ -327,10 +342,16 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 <InputLabel id="Direction">Direction</InputLabel>
                 <Select
                   labelId="Direction"
+                  multiple={isMultiSelect("Direction")}
+
                   value={direction}
-                  onChange={e => {
-                    setDirection(e.target.value as number)
-                  }}
+                  onChange={e =>
+                    setDirection(
+                      isMultiSelect("Direction")
+                        ? (e.target.value as number[])
+                        : [Number(e.target.value)],
+                    )
+                  }
                   input={<OutlinedInput label="Direction" />}
                 >
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
@@ -346,11 +367,20 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 </InputLabel>
                 <Select
                   labelId="Features to change"
+                  multiple={isMultiSelect("Features to change")}
+
                   value={features_to_change}
-                  onChange={e => {
-                    setFeaturestoChange(e.target.value as number)
-                  }}
+                  onChange={e =>
+                    setFeaturestoChange(
+                      isMultiSelect("Features to change")
+                        ? (e.target.value as number[])
+                        : [Number(e.target.value)],
+                    )
+                  }
                   input={<OutlinedInput label="features to change" />}
+                  renderValue={selected =>
+                    Array.isArray(selected) ? selected.join(", ") : selected
+                  }
                 >
                   {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
                     <MenuItem key={value} value={value}>

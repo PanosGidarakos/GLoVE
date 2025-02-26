@@ -84,8 +84,8 @@ interface ComparativeParams {
   strategies?: string[];
   selectedFeatures?: string[];
   algorithm?: string | number | boolean;
-  direction:number;
-  features_to_change:number;
+  direction?:number[];
+  features_to_change?:number[];
 
 }
 
@@ -333,8 +333,8 @@ export const runCGlanceComparative = createAsyncThunk(
             cf_method: methods?.[0],
             action_choice_strategy: strategies?.[0],
             algorithm,
-            direction,
-            features_to_change
+            direction:direction?.[0],
+            features_to_change:features_to_change?.[0]
           });
 
           if (runCGlanceResponse.error) {
@@ -366,8 +366,8 @@ export const runCGlanceComparative = createAsyncThunk(
             cf_method: method,
             action_choice_strategy: strategies?.[0],
             algorithm,
-            direction,
-            features_to_change
+            direction:direction?.[0],
+            features_to_change:features_to_change?.[0]
           });
 
           if (runCGlanceResponse.error) {
@@ -399,8 +399,8 @@ export const runCGlanceComparative = createAsyncThunk(
             cf_method: methods?.[0],
             action_choice_strategy: strategy,
             algorithm,
-            direction,
-            features_to_change
+            direction:direction?.[0],
+            features_to_change:features_to_change?.[0]
           });
 
           if (runCGlanceResponse.error) {
@@ -424,6 +424,71 @@ export const runCGlanceComparative = createAsyncThunk(
           }
         }
         break;
+        case "Direction":
+        for (const dir of direction || []) {
+          const runCGlanceResponse = await runAndHandleErrors({
+            gcf_size: sizes?.[0],
+            cf_method: methods?.[0],
+            action_choice_strategy: strategies?.[0],
+            algorithm,
+            direction: dir,
+            features_to_change: features_to_change?.[0]
+          });
+
+          if (runCGlanceResponse.error) {
+            results[`direction_${dir}`] = { error: runCGlanceResponse.message };
+            continue;
+          }
+
+          try {
+            const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+            const umapResult = await dispatch(
+              umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+            ).unwrap();
+
+            results[`direction_${dir}`] = {
+              ...runCGlanceResponse,
+              applyAffectedActions: applyAffectedResponse.data,
+              umapOfAppliedAffected: umapResult,
+            };
+          } catch (error) {
+            results[`direction_${dir}`] = { error: "Error in downstream processing." };
+          }
+        }
+        break;
+        case "Features to change":
+        for (const ftc of features_to_change || []) {
+          const runCGlanceResponse = await runAndHandleErrors({
+            gcf_size: sizes?.[0],
+            cf_method: methods?.[0],
+            action_choice_strategy: strategies?.[0],
+            algorithm,
+            direction: direction?.[0],
+            features_to_change: ftc
+          });
+
+          if (runCGlanceResponse.error) {
+            results[`features_to_change_${ftc}`] = { error: runCGlanceResponse.message };
+            continue;
+          }
+
+          try {
+            const applyAffectedResponse = await axios.get(`${API_BASE_URL}apply_affected_actions`);
+            const umapResult = await dispatch(
+              umapReduce({ dataset_identifier: "appliedAffected", n_components: 2 })
+            ).unwrap();
+
+            results[`features_to_change_${ftc}`] = {
+              ...runCGlanceResponse,
+              applyAffectedActions: applyAffectedResponse.data,
+              umapOfAppliedAffected: umapResult,
+            };
+          } catch (error) {
+            results[`features_to_change_${ftc}`] = { error: "Error in downstream processing." };
+          }
+        }
+        break;
+
 
       default:
         return rejectWithValue("Invalid caseType");
