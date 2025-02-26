@@ -98,3 +98,73 @@ def round_categorical(cf,features,features_tree):
                 ret[np.arange(ret.shape[0]), i+np.argmax(cf[:, i:i+n], axis=1)] = 1
                 i += n
         return ret
+
+def prepare_globece_data(dataset):
+    for name in dataset.columns:
+        dataset.continuous_features[name] = []
+        for column in dataset.columns[name][:-1]:
+            if column not in dataset.categorical_features[name]:
+                dataset.continuous_features[name].append(column)
+            
+# Initialization
+    if dataset.name is not None:  # process dataset if specified
+        dataset.n_bins = None
+        dataset.features = None  # processed in dataset.one_hot()
+        dataset.features_tree = {}  # processed in dataset.one_hot()
+        dataset.dropped_features = []
+    # download and process data
+        if dataset.n_bins is not None:
+            dataset.categorical_features[dataset.name] = list(dataset.features_tree.keys())
+            dataset.continuous_features[dataset.name] = {}
+
+    return dataset
+
+
+from sklearn import preprocessing
+def one_hot(dataset,data):
+        """
+        Improvised method for one-hot encoding the data
+        
+        Input: data (whole dataset)
+        Outputs: data_oh (one-hot encoded data)
+                 features (list of feature values after one-hot encoding)
+        """
+        label_encoder = preprocessing.LabelEncoder()
+        data_encode = data.copy()
+        dataset.bins = {}
+        dataset.bins_tree = {}
+        
+        # Assign encoded features to one hot columns
+        data_oh, features = [], []
+        for x in data.columns[:-1]:
+            dataset.features_tree[x] = []
+            categorical = x in dataset.categorical_features[dataset.name]
+            if categorical:
+                data_encode[x] = label_encoder.fit_transform(data_encode[x])
+                cols = label_encoder.classes_
+            elif dataset.n_bins is not None:
+                data_encode[x] = pd.cut(data_encode[x].apply(lambda x: float(x)),
+                                        bins=dataset.n_bins)
+                cols = data_encode[x].cat.categories
+                dataset.bins_tree[x] = {}
+            else:
+                data_oh.append(data[x])
+                features.append(x)
+                continue
+                
+            one_hot = pd.get_dummies(data_encode[x])
+            if dataset.name=='compas' and x.lower()=='age_cat':
+                one_hot = one_hot[[2, 0, 1]]
+                cols = cols[[2, 0, 1]]
+            data_oh.append(one_hot)
+            for col in cols:
+                feature_value = x + " = " + str(col)
+                features.append(feature_value)
+                dataset.features_tree[x].append(feature_value)
+                if not categorical:
+                    dataset.bins[feature_value] = col.mid
+                    dataset.bins_tree[x][feature_value] = col.mid
+                
+        data_oh = pd.concat(data_oh, axis=1, ignore_index=True)
+        data_oh.columns = features
+        return data_oh, features

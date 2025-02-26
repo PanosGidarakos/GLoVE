@@ -12,8 +12,10 @@ import redis
 import json
 from methods.globe_ce.helper_functions import find_actions,report_globece_actions
 from methods.globe_ce.ares import AReS
-from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot
+from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot
 import math
+from sklearn.base import clone
+from sklearn.pipeline import Pipeline
 
 router = APIRouter()
 
@@ -68,9 +70,53 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
             shared_resources["data"] = dataset.data
             shared_resources["X_test"] = X_test
-            target_name = shared_resources.get("target_name")
+            if shared_resources['dataset_name'] == 'default_credit':
+                target_name = 'Status'
+            else:
+                target_name = shared_resources.get("target_name")
         else:
-            pass
+            from methods.globe_ce.datasets import dataset_loader
+            data = shared_resources["data"]
+            model = shared_resources["model"]
+            if isinstance(model, Pipeline):
+                model = clone(model.named_steps['classifier'])
+            else:
+                model = clone(model)
+
+            print(shared_resources["X_test"])
+            X_test = shared_resources["X_test"].drop(columns=['label'])
+
+            X_train = data.merge(X_test, on=X_test.columns.tolist(), how='left', indicator=True)
+            X_train = X_train[X_train['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+
+            categorical_columns = data.drop(columns=[shared_resources["target_name"]]).select_dtypes(include=['object', 'category']).columns.tolist()
+            numerical_columns = data.select_dtypes(include=['number']).columns.tolist()
+            if data.columns[-1] != shared_resources["target_name"]:
+                data = data[[col for col in data.columns if col != shared_resources["target_name"]] + [shared_resources["target_name"]]]
+            dataset = dataset_loader()
+            dataset.name = shared_resources["dataset_name"]
+            dataset.continuous_features = {}
+            dataset.columns = {shared_resources["dataset_name"]: data.columns.tolist()}
+            dataset.categorical_features = {shared_resources["dataset_name"]: categorical_columns}
+            dataset.continuous_features = {}
+
+            dataset = prepare_globece_data(dataset)
+            one_hot_data, features = one_hot(dataset,data)
+            dataset.features = features
+            dataset.features.append(data.columns[-1])
+            dataset.data = pd.concat([one_hot_data, data[data.columns[-1]]], axis=1)
+            shared_resources["data"] = dataset.data
+
+            X_test=X_test.reindex(columns=dataset.data.columns, fill_value=0)
+            shared_resources["X_test"] = X_test
+            X_train=X_train.reindex(columns=dataset.data.columns, fill_value=0)
+            model.fit(X_train.drop(columns=['true_conversion','income = <100K','income = >100K']),X_train.drop(columns=['income = <100K','income = >100K'])['true_conversion'])
+            preds = model.predict(X_test.drop(columns=['true_conversion','income = <100K']))
+            affected = X_test[preds == 0].reset_index()
+            shared_resources["affected"] = affected
+
+
 
         n_bins = 10
         ordinal_features = []
@@ -312,8 +358,10 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             cache_ret = {
                 "method" : 'globece',
                 "actions_ret": actions_returned,
+                "data": shared_resources["data"].to_dict(orient='records'),
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
+                "X_test": X_test.to_dict(orient='records'),
                 "TotalEffectiveness": round(corrects_bound[-1]/100,2),
                 "TotalCost": round(costs_bound[-1],2),
                 "affected_clusters": x.to_dict(orient='records'),
