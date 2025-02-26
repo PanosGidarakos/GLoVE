@@ -52,7 +52,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
         print(f"Cache key {cache_key} does not exist - Running C_GLANCE Algorithm")
         from methods.glance.utils.utils_data import preprocess_datasets, load_models
         
-        if shared_resources["method"] == 'globece':
+        if shared_resources["method"] == 'globece' and shared_resources.get("dataset_name") in ['compas', 'default_credit', 'german_credit', 'heloc']:
             train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
             affected = X_test[X_test.label == 0].reset_index()
             affected = affected.drop(columns='label')

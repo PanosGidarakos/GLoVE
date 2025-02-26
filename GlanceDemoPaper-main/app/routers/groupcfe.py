@@ -53,7 +53,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
     else:
         from methods.groupcfe.group_cfe import Group_CF
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
-        if shared_resources["method"] == 'globece':
+        if shared_resources["method"] == 'globece' and shared_resources.get("dataset_name") in ['compas', 'default_credit', 'german_credit', 'heloc']:
                     train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
                     affected = X_test[X_test.label == 0].reset_index()
                     affected = affected.drop(columns='label')
