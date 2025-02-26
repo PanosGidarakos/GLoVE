@@ -24,11 +24,12 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
  
         request_data = shared_resources[dataset_key].copy(deep=True)
         request_data.reset_index(drop=True,inplace=True)
-        print(request_data)
-        print(request_data.isna().sum())
         data_all = shared_resources["data"]
         feat = data_all.columns.to_list()
-        target_name = shared_resources["target_name"]
+        if shared_resources['dataset_name'] == 'default_credit' and shared_resources['method'] == 'globece':
+            target_name = 'Status'
+        else:
+            target_name = shared_resources["target_name"]
         feat.remove(target_name)
         data = request_data.reindex(columns=feat, fill_value=0)
         numeric_columns = data.select_dtypes(include="number").columns.to_list()
@@ -58,7 +59,6 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
                 umap_model = shared_resources["umap_model_globece"]
 
             reduced_data = umap_model.transform(preprocessed_data)
-            print(reduced_data)
             logging.debug("UMAP reduction completed.")
 
             # Convert the result to a list of lists for JSON serialization
@@ -69,9 +69,7 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
             elif dataset_key == 'affected':
                 umap_data = pd.DataFrame(reduced_data)
             elif dataset_key == 'applied_affected':
-                print(request_data.Chosen_Action)
                 umap_data = pd.DataFrame(reduced_data)
-                print(umap_data)
                 umap_data['Chosen_Action'] = request_data.Chosen_Action
             elif dataset_key =='data':
                 umap_data = pd.DataFrame(reduced_data)
@@ -111,15 +109,12 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
             elif dataset_key == 'affected':
                 umap_data = pd.DataFrame(reduced_data)
             elif dataset_key == 'applied_affected':
-                print(request_data.Chosen_Action)
                 umap_data = pd.DataFrame(reduced_data)
                 umap_data['Chosen_Action'] = request_data.Chosen_Action
             elif dataset_key =='data':
                 umap_data = pd.DataFrame(reduced_data)
                 umap_data.reset_index(drop=True,inplace=True)
                 umap_data['label'] = request_data[target_name]
-                print(umap_data.shape)
-                print(umap_data.isna().sum())
                 umap_data['label'] = request_data[target_name]
             return {"reduced_data": umap_data.to_dict()}
 
