@@ -684,7 +684,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             </Box>
                         ) : (
                           
-                          <Box sx={{padding:2}}>
+                          <Box sx={{padding:2,marginTop:8}}>
                           <UmapGlanceComponent
                             applied_aff_data={
                               selectedDetails.umapOfAppliedAffected.data

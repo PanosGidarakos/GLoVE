@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VisualizationSpec } from 'react-vega';
-import { FormControl, InputLabel, Select, MenuItem, Paper } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Paper, Box } from '@mui/material';
 import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
 interface ScatterPlotComponentForMainPageProps {
   data: any[];
@@ -80,13 +80,22 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
 
   } as VisualizationSpec;
   return (
-    <Paper>
+    <>
 
       {/* Selection box for X-Axis */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', marginTop: '1rem' }}>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={2}
+        padding={2}
+      >
+                <Box display="flex" justifyContent="center" gap={2}>
 
-        <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-          <InputLabel>X-Axis</InputLabel>
+      <FormControl
+            variant="outlined"
+            style={{ minWidth: 200, marginRight: "20px" }}
+          >          <InputLabel>X-Axis</InputLabel>
           <Select
             value={xField}
             label="X-Axis"
@@ -109,8 +118,10 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
         </FormControl>
 
         {/* Selection box for Y-Axis */}
-        <FormControl fullWidth style={{ marginBottom: '1rem' }}>
-          <InputLabel>Y-Axis</InputLabel>
+        <FormControl
+            variant="outlined"
+            style={{ minWidth: 200, marginRight: "20px" }}
+          >          <InputLabel>Y-Axis</InputLabel>
           <Select
             value={yField}
             label="Y-Axis"
@@ -131,12 +142,11 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
             ))}
           </Select>
         </FormControl>
-      </div>
+      </Box>
 
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
         <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} />
-      </div>
-    </Paper>
+      </Box>
+    </>
   );
 };
 

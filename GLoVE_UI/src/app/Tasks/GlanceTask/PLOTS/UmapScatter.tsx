@@ -90,10 +90,16 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color }) => {
 
   return (
 
-    < Paper>
+    < >
 
-      <Box display="flex" justifyContent="center">
-        <ResponsiveVegaLite
+<Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        gap={2}
+        padding={2}
+        marginTop={8}
+      >        <ResponsiveVegaLite
           spec={scatterPlotSpec}
           actions={false}
           minWidth={100} 
@@ -105,7 +111,7 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color }) => {
         />
       </Box>
 
-    </Paper>
+    </>
   );
 };
 

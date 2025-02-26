@@ -326,7 +326,7 @@ const GlanceComponent: React.FC = () => {
             )}
             {glanceState.loadDatasetAndModelResult &&
               !glanceState.datasetLoading && (
-                <Box>
+                <Box >
                   {viewOption === "affected" &&
                     glanceState.loadDatasetAndModelResult.affected && (
                       <>
@@ -358,6 +358,8 @@ const GlanceComponent: React.FC = () => {
                           }
                           description="Instances from the test dataset where the model's prediction was equal to 0."
                         >
+                          <Box padding={2}>
+
                           <DataTable
                             title="Affected Test Data"
                             data={
@@ -365,6 +367,8 @@ const GlanceComponent: React.FC = () => {
                             }
                             showArrow={false}
                           />
+                                                    </Box>
+
                           <FormControlLabel
                             control={
                               <Switch
@@ -373,6 +377,7 @@ const GlanceComponent: React.FC = () => {
                                   setShowUMAPScatter(e.target.checked)
                                 }
                                 color="primary"
+                                sx={{marginLeft: 2}}
                               />
                             }
                             label="Enable Dimensionality Reduction (UMAP)"
@@ -413,11 +418,13 @@ const GlanceComponent: React.FC = () => {
                           }
                           description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data."
                         >
+                          <Box padding={2}>
                           <DataTable
                             title="Test Data"
                             data={glanceState.loadDatasetAndModelResult.X_test}
                             showArrow={false}
                           />
+                          </Box>
                           <FormControlLabel
                             control={
                               <Switch
@@ -426,6 +433,8 @@ const GlanceComponent: React.FC = () => {
                                   setShowUMAPScatter(e.target.checked)
                                 }
                                 color="primary"
+                                sx={{marginLeft: 2}}
+
                               />
                             }
                             label="Enable Dimensionality Reduction (UMAP)"
