@@ -63,7 +63,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                         "eff_cost_actions": cache_res['eff_cost_actions']} 
     else:
         from methods.globe_ce.globe_ce import GLOBE_CE
-        print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
+        print(f"Cache key {cache_key} does not exist - Running GLOBE_CE Algorithm")    
         shared_resources["method"] = 'globece'
 
         if shared_resources['dataset_name'] in ['compas','heloc','german_credit','default_credit']:
@@ -78,12 +78,12 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             from methods.globe_ce.datasets import dataset_loader
             data = shared_resources["data"]
             model = shared_resources["model"]
+            target_name = shared_resources.get("target_name")
             if isinstance(model, Pipeline):
                 model = clone(model.named_steps['classifier'])
             else:
                 model = clone(model)
 
-            print(shared_resources["X_test"])
             X_test = shared_resources["X_test"].drop(columns=['label'])
 
             X_train = data.merge(X_test, on=X_test.columns.tolist(), how='left', indicator=True)
@@ -109,12 +109,14 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
             shared_resources["data"] = dataset.data
 
             X_test=X_test.reindex(columns=dataset.data.columns, fill_value=0)
+            X_test = X_test.drop(columns=[target_name])
             shared_resources["X_test"] = X_test
             X_train=X_train.reindex(columns=dataset.data.columns, fill_value=0)
-            model.fit(X_train.drop(columns=['true_conversion','income = <100K','income = >100K']),X_train.drop(columns=['income = <100K','income = >100K'])['true_conversion'])
-            preds = model.predict(X_test.drop(columns=['true_conversion','income = <100K']))
+            model.fit(X_train.drop(columns=[target_name]),X_train[target_name])
+            preds = model.predict(X_test)
             affected = X_test[preds == 0].reset_index()
             shared_resources["affected"] = affected
+            normalise = None
 
 
 
