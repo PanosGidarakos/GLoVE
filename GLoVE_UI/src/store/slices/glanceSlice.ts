@@ -22,6 +22,9 @@ interface GlanceState {
   comparativeResults: {
     [key: string]: any;
   };
+  modelComparativeResults: {
+    [key: string]: any;
+  };
 
 
 
@@ -38,6 +41,7 @@ interface GlanceState {
   getDataResults: any | null;
   comparativeLoading: boolean; // New state for comparative process
   targetName: string | null; // Add this field
+  modelComparativeLoading: any;
 
 
 }
@@ -64,7 +68,9 @@ const initialState: GlanceState = {
   umapReduceResults: {},
   getDataResults: null,
   comparativeResults: {},
+  modelComparativeResults: {},
   comparativeLoading: false,
+  modelComparativeLoading: false,
   targetName: null, // Initialize it
 };
 
@@ -153,6 +159,35 @@ export const umapReduce = createAsyncThunk(
     );
     return { data: response.data, datasetIdentifier: dataset_identifier }; // Pass data and identifier
   }
+);
+
+export const runModelComparative = createAsyncThunk(
+  "glance/runModelComparative",
+  async ({selected_features,gcf_size,algorithm,}: RunCGlanceParams, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}${encodeURIComponent(algorithm ?? '')}`,
+        selected_features?.length ? selected_features : null, // Pass selected features or null
+        {
+          params: {
+            gcf_size:gcf_size,
+            cf_method:"Dice",
+            action_choice_strategy:"Max Effectiveness",
+            direction:2,
+            features_to_change:2,
+          },
+        }
+      );
+      return { data: response.data,algorithm:algorithm };
+    } catch (error: any) {
+      if (error.response?.status === 400 && error.response.data?.detail) {
+        // Return specific error message if it matches the expected structure
+        return rejectWithValue(error.response.data.detail);
+      }
+      // Return a generic error message for other cases
+      return rejectWithValue("An error occurred. Please try again.");
+    }
+  } 
 );
 
 // Define a thunk for runCGlance with parameters
@@ -295,6 +330,7 @@ export const fetchTargetName = createAsyncThunk(
     return response.data; // Assuming the response is just the target name string
   }
 );
+
 
 export const runCGlanceComparative = createAsyncThunk(
   "glance/runCGlanceComparative",
@@ -551,6 +587,7 @@ const glanceSlice = createSlice({
         state.loadDatasetAndModelResult = action.payload;
         state.runGlanceResult = null;
         state.comparativeResults = {};
+        state.modelComparativeResults = {};
         state.error = null;
       })
       .addCase(loadDatasetAndModel.rejected, (state, action) => {
@@ -656,6 +693,18 @@ const glanceSlice = createSlice({
       .addCase(runCGlanceComparative.rejected, (state, action) => {
         state.comparativeLoading = false; // End the loader
         state.error = action.error.message || "Error in comparative analysis";
+      })
+      .addCase(runModelComparative.pending, (state) => {
+        state.modelComparativeLoading = true; // Start the loader
+      })
+      .addCase(runModelComparative.fulfilled, (state, action: PayloadAction<any>) => {
+        state.modelComparativeLoading = false; // End the loader
+        state.modelComparativeResults = action.payload;
+        state.error = null;
+      })
+      .addCase(runModelComparative.rejected, (state, action) => {
+        state.modelComparativeLoading = false; // End the loader
+        state.error = action.error.message || "Error in model comparative analysis";
       })
       .addCase(fetchGetData.pending, (state) => {
         state.loading = true; // Optional: Set a loading state

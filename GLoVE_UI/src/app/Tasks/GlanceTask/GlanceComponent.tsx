@@ -21,6 +21,7 @@ import UmapScatter from "./PLOTS/UmapScatter"
 import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage"
 import ComparativeGlance from "./CGLANCE/ComparativeGlance"
 import WorkflowCard from "../../../shared/components/workflow-card"
+import CompareMethods from "./CompareMethods"
 
 const styles = {
   sidebar: {
@@ -86,6 +87,7 @@ const GlanceComponent: React.FC = () => {
     "Select Dataset and Model",
     "Explore Dataset",
     "Analyze Counterfactuals",
+    "Compare Models",
   ]
   const [selectedDataset, setSelectedDataset] =
     useState<string>("COMPAS Dataset")
@@ -474,6 +476,11 @@ const GlanceComponent: React.FC = () => {
               </Box>
             )}
           </Box>
+        )}
+          {selectedTab === 3 && (
+          <Box>
+            <CompareMethods/>
+            </Box>
         )}
       </Box>
     </Box>
