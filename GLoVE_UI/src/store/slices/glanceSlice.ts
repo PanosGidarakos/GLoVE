@@ -98,8 +98,8 @@ interface ComparativeParams {
 // Type for the runCGlance parameters
 interface RunCGlanceParams {
   gcf_size: number;
-  cf_method: string;
-  action_choice_strategy: string;
+  cf_method?: string;
+  action_choice_strategy?: string;
   selected_features?: string[]; // Optional array of selected features
   algorithm?: string | number | boolean;
   features_to_change?:number;

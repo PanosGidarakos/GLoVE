@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   InputLabel,
   MenuItem,
@@ -8,86 +9,56 @@ import {
   Select,
   Typography,
 } from "@mui/material"
-import { useEffect, useState } from "react"
-import { useAppDispatch, useAppSelector } from "../../../store/store"
+import { useState } from "react"
+import { useAppDispatch } from "../../../store/store"
 import { runModelComparative } from "../../../store/slices/glanceSlice"
-import { error } from "vega"
-
+import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
 
 const CompareMethods: React.FC = () => {
   const [algorithms, setAlgorithms] = useState<string[]>(["run-c_glance"])
-  const [gcfSize, setGcfSize] = useState<number[]>([3])
+  const [gcfSize, setGcfSize] = useState<number>(3)
   const dispatch = useAppDispatch()
-  const glanceState = useAppSelector(state => state.glance)
-  console.log("glanceState", glanceState.modelComparativeResults?.data?.TotalCost)
+  const [loading, setLoading] = useState<boolean>(false) // Loading state
 
-  const [results, setResults] =useState<any | null>(null)
-  const [errorMessage, setErrorMessage] = useState<Record<string, string> | null>(null) // Add state for error messages
+  const [results, setResults] = useState<any | null>(null)
+  const [errorMessage, setErrorMessage] = useState<Record<
+    string,
+    string
+  > | null>(null) // Add state for error messages
+  const handleRun = async () => {
+    setResults(null) // Clear previous results
+    setErrorMessage(null) // Clear previous errors
+    setLoading(true) // Set loading to true when the analysis starts
 
+    const resultsMap: Record<string, any> = {} // Object to store results
+    const errorsMap: Record<string, string> = {} // Object to store errors
 
-// const handleRun = () => {
-//     dispatch(
-//         runModelComparative({
-//             algorithm: algorithms[0],
-//             gcf_size: gcfSize[0],
-//             cf_method: "",
-//             action_choice_strategy: ""
-//         })
-//        )
-//       .unwrap()
-//       .then(data => {
-//         setResults(data) // Update results on success
-//       })
-//       .catch(error => {
-//         setResults(null) // Clear results if there's an error
-//         if (error?.detail) {
-//           setErrorMessage(error.detail) // Set the error message from the response
-//         } else {
-//           setErrorMessage("An unexpected error occurred.") // Default error message
-//         }
-//       })
-//   }
-
-
-const handleRun = async () => {
-    setResults(null); // Clear previous results
-    setErrorMessage(null); // Clear previous errors
-  
-    const resultsMap: Record<string, any> = {}; // Object to store results
-    const errorsMap: Record<string, string> = {}; // Object to store errors
-  
     await Promise.all(
-      algorithms.map(async (algorithm) => {
+      algorithms.map(async algorithm => {
         try {
           const data = await dispatch(
             runModelComparative({
               algorithm,
-              gcf_size: gcfSize[0],
-              cf_method: "Dice",
-              action_choice_strategy: "Max Effectiveness",
-            })
-          ).unwrap();
-          
-          resultsMap[algorithm] = data; // Store result
+              gcf_size: gcfSize,
+            }),
+          ).unwrap()
+
+          resultsMap[algorithm] = data.data.eff_cost_plot // Store result
         } catch (error: any) {
-          errorsMap[algorithm] = error?.detail || "An unexpected error occurred."; // Store error
+          errorsMap[algorithm] =
+            error?.detail || "An unexpected error occurred." // Store error
         }
-      })
-    );
-  
+      }),
+    )
     // Update state with results
-    setResults(resultsMap);
-    
+    setResults(resultsMap)
+    setLoading(false) // Set loading to false when the analysis is complete
+
     // If there are errors, update error state
     if (Object.keys(errorsMap).length > 0) {
-      setErrorMessage(errorsMap);
+      setErrorMessage(errorsMap)
     }
-  };
-
-  console.log("results", results)
-  
-  
-
+  }
   const handleChange = (event: any) => {
     const {
       target: { value },
@@ -95,8 +66,56 @@ const handleRun = async () => {
     setAlgorithms(typeof value === "string" ? value.split(",") : value)
   }
 
-  console.log("algorithms", algorithms)
-  console.log("gcfSize", gcfSize)
+  const addZeroStep = runData => {
+    return { "0": { eff: 0, cost: 0 }, ...runData }
+  }
+
+  const transformedData = results
+    ? Object.entries(results).reduce((acc, [runName, runData]) => {
+        acc[runName] = addZeroStep(runData)
+        return acc
+      }, {})
+    : {}
+
+  const transformData = (runData, runName, offset) => {
+    return Object.keys(runData).map(step => ({
+      step: parseInt(step) + offset,
+      eff: runData[step].eff,
+      cost: runData[step].cost,
+      run: runName,
+    }))
+  }
+
+  const allData = results
+    ? Object.entries(transformedData).flatMap(([runName, runData], index) =>
+        transformData(runData, runName, index * (gcfSize + 1)),
+      )
+    : []
+  const spec = (yField: string) => {
+    return {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      mark: { type: "line", interpolate: "step-after", point: true },
+      encoding: {
+        x: {
+          field: "step",
+          type: "ordinal",
+          title: "",
+          axis: { labels: false, ticks: false }, // Hides numbers and ticks
+        },
+        y: {
+          field: yField, // Dynamically use the Y-field selected ("eff" or "cost")
+          type: "quantitative",
+          title: yField === "eff" ? "Effectiveness" : "Cost", // Set the Y-axis title dynamically
+        },
+        color: {
+          field: "run",
+          type: "nominal",
+          title: "Method",
+        },
+      },
+      data: { values: allData },
+    }
+  }
 
   return (
     <Box
@@ -108,10 +127,6 @@ const handleRun = async () => {
         height: "100%",
       }}
     >
-      <Typography variant="h4" component="h1">
-        Compare Methods
-      </Typography>
-
       <Box
         display="flex"
         alignItems="center"
@@ -122,7 +137,7 @@ const handleRun = async () => {
         padding={2}
       >
         {/* Algorithm Selection Dropdown (Multiple) */}
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+        <FormControl fullWidth sx={{ flex: 1, minWidth: "220px" }}>
           <InputLabel id="Algorithm Selection">Algorithm Selection</InputLabel>
           <Select
             labelId="Algorithm Selection"
@@ -136,13 +151,13 @@ const handleRun = async () => {
             <MenuItem value="run-globece">Globece</MenuItem>
           </Select>
         </FormControl>
-        <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+        <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>
           <InputLabel id="GCF Size Selection">GCF Size Selection</InputLabel>
           <Select
             labelId="GCF Size Selection"
-            multiple
+            // multiple
             value={gcfSize}
-            onChange={e => setGcfSize(e.target.value as number[])}
+            onChange={e => setGcfSize(e.target.value as number)}
             input={<OutlinedInput label="GCF Size Selection" />}
           >
             {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
@@ -152,19 +167,38 @@ const handleRun = async () => {
             ))}
           </Select>
         </FormControl>
-
-       
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleRun}
-              
-            >
-              Run Analysis
-            </Button>
-           
+        <Button variant="contained" color="primary" onClick={handleRun}>
+          Run Analysis
+        </Button>
       </Box>
-
+      {loading ? (
+        <>
+          <Typography variant="h6">Loading</Typography>
+          <CircularProgress />
+        </>
+      ) : (
+        allData.length > 0 && (
+          <>
+            {" "}
+            <ResponsiveVegaLite
+              spec={spec("eff")}
+              actions={false}
+              minWidth={100}
+              minHeight={100}
+              maxWidth={500}
+              maxHeight={500}
+            />
+            <ResponsiveVegaLite
+              spec={spec("cost")}
+              actions={false}
+              minWidth={100}
+              minHeight={100}
+              maxWidth={500}
+              maxHeight={500}
+            />
+          </>
+        )
+      )}
     </Box>
   )
 }
