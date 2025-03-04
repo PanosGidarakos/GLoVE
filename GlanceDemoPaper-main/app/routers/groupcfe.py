@@ -49,7 +49,8 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                     "TotalEffectiveness": cache_res['TotalEffectiveness'],
                     "TotalCost": cache_res['TotalCost'],
                     "affected_clusters": shared_resources["affected_clusters"].to_dict(),
-                    "eff_cost_actions": cache_res['eff_cost_actions']} 
+                    "eff_cost_actions": cache_res['eff_cost_actions'],
+                    "eff_cost_plot": cache_res['eff_cost_plot']} 
     else:
         from methods.groupcfe.group_cfe import Group_CF
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
@@ -121,9 +122,15 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                 numerical_columns=num_features,
                 categorical_columns=cate_features,
             )
-        total_eff, total_cost,pred_list, chosen_actions, costs_list = cumulative(affected.drop(columns='index'), actions, model,dist_func_dataframe)
+        total_eff, total_cost,pred_list, chosen_actions, costs_list, final_costs = cumulative(affected.drop(columns='index'), actions, model,dist_func_dataframe)
 
         eff_cost_actions = {}
+        action_costs = [final_costs[np.array(chosen_actions) == i].mean() for i in range(gcf_size)]
+        action_costs = [0 if np.isnan(x) else x for x in action_costs]
+        action_effs = [len(np.array(chosen_actions)[np.array(chosen_actions) == i]) for i in range(gcf_size)]
+        eff_plot = 0
+        cost_plot = 0
+        eff_cost_plot = {}
         affected_clusters = affected.copy(deep=True)
         for i, arr in pred_list.items():
             column_name = f"Action{i}_Prediction"
@@ -131,6 +138,9 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
             eff_act = pred_list[i].sum()/len(affected)
             cost_act = costs_list[i-1][costs_list[i-1] != np.inf].sum()/pred_list[i].sum()
             eff_cost_actions[i] = {'eff':eff_act , 'cost':cost_act}
+            eff_plot += action_effs[i-1]
+            cost_plot += action_costs[i-1]*action_effs[i-1]
+            eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
 
         affected_clusters['Chosen_Action'] = chosen_actions
         affected_clusters['Chosen_Action'] = affected_clusters['Chosen_Action'] + 1
@@ -167,13 +177,15 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
             "TotalEffectiveness": round(total_eff,2),
             "TotalCost": round(total_cost,2),
             "affected_clusters": affected_clusters.to_dict(orient='records'),
-            "eff_cost_actions": eff_cost_actions} 
+            "eff_cost_actions": eff_cost_actions,
+            "eff_cost_plot": eff_cost_plot} 
         
         rd.set(cache_key,json.dumps(cache_ret), ex=3600)
         return {"actions": actions_returned,
                 "TotalEffectiveness": round(total_eff,3),
                 "TotalCost": round(total_cost,2),
                 "affected_clusters": affected_clusters.to_dict(),
-                "eff_cost_actions": eff_cost_actions} 
+                "eff_cost_actions": eff_cost_actions,
+                "eff_cost_plot": eff_cost_plot} 
 
 

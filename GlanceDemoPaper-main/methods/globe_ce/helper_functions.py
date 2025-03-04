@@ -64,6 +64,8 @@ def build_globece_actions_report(
     print("\n")
     avg_cost = 0
     num_total_flipped = 0
+    flipped_list = []
+    cost_list = []
     for i, (_index, action) in enumerate(actions.iterrows()):
         individuals_on_which_applied = affected_flipped[flipped_idxs == action["idx"]]
         individuals_on_which_applied_df = pd.DataFrame(individuals_on_which_applied, columns=all_columns)
@@ -94,16 +96,18 @@ def build_globece_actions_report(
 #         if i < num_show:
         display(action[common_columns].to_frame().T)
         print(f"Cost {result_message} = {result}")
+        cost_list.append(result)
         #assert np.isclose(result, action["mean_cost"])
 #         if i < num_show:
         print(f" Flipped : {int(total_flipped)} in {total_affected} ")
+        flipped_list.append(int(total_flipped))
         avg_cost = avg_cost + result*total_flipped
         num_total_flipped = num_total_flipped + total_flipped
     
     if num_total_flipped != 0:
         avg_cost = avg_cost/num_total_flipped
         effectiveness = (num_total_flipped/ total_affected)*100
-        return avg_cost, effectiveness
+        return avg_cost, effectiveness, flipped_list, cost_list
     else:
         return 0, 0
 
@@ -131,7 +135,7 @@ def report_globece_actions(
     common_columns = actions_unique[actions_unique.columns[(actions_unique != 0).any()]].columns.intersection(feature_costs_vector.columns).tolist()
 
     unique_actions = len(actions_unique)
-    avg_cost, effectiveness = build_globece_actions_report(
+    avg_cost, effectiveness, flipped_list, cost_list = build_globece_actions_report(
         actions=actions_unique,
         feature_weights=feature_costs_vector,
         common_columns=common_columns,
@@ -142,7 +146,7 @@ def report_globece_actions(
         globe_ce_object=globe_ce_object,
         num_show=num_show,
     )
-    return unique_actions, actions_unique, avg_cost, effectiveness
+    return unique_actions, actions_unique, avg_cost, effectiveness, flipped_list, cost_list
 
 def load_models(dataset_name, means, stds, dnn_normalisers, lr_normalisers):
     normalisers = {"dnn": dnn_normalisers, "lr": lr_normalisers, "xgb": {dataset_name: False}}

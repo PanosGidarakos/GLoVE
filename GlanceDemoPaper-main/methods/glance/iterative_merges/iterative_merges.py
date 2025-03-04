@@ -237,7 +237,7 @@ class C_GLANCE(GlobalCounterfactualMethod):
 #                 total_cost=total_cost,
 #             )
             
-        eff, cost, pred_list, actions, costs = cumulative(
+        eff, cost, pred_list, actions, costs , final_costs = cumulative(
             self.model,
             instances,
             [stats["action"] for i, stats in clusters_res.items()],
@@ -303,7 +303,7 @@ def cumulative(
             min_index = np.argmin(row)  
             final_output.append(min_index)
 
-    return effectiveness, cost, all_predictions, final_output, costs
+    return effectiveness, cost, all_predictions, final_output, costs , final_costs
 
 
 def action_fake_cost(

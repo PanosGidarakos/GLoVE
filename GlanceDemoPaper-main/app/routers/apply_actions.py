@@ -119,7 +119,7 @@ async def apply_affected_actions():
             for i,val in enumerate(list(affected_clusters['Chosen_Action'].unique())):
                 aff = affected_clusters[affected_clusters['Chosen_Action'] == val]
                 if val != '-':
-                    action = actions[actions['Chosen_Action'] == val].drop(columns=['direction','scalar','Chosen_Action']).values
+                    action = actions[actions['Chosen_Action'] == val].drop(columns=['direction','scalar','Chosen_Action','cost']).values
                     applied = round_categorical(aff[feature_values].values + action,features,feature_tree)
                     applied_df = pd.DataFrame(applied,columns=feature_values)
                     applied_df['Chosen_Action'] = aff.Chosen_Action.values[0]

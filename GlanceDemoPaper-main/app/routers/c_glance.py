@@ -47,7 +47,8 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                     "TotalEffectiveness": cache_res['TotalEffectiveness'],
                     "TotalCost": cache_res['TotalCost'],
                     "affected_clusters": shared_resources["affected_clusters"].to_dict(),
-                    "eff_cost_actions": cache_res['eff_cost_actions']} 
+                    "eff_cost_actions": cache_res['eff_cost_actions'],
+                    "eff_cost_plot": cache_res['eff_cost_plot']} 
     else:
         print(f"Cache key {cache_key} does not exist - Running C_GLANCE Algorithm")
         from methods.glance.utils.utils_data import preprocess_datasets, load_models
@@ -140,7 +141,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
             combined_df['unique_id'] = combined_df.groupby(list(combined_df.columns)).cumcount()
             result = combined_df.merge(new_aff, on=list(combined_df.columns) + ['unique_id'], how='left')
             result = result.drop(columns='unique_id')
-            eff, cost, pred_list, chosen_actions, costs = cumulative(
+            eff, cost, pred_list, chosen_actions, costs , final_costs = cumulative(
                     model,
                     result.drop(columns=['index']),
                     actions,
@@ -149,17 +150,26 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                     global_method.categorical_features_names,
                     "-",
                 )
-            
+
             eff_cost_actions = {}
+            eff_cost_plot = {}
+            action_costs = [final_costs[np.array(chosen_actions) == i].mean() for i in range(gcf_size)]
+            action_costs = [0 if np.isnan(x) else x for x in action_costs]
+            action_effs = [len(np.array(chosen_actions)[np.array(chosen_actions) == i]) for i in range(gcf_size)]
+            eff_plot = 0
+            cost_plot = 0
             for i, arr in pred_list.items():
                 column_name = f"Action{i}_Prediction"
                 result[column_name] = arr
                 eff_act = pred_list[i].sum()/len(affected)
                 cost_act = costs[i-1][costs[i-1] != np.inf].sum()/pred_list[i].sum()
                 eff_cost_actions[i] = {'eff':eff_act , 'cost':cost_act}
+                eff_plot += action_effs[i-1]
+                cost_plot += action_costs[i-1]*action_effs[i-1]
+                eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
 
             result['Cluster'] = cluster
-            
+            print(eff_cost_plot)
             result['Chosen_Action'] = chosen_actions
             result['Chosen_Action'] = result['Chosen_Action'] + 1
             result = result.replace(np.inf , '-')
@@ -195,7 +205,8 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                 "TotalEffectiveness": round(eff/len(affected),2),
                 "TotalCost": round(cost/eff,2),
                 "affected_clusters": result.to_dict(orient='records'),
-                "eff_cost_actions": eff_cost_actions} 
+                "eff_cost_actions": eff_cost_actions,
+                "eff_cost_plot": eff_cost_plot} 
             
             rd.set(cache_key,json.dumps(cache_ret), ex=3600)
 
@@ -203,7 +214,8 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                     "TotalEffectiveness": round(eff/len(affected),3),
                     "TotalCost": round(cost/eff,2),
                     "affected_clusters": result.to_dict(),
-                    "eff_cost_actions": eff_cost_actions} 
+                    "eff_cost_actions": eff_cost_actions,
+                    "eff_cost_plot": eff_cost_plot} 
         except UserConfigValidationException as e:
             # Handle known Dice error for missing counterfactuals
             if str(e) == "No counterfactuals found for any of the query points! Kindly check your configuration.":

@@ -106,7 +106,7 @@ class Group_CF():
             display(best_counterfactual.to_frame().T)
             print(f"Effectiveness : {round(best_coverage,2)*100}% with cost: {best_cost} ")
                   
-        total_eff, total_cost,all_predictions, chosen_actions, costs_list = cumulative(self.affected, best_cfs, self.model,dist_func_dataframe)
+        total_eff, total_cost,all_predictions, chosen_actions, costs_list, final_costs = cumulative(self.affected, best_cfs, self.model,dist_func_dataframe)
         print(f"Total Effectiveness : {round(total_eff,2)*100}% with cost {total_cost}")
         
         return best_cfs,effs,costs,total_eff,total_cost,all_predictions, chosen_actions, costs_list
@@ -286,4 +286,4 @@ def cumulative(instances, best_cfs, model,dist_func_dataframe):
             min_index = np.argmin(row)  
             final_output.append(min_index)
 
-    return effectiveness/len(original_instances), cost/effectiveness, all_predictions, final_output , costs
+    return effectiveness/len(original_instances), cost/effectiveness, all_predictions, final_output , costs, final_costs
