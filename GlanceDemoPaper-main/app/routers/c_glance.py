@@ -222,3 +222,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                 raise HTTPException(status_code=400, detail="No counterfactuals found for any of the query points! Please select different features.")
             else:
                 raise HTTPException(status_code=400, detail=str(e))
+        except KeyError as e:  # Catch KeyError specifically
+            raise HTTPException(status_code=400, detail=f"KeyError: {str(e)}")
+        except Exception as e:  # Catch any other unexpected errors
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")

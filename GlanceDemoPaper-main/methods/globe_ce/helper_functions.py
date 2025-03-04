@@ -109,7 +109,7 @@ def build_globece_actions_report(
         effectiveness = (num_total_flipped/ total_affected)*100
         return avg_cost, effectiveness, flipped_list, cost_list
     else:
-        return 0, 0
+        return 0, 0 , 0, 0
 
 def report_globece_actions(
     globe_ce_object: GLOBE_CE,
