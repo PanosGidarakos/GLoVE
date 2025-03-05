@@ -225,9 +225,9 @@ const CompareMethods = () => {
             onChange={handleChange}
             input={<OutlinedInput label="Algorithm Selection" />}
           >
-            <MenuItem value="run-c_glance">Glance</MenuItem>
-            <MenuItem value="run-groupcfe">Group</MenuItem>
-            <MenuItem value="run-globece">Globece</MenuItem>
+            <MenuItem value="run-c_glance">GLANCE</MenuItem>
+            <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
+            <MenuItem value="run-globece">GLOBE-CE</MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>

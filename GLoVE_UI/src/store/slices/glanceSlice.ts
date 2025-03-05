@@ -173,8 +173,8 @@ export const runModelComparative = createAsyncThunk(
             gcf_size:gcf_size,
             cf_method:"Dice",
             action_choice_strategy:"Max Effectiveness",
-            direction:2,
-            features_to_change:2,
+            direction:1,
+            features_to_change:5,
           },
         }
       );
