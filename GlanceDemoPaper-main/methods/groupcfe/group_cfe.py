@@ -109,7 +109,7 @@ class Group_CF():
         total_eff, total_cost,all_predictions, chosen_actions, costs_list, final_costs = cumulative(self.affected, best_cfs, self.model,dist_func_dataframe)
         print(f"Total Effectiveness : {round(total_eff,2)*100}% with cost {total_cost}")
         
-        return best_cfs,effs,costs,total_eff,total_cost,all_predictions, chosen_actions, costs_list
+        return best_cfs,effs,costs,total_eff,total_cost,all_predictions, chosen_actions, costs_list , final_costs
             
         
 

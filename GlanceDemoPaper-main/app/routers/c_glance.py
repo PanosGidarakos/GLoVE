@@ -17,7 +17,7 @@ router = APIRouter()
 rd = redis.Redis(host="localhost", port=6379, db=0)
 
 @router.post("/run-c_glance", summary="Run C_GLANCE")
-async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str, features_to_change: Optional[List[str]] = None):
+async def run_glance(gcf_size: int = 3, cf_method: str = 'Dice', action_choice_strategy: str = 'Max Effectiveness', features_to_change: Optional[List[str]] = None):
     cache_key = f"run-c_glance:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{cf_method}:{action_choice_strategy}:{features_to_change}"
     cache = rd.get(cache_key)
     if cache:
@@ -82,8 +82,9 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
         affected = shared_resources.get("affected").copy(deep=True)
         model = shared_resources.get("model")
         target_name = shared_resources.get("target_name")
-        X_test.rename(columns={"label": "target"},inplace=True)
         print(X_test)
+        X_test.rename(columns={"label": "target"},inplace=True)
+        
         
             # Retrieve values from the shared global state
         # train_dataset, data, X_train, y_train, X_test, y_test, affected, _unaffected, model, feat_to_vary, target_name = load_dataset_and_model(dataset_name, model_name)
@@ -101,7 +102,7 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
         # Initialize and fit C_GLANCE with user-defined parameters
         global_method = C_GLANCE(
             model=model,
-            initial_clusters=50,
+            initial_clusters=100,
             final_clusters=gcf_size,
             num_local_counterfactuals=10,
         )
@@ -156,6 +157,12 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
             action_costs = [final_costs[np.array(chosen_actions) == i].mean() for i in range(gcf_size)]
             action_costs = [0 if np.isnan(x) else x for x in action_costs]
             action_effs = [len(np.array(chosen_actions)[np.array(chosen_actions) == i]) for i in range(gcf_size)]
+            sorted_lists = sorted(zip(action_costs, action_effs))  # Sorts based on first element of each tuple
+            sorted_list1, sorted_list2 = zip(*sorted_lists)  # Unzips the sorted pairs
+            action_costs = list(sorted_list1)
+            action_effs = list(sorted_list2)
+            print(action_costs)
+            print(action_effs)
             eff_plot = 0
             cost_plot = 0
             for i, arr in pred_list.items():
@@ -166,7 +173,10 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                 eff_cost_actions[i] = {'eff':eff_act , 'cost':cost_act}
                 eff_plot += action_effs[i-1]
                 cost_plot += action_costs[i-1]*action_effs[i-1]
-                eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
+                if cost_plot == 0:
+                    eff_cost_plot[i] = {'eff':0.0 , 'cost':0.0}
+                else:
+                    eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
 
             result['Cluster'] = cluster
             print(eff_cost_plot)
@@ -195,13 +205,14 @@ async def run_glance(gcf_size: int, cf_method: str, action_choice_strategy: str,
                 }
                 for k, v in clusters_res.items()
             }
+            print(X_test)
             cache_ret = {
                 "method": "glance",
                 "data": shared_resources["data"].to_dict(orient='records'),
                 "actions": actions_returned,
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
-                "X_test": X_test.to_dict(orient='records'),
+                "X_test": shared_resources["X_test"].to_dict(orient='records'),
                 "TotalEffectiveness": round(eff/len(affected),2),
                 "TotalCost": round(cost/eff,2),
                 "affected_clusters": result.to_dict(orient='records'),

@@ -22,7 +22,7 @@ router = APIRouter()
 rd = redis.Redis(host="localhost", port=6379, db=0)
 
 @router.post("/run-globece", summary="Run GLOBE_CE")
-async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
+async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction: int =1):
     cache_key = f"run-globece:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{features_to_change}:{direction}"
     cache = rd.get(cache_key)
     if cache:
@@ -61,7 +61,8 @@ async def run_groupcfe(gcf_size: int, features_to_change: int, direction: int):
                         "TotalEffectiveness": cache_res['TotalEffectiveness'],
                         "TotalCost": cache_res['TotalCost'],
                         "affected_clusters": reverse_one_hot(shared_resources["affected_clusters"]).to_dict(),
-                        "eff_cost_actions": cache_res['eff_cost_actions']} 
+                        "eff_cost_actions": cache_res['eff_cost_actions'],
+                        "eff_cost_plot": cache_res['eff_cost_plot']} 
     else:
         from methods.globe_ce.globe_ce import GLOBE_CE
         print(f"Cache key {cache_key} does not exist - Running GLOBE_CE Algorithm")    

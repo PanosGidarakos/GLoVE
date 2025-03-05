@@ -79,6 +79,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
         shared_resources["method"] = 'groupcfe'    
         data = shared_resources.get("data").copy(deep=True)
         X_test = shared_resources.get("X_test").copy(deep=True)
+        print(X_test)
         affected = shared_resources.get("affected").copy(deep=True)
         model = shared_resources.get("model")
         target_name = shared_resources.get("target_name")
@@ -106,7 +107,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                 clusters=gcf_size,
                 sample_size_gcfe_pairs = 50
             )
-            best_cfs,effs,costs,_,_,_, _, _ = group_cfe.explain_group()
+            best_cfs,effs,costs,_,_,_, _, _,_ = group_cfe.explain_group()
 
             counterfactual_dict = {
                 i + 1: {
@@ -117,7 +118,9 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                 for i, (action, effectiveness, cost) in enumerate(zip(best_cfs, effs, costs))
             }
             sorted_actions_dict = dict(sorted(counterfactual_dict.items(), key=lambda item: item[1]['cost']))
+            print(sorted_actions_dict)
             actions = [stats["action"] for i,stats in sorted_actions_dict.items()]
+            print(actions)
             dist_func_dataframe = build_dist_func_dataframe(
                     X=data.drop(columns=target_name),
                     numerical_columns=num_features,
@@ -129,6 +132,14 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
             action_costs = [final_costs[np.array(chosen_actions) == i].mean() for i in range(gcf_size)]
             action_costs = [0 if np.isnan(x) else x for x in action_costs]
             action_effs = [len(np.array(chosen_actions)[np.array(chosen_actions) == i]) for i in range(gcf_size)]
+            print(action_costs)
+            print(action_effs)
+            sorted_lists = sorted(zip(action_costs, action_effs))  # Sorts based on first element of each tuple
+            sorted_list1, sorted_list2 = zip(*sorted_lists)  # Unzips the sorted pairs
+            action_costs = list(sorted_list1)
+            action_effs = list(sorted_list2)
+            print(action_costs)
+            print(action_effs)
             eff_plot = 0
             cost_plot = 0
             eff_cost_plot = {}
@@ -141,7 +152,10 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                 eff_cost_actions[i] = {'eff':eff_act , 'cost':cost_act}
                 eff_plot += action_effs[i-1]
                 cost_plot += action_costs[i-1]*action_effs[i-1]
-                eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
+                if cost_plot == 0:
+                    eff_cost_plot[i] = {'eff':0.0 , 'cost':0.0}
+                else:
+                    eff_cost_plot[i] = {'eff':eff_plot/len(affected) , 'cost':cost_plot/eff_plot}
 
             affected_clusters['Chosen_Action'] = chosen_actions
             affected_clusters['Chosen_Action'] = affected_clusters['Chosen_Action'] + 1
@@ -174,7 +188,7 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                 "data": shared_resources["data"].to_dict(orient='records'),
                 "clusters_res": serialized_clusters_res,
                 "affected": affected.to_dict(orient='records'),
-                "X_test": X_test.to_dict(orient='records'),
+                "X_test": shared_resources["X_test"].to_dict(orient='records'),
                 "TotalEffectiveness": round(total_eff,2),
                 "TotalCost": round(total_cost,2),
                 "affected_clusters": affected_clusters.to_dict(orient='records'),
