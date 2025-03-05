@@ -478,9 +478,10 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
           {selectedTab === 3 && (
-          <Box>
+            <WorkflowCard title="Compare Model Analysis" description="">
+
             <CompareMethods/>
-            </Box>
+            </WorkflowCard>
         )}
       </Box>
     </Box>

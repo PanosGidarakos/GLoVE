@@ -14,7 +14,7 @@ import { useAppDispatch } from "../../../store/store"
 import { runModelComparative } from "../../../store/slices/glanceSlice"
 import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
 
-const CompareMethods: React.FC = () => {
+const CompareMethods = () => {
   const [algorithms, setAlgorithms] = useState<string[]>(["run-c_glance"])
   const [gcfSize, setGcfSize] = useState<number>(3)
   const dispatch = useAppDispatch()
@@ -72,7 +72,7 @@ const CompareMethods: React.FC = () => {
 
   const transformedData = results
     ? Object.entries(results).reduce((acc, [runName, runData]) => {
-        acc[runName] = addZeroStep(runData)
+      acc[runName] = addZeroStep(runData)
         return acc
       }, {})
     : {}
@@ -91,32 +91,111 @@ const CompareMethods: React.FC = () => {
         transformData(runData, runName, index * (gcfSize + 1)),
       )
     : []
-  const spec = (yField: string) => {
-    return {
-      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-      mark: { type: "line", interpolate: "step-after", point: true },
-      encoding: {
-        x: {
-          field: "step",
-          type: "ordinal",
-          title: "",
-          axis: { labels: false, ticks: false }, // Hides numbers and ticks
-        },
-        y: {
-          field: yField, // Dynamically use the Y-field selected ("eff" or "cost")
-          type: "quantitative",
-          title: yField === "eff" ? "Effectiveness" : "Cost", // Set the Y-axis title dynamically
-        },
-        color: {
-          field: "run",
-          type: "nominal",
-          title: "Method",
-        },
-      },
-      data: { values: allData },
-    }
-  }
+  // const spec = (yField: string) => {
+  //   return {
+  //     $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  //     mark: { type: "line", interpolate: "step-after", point: true },
+  //     encoding: {
+  //       x: {
+  //         field: "step",
+  //         type: "ordinal",
+  //         title: "",
+  //         axis: { labels: false, ticks: false }, // Hides numbers and ticks
+  //       },
+  //       y: {
+  //         field: yField, // Dynamically use the Y-field selected ("eff" or "cost")
+  //         type: "quantitative",
+  //         title: yField === "eff" ? "Effectiveness" : "Cost", // Set the Y-axis title dynamically
+  //       },
+  //       color: {
+  //         field: "run",
+  //         type: "nominal",
+  //         title: "Method",
+  //       },
+  //     },
+  //     data: { values: allData },
+  //   }
+  // }
 
+
+  // const spec = {
+  //   $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  //   layer: [
+  //     {
+  //       mark: { type: "line", interpolate: "step-after", point: true },
+  //       encoding: {
+  //         x: {
+  //           field: "step",
+  //           type: "ordinal",
+  //           title: "Step",
+  //         },
+  //         y: {
+  //           field: "eff",
+  //           type: "quantitative",
+  //           title: "Effectiveness",
+  //           axis: { titleColor: "blue" },
+  //         },
+  //         color: { field: "run", type: "nominal", title: "Method" },
+  //       },
+  //     },
+  //     {
+  //       mark: { type: "bar", opacity: 0.5 },
+  //       encoding: {
+  //         x: {
+  //           field: "step",
+  //           type: "ordinal",
+  //         },
+  //         y: {
+  //           field: "cost",
+  //           type: "quantitative",
+  //           title: "Cost",
+  //           axis: { titleColor: "red" },
+  //         },
+  //         color: { field: "run", type: "nominal", title: "Method" },
+  //       },
+  //     },
+  //   ],
+  //   data: { values: allData },
+  // }
+
+  const spec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    mark: { type: "line", point: true, interpolate: "step-after" },
+    selection: {
+      // Interval selection for zoom and pan
+     
+      // Point selection for legend interaction
+      industry: {
+        type: 'point',
+        fields: ['run'], // Field for legend interaction
+        bind: 'legend',           // Bind selection to the legend
+      },
+    },
+    encoding: {
+      y: {
+        field: "eff",
+        type: "quantitative",
+        title: "Effectiveness", // X-axis is now effectiveness
+      },
+      x: {
+        field: "cost",
+        type: "quantitative",
+        title: "Cost", // Y-axis is now cost
+      },
+      color: {
+        field: "run",
+        type: "nominal",
+        title: "Method",
+      },
+      opacity: {
+        condition: { "param": "industry", "value": 1 },
+        value: 0.01
+      }
+    },
+    data: { values: allData },
+  }
+  
+  
   return (
     <Box
       sx={{
@@ -152,13 +231,14 @@ const CompareMethods: React.FC = () => {
           </Select>
         </FormControl>
         <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>
-          <InputLabel id="GCF Size Selection">GCF Size Selection</InputLabel>
+          <InputLabel id="Counterfactial Size">Counterfactial Size</InputLabel>
           <Select
-            labelId="GCF Size Selection"
+            labelId="Counterfactial Size"
             // multiple
             value={gcfSize}
             onChange={e => setGcfSize(e.target.value as number)}
             input={<OutlinedInput label="GCF Size Selection" />}
+            
           >
             {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
               <MenuItem key={value} value={value}>
@@ -173,7 +253,7 @@ const CompareMethods: React.FC = () => {
       </Box>
       {loading ? (
         <>
-          <Typography variant="h6">Loading</Typography>
+          <Typography variant="h6">Running Experiments</Typography>
           <CircularProgress />
         </>
       ) : (
@@ -181,21 +261,21 @@ const CompareMethods: React.FC = () => {
           <>
             {" "}
             <ResponsiveVegaLite
-              spec={spec("eff")}
+              spec={spec}
               actions={false}
               minWidth={100}
               minHeight={100}
               maxWidth={500}
               maxHeight={500}
             />
-            <ResponsiveVegaLite
+            {/* <ResponsiveVegaLite
               spec={spec("cost")}
               actions={false}
               minWidth={100}
               minHeight={100}
               maxWidth={500}
               maxHeight={500}
-            />
+            /> */}
           </>
         )
       )}
