@@ -91,6 +91,7 @@ async def apply_affected_actions():
         cate_features = affected.columns.difference(num_features)
         applied_affected = pd.DataFrame()
         actions = shared_resources["actions"]
+        print(actions)
         feature_values = shared_resources["features"]
         feature_tree = shared_resources["features_tree"]
         features = np.array(list(feature_tree))
@@ -99,17 +100,13 @@ async def apply_affected_actions():
         if 'action_idxs' in affected_clusters.columns.tolist():
 
             for i,val in enumerate(list(affected_clusters.action_idxs.unique())):
-                print(val)
                 aff = affected_clusters[affected_clusters['action_idxs'] == val]
-                print(aff)
                 if val != '-':
-                    print(actions[actions.idx == val].drop(columns=['idx','mean_cost','sum_flipped']))
                     action = actions[actions.idx == val].drop(columns=['idx','mean_cost','sum_flipped']).values
                     applied = round_categorical(aff[feature_values].values + action,features,feature_tree)
                     applied_df = pd.DataFrame(applied,columns=feature_values)
                     applied_df['Chosen_Action'] = aff.Chosen_Action.values[0]
                     applied_affected = pd.concat([applied_affected,applied_df])
-                    print(applied_affected)
                 else:
                     aff['Chosen_Action'] = '-'
                     cols = affected.columns.to_list()
@@ -119,7 +116,7 @@ async def apply_affected_actions():
             for i,val in enumerate(list(affected_clusters['Chosen_Action'].unique())):
                 aff = affected_clusters[affected_clusters['Chosen_Action'] == val]
                 if val != '-':
-                    action = actions[actions['Chosen_Action'] == val].drop(columns=['direction','scalar','Chosen_Action','cost']).values
+                    action = actions[actions['Chosen_Action'] == val].drop(columns=['direction','scalar','Chosen_Action','cost']).drop_duplicates().values
                     applied = round_categorical(aff[feature_values].values + action,features,feature_tree)
                     applied_df = pd.DataFrame(applied,columns=feature_values)
                     applied_df['Chosen_Action'] = aff.Chosen_Action.values[0]
@@ -129,12 +126,8 @@ async def apply_affected_actions():
                     cols = affected.columns.to_list()
                     cols.append('Chosen_Action')
                     applied_affected = pd.concat([applied_affected,aff[cols]])
-        print(applied_affected.Chosen_Action.unique())
-        print(reverse_one_hot(applied_affected).Chosen_Action.unique())
+
         
-        # shared_resources['applied_affected'] = applied_affected
-        print(reverse_one_hot(applied_affected))
-        print(applied_affected.shape)
         shared_resources['applied_affected'] = applied_affected.reset_index(drop=True)
         return reverse_one_hot(applied_affected).reset_index(drop=True).to_dict()
 

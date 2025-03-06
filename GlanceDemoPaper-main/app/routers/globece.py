@@ -12,7 +12,7 @@ import redis
 import json
 from methods.globe_ce.helper_functions import find_actions,report_globece_actions
 from methods.globe_ce.ares import AReS
-from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot
+from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot,round_categorical
 import math
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline
@@ -215,7 +215,8 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                         actions_df=actions_df.fillna('-')    
                 unique_actions = actions_df[actions_df["direction"] != "-"].drop_duplicates().reset_index(drop=True)
                 unique_actions = unique_actions.sort_values(by='cost')
-                unique_actions["Chosen_Action"] = range(1, len(unique_actions) + 1)
+                unique_actions["Chosen_Action"] = pd.factorize(unique_actions[["direction", "scalar"]].apply(tuple, axis=1))[0]
+                unique_actions["Chosen_Action"] = unique_actions["Chosen_Action"] + 1
                 actions_df = actions_df.merge(unique_actions, on=["direction", "scalar",'cost'], how="left")
                 actions_df["Chosen_Action"] = actions_df["Chosen_Action"].fillna("-")
                 actions_df = actions_df[['Chosen_Action','cost']]
@@ -227,7 +228,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                 cost_list = []
                 eff_plot = 0
                 cost_plot = 0
-                for i in unique_actions["Chosen_Action"].tolist(): 
+                for i in unique_actions["Chosen_Action"].unique().tolist(): 
                     flipped = actions_df[actions_df["Chosen_Action"] == i].shape[0]
                     flipped_list.append(flipped)
                     cost = actions_df[actions_df["Chosen_Action"] == i].cost.mean()
@@ -252,25 +253,25 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                 
 
 
-                processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(unique_actions.drop(columns=['direction','scalar','Chosen_Action','cost']).to_numpy()),columns=globe_ce.feature_values))
+                #processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(unique_actions.drop(columns=['direction','scalar','Chosen_Action','cost']).to_numpy()),columns=globe_ce.feature_values))
                 counterfactual_dict = {
                     i + 1: {
-                        "action": action,
+                        "action": reverse_one_hot(pd.DataFrame(round_categorical(action.to_frame().T.values,np.array(list(globe_ce.features_tree)),globe_ce.features_tree),columns=globe_ce.feature_values)[action.to_frame().T.loc[:, (action.to_frame().T != 0.0).any(axis=0)].columns.tolist()]),
                     }
-                    for i, (action) in processed_actions.iterrows()
+                    for i, (action) in unique_actions.drop(columns=['direction','scalar','cost','Chosen_Action']).drop_duplicates().reset_index(drop=True).iterrows()
                 }
                 filtered_data = {
-                        k: {
-                            **{
-                                'action': {ak: av for ak, av in v['action'].items() if av != '-'}
-                            },
-                            **{kk: vv for kk, vv in v.items() if kk != 'action'}
-                        }
-                        for k, v in counterfactual_dict.items()
+                    k: {
+                        **{
+                            'action': {ak: av for ak, av in v['action'].T.iloc[:,0].items() if av != '-'}
+                        },
+                        **{kk: vv for kk, vv in v.items() if kk != 'action'}
+                    }
+                    for k, v in counterfactual_dict.items()
                 }
                 actions_returned = [stats["action"] for i,stats in filtered_data.items()]
                 shared_resources['affected_clusters'] = affected_clusters
-                shared_resources["actions"] = unique_actions
+                shared_resources["actions"] = unique_actions.reset_index(drop=True)
                 shared_resources['features'] = globe_ce.feature_values
                 shared_resources['features_tree'] = globe_ce.features_tree
                 
@@ -282,6 +283,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                     for k, v in counterfactual_dict.items()
                 }
                 shared_resources["clusters_res"] = serialized_clusters_res
+                print(unique_actions)
                 # print(affected_clusters)
                 cache_ret = {
                     "method" : 'globece',
@@ -295,7 +297,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                     "affected_clusters": affected_clusters.to_dict(orient='records'),
                     "eff_cost_actions": eff_cost_actions,
                     "eff_cost_plot": eff_cost_plot,
-                    "actions": unique_actions.to_dict(orient='records'),
+                    "actions": unique_actions.reset_index(drop=True).to_dict(orient='records'),
                     "features": globe_ce.feature_values,
                     "features_tree": globe_ce.features_tree} 
                 rd.set(cache_key,json.dumps(cache_ret), ex=3600)
@@ -312,11 +314,14 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                 print(f"Total Effectiveness : {effectiveness}")
                 print(f"Average cost : {costs_bound[-1]}")
                 print(f"Total Effectiveness : {corrects_bound[-1]}")
+                print(actions)
                 #all actions
                 # actions = find_actions(scalars,delta)
                 # actions = pd.DataFrame(actions,columns=globe_ce.feature_values)
                 # processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(actions.to_numpy()),columns=globe_ce.feature_values))
-                processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(actions.drop(columns=['idx','sum_flipped','mean_cost']).to_numpy()),columns=globe_ce.feature_values))
+                #processed_actions = reverse_one_hot(pd.DataFrame(globe_ce.round_categorical(actions.drop(columns=['idx','sum_flipped','mean_cost']).to_numpy()),columns=globe_ce.feature_values))
+                processed_actions =  reverse_one_hot(pd.DataFrame(round_categorical(actions.drop(columns=['idx','mean_cost','sum_flipped']).values,np.array(list(globe_ce.features_tree)),globe_ce.features_tree),columns=globe_ce.feature_values)[actions.loc[:, (actions != 0.0).any(axis=0)].drop(columns=['idx','mean_cost','sum_flipped']).columns.tolist()])
+
                 flipped_idxs = idxs[~np.isnan(idxs)]
                 print(actions)
                 counterfactual_dict = {
