@@ -206,6 +206,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
         { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
       ],
     },
+  
   }
 
   const chart2 = {
@@ -749,7 +750,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                       </Grid>
                       <Grid item xs={12} md={4}>
                         <WorkflowCard
-                          title="Cost by Parameter"
+                          title={`Cost by ${executionMode}`}
                           description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
                         >
                           <ResponsiveVegaLite
@@ -765,7 +766,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                       </Grid>
                       <Grid item xs={12} md={4}>
                         <WorkflowCard
-                          title="Effectiveness by Parameter"
+                          title={`Effectiveness by ${executionMode}`}
                           description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
                         >
                           <ResponsiveVegaLite

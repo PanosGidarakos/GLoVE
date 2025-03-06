@@ -265,7 +265,7 @@ const CompareMethods = () => {
               actions={false}
               minWidth={100}
               minHeight={100}
-              maxWidth={500}
+              maxWidth={1000}
               maxHeight={500}
             />
             {/* <ResponsiveVegaLite
