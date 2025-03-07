@@ -71,31 +71,30 @@ const styles = {
   },
 }
 
+const steps = [
+  "Select Dataset and Model",
+  "Explore Dataset",
+  "Analyze Counterfactuals",
+  "Compare Models",
+]
+
 const GlanceComponent: React.FC = () => {
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
-  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">(
-    "affected",
-  ) // Track which data to display
+  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">("affected") 
   const [selectedTab, setSelectedTab] = useState<number>(0) // Track selected tab
   const [showUMAPScatter, setShowUMAPScatter] = useState(true) // State to toggle scatter plot
   const [processedDataset, setProcessedDataset] = useState([])
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({})
-
   const [activeStep, setActiveStep] = useState(0)
-  const steps = [
-    "Select Dataset and Model",
-    "Explore Dataset",
-    "Analyze Counterfactuals",
-    "Compare Models",
-  ]
+  
   const [selectedDataset, setSelectedDataset] =
     useState<string>("COMPAS Dataset")
   const [selectedModel, setSelectedModel] = useState<string>("XGBoost")
 
   const handleStepClick = index => {
     setActiveStep(index)
-    setSelectedTab(index) // Sync tab with stepper
+    setSelectedTab(index)
   }
 
   useEffect(() => {
@@ -146,38 +145,34 @@ const GlanceComponent: React.FC = () => {
     }
   }, [glanceState.loadDatasetAndModelResult])
 
-  useEffect(() => {
-    if (glanceState.runGlanceResult) {
-      const indexValues = new Set(
-        Object.values(glanceState.runGlanceResult.affected_clusters.index),
-      )
-      const newDataset = glanceState.loadDatasetAndModelResult.X_test.map(
-        (item: any, idx: unknown) => {
-          if (indexValues.has(idx)) {
-            const indexArray = Object.values(
-              glanceState.runGlanceResult.affected_clusters.index,
-            )
-            const actionIndex = indexArray.indexOf(idx)
-            const actionValue =
-              glanceState.runGlanceResult.affected_clusters.Chosen_Action[
-                actionIndex
-              ]
-            return { ...item, action: actionValue }
-          } else {
-            return { ...item, action: "-1" }
-          }
-        },
-      )
+  // useEffect(() => {
+  //   if (glanceState.runGlanceResult) {
+  //     const indexValues = new Set(
+  //       Object.values(glanceState.runGlanceResult.affected_clusters.index),
+  //     )
+  //     const newDataset = glanceState.loadDatasetAndModelResult.X_test.map(
+  //       (item: any, idx: unknown) => {
+  //         if (indexValues.has(idx)) {
+  //           const indexArray = Object.values(
+  //             glanceState.runGlanceResult.affected_clusters.index,
+  //           )
+  //           const actionIndex = indexArray.indexOf(idx)
+  //           const actionValue =
+  //             glanceState.runGlanceResult.affected_clusters.Chosen_Action[
+  //               actionIndex
+  //             ]
+  //           return { ...item, action: actionValue }
+  //         } else {
+  //           return { ...item, action: "-1" }
+  //         }
+  //       },
+  //     )
 
-      setProcessedDataset(newDataset) // Set the state
-    }
-  }, [glanceState.runGlanceResult])
+  //     setProcessedDataset(newDataset) // Set the state
+  //   }
+  // }, [glanceState.runGlanceResult])
 
-  // Handle Tab Change
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setSelectedTab(newValue)
-    setActiveStep(newValue) // Sync stepper with tabs
-  }
+
 
   const renderScatterPlot = () => {
     if (!showUMAPScatter && viewOption === "affected") {
@@ -255,6 +250,8 @@ const GlanceComponent: React.FC = () => {
       </Box>
     )
   }
+
+  console.log("glance",glanceState)
 
   return (
     <Box
@@ -361,15 +358,14 @@ const GlanceComponent: React.FC = () => {
                           description="Instances from the test dataset where the model's prediction was equal to 0."
                         >
                           <Box padding={2}>
-
-                          <DataTable
-                            title="Affected Test Data"
-                            data={
-                              glanceState.loadDatasetAndModelResult.affected
-                            }
-                            showArrow={false}
-                          />
-                                                    </Box>
+                            <DataTable
+                              title="Affected Test Data"
+                              data={
+                                glanceState.loadDatasetAndModelResult.affected
+                              }
+                              showArrow={false}
+                            />
+                          </Box>
 
                           <FormControlLabel
                             control={
@@ -379,7 +375,7 @@ const GlanceComponent: React.FC = () => {
                                   setShowUMAPScatter(e.target.checked)
                                 }
                                 color="primary"
-                                sx={{marginLeft: 2}}
+                                sx={{ marginLeft: 2 }}
                               />
                             }
                             label="Enable Dimensionality Reduction (UMAP)"
@@ -421,11 +417,13 @@ const GlanceComponent: React.FC = () => {
                           description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data."
                         >
                           <Box padding={2}>
-                          <DataTable
-                            title="Test Data"
-                            data={glanceState.loadDatasetAndModelResult.X_test}
-                            showArrow={false}
-                          />
+                            <DataTable
+                              title="Test Data"
+                              data={
+                                glanceState.loadDatasetAndModelResult.X_test
+                              }
+                              showArrow={false}
+                            />
                           </Box>
                           <FormControlLabel
                             control={
@@ -435,8 +433,7 @@ const GlanceComponent: React.FC = () => {
                                   setShowUMAPScatter(e.target.checked)
                                 }
                                 color="primary"
-                                sx={{marginLeft: 2}}
-
+                                sx={{ marginLeft: 2 }}
                               />
                             }
                             label="Enable Dimensionality Reduction (UMAP)"
@@ -471,17 +468,24 @@ const GlanceComponent: React.FC = () => {
                   availableActionStrategies={
                     glanceState.availableActionStrategies
                   }
-                  availableFeatures={glanceState.availableFeatures.slice(0, -1)}
-                />
+                  availableFeatures={
+                    (selectedDataset === "Heloc Dataset" ||
+                     selectedDataset === "German Credit Dataset" ||
+                     selectedDataset === "Default Credit Dataset" ||
+                    selectedDataset === "COMPAS Dataset")
+                      ? glanceState.availableFeatures.slice(0, -1)
+                      : glanceState.targetName && glanceState.targetName[0] !== undefined
+                        ? glanceState.availableFeatures.filter(feature => feature !== glanceState.targetName[0])
+                        : glanceState.availableFeatures
+                  }      />
               </Box>
             )}
           </Box>
         )}
-          {selectedTab === 3 && (
-            <WorkflowCard title="Compare Model Analysis" description="">
-
-            <CompareMethods/>
-            </WorkflowCard>
+        {selectedTab === 3 && (
+          <WorkflowCard title="Compare Model Analysis" description="">
+            <CompareMethods />
+          </WorkflowCard>
         )}
       </Box>
     </Box>
