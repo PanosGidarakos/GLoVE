@@ -4,7 +4,7 @@ from typing import Dict, Any
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
-from app.config import shared_resources, dataset_identifiers
+from app.config import shared_resources, dataset_identifiers,shared_resources_globece
 import umap
 router = APIRouter()
  
@@ -22,9 +22,20 @@ async def umap_reduce(request: UMAPRequest, n_components: int = 2):
         if not dataset_key:
             raise HTTPException(status_code=400, detail="Invalid dataset identifier.")
  
-        request_data = shared_resources[dataset_key].copy(deep=True)
+        if shared_resources['method'] == 'globece':
+            if dataset_key == 'affected':
+                request_data = shared_resources_globece[dataset_key].copy(deep=True)
+            else:
+                request_data = shared_resources[dataset_key].copy(deep=True)
+            data_all = shared_resources_globece["data"]
+        else:
+            request_data = shared_resources[dataset_key].copy(deep=True)
+            data_all = shared_resources["data"]
+        # request_data = shared_resources[dataset_key].copy(deep=True)
         request_data.reset_index(drop=True,inplace=True)
-        data_all = shared_resources["data"]
+        # data_all = shared_resources["data"]
+        print(data_all)
+        print(request_data)
         feat = data_all.columns.to_list()
         if shared_resources['dataset_name'] == 'default_credit' and shared_resources['method'] == 'globece':
             target_name = 'Status'

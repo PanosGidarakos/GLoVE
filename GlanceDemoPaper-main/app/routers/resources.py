@@ -20,9 +20,12 @@ async def get_data():
     X_test['label'] = preds
     affected = X_test[X_test.label == 0].reset_index()
     affected = affected.drop(columns='label')
+    _unaffected = X_test[X_test.label == 1].reset_index()
+    _unaffected = _unaffected.drop(columns='label')
 
 
     shared_resources["affected"] = affected
+    shared_resources["_unaffected"] = _unaffected
     shared_resources["umap_model"] = None
     shared_resources["preprocess_pipeline"] = None
     shared_resources["umap_model_globece"] = None

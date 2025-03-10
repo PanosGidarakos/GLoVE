@@ -21,6 +21,13 @@ shared_resources = {
     "preprocess_pipeline_globece": None
 }
 
+shared_resources_globece = {
+    "data": None,
+    "X_test": None,
+    "affected": None,
+    "model": None,
+}
+
 
 dataset_identifiers = {
     "rawData": "data",

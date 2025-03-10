@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import logging
-from app.config import shared_resources
+from app.config import shared_resources,shared_resources_globece
 logging.basicConfig(level=logging.DEBUG)
 from app.services.resources_service import round_categorical,reverse_one_hot
 from methods.glance.iterative_merges.iterative_merges import C_GLANCE
@@ -82,7 +82,7 @@ async def apply_affected_actions():
         shared_resources['applied_affected'] = applied_affected
         return applied_affected.to_dict()
     elif shared_resources["method"] == "globece":
-        affected = shared_resources.get("affected")
+        affected = shared_resources_globece.get("affected")
         clusters_res = shared_resources.get("clusters_res")
         affected_clusters  = shared_resources.get("affected_clusters")
         # actions = [stats["action"] for i, stats in clusters_res.items()]
@@ -91,7 +91,6 @@ async def apply_affected_actions():
         cate_features = affected.columns.difference(num_features)
         applied_affected = pd.DataFrame()
         actions = shared_resources["actions"]
-        print(actions)
         feature_values = shared_resources["features"]
         feature_tree = shared_resources["features_tree"]
         features = np.array(list(feature_tree))
