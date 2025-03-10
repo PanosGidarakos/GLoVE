@@ -230,7 +230,7 @@ async def run_glance(gcf_size: int = 3, cf_method: str = 'Dice', action_choice_s
         except UserConfigValidationException as e:
             # Handle known Dice error for missing counterfactuals
             if str(e) == "No counterfactuals found for any of the query points! Kindly check your configuration.":
-                raise HTTPException(status_code=400, detail="No counterfactuals found for any of the query points! Please select different features.")
+                raise HTTPException(status_code=400, detail="No counterfactuals found for any of the query points! Please select different parameter configurations.")
             else:
                 raise HTTPException(status_code=400, detail=str(e))
         except KeyError as e:  # Catch KeyError specifically
