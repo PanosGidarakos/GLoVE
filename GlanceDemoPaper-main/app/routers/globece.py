@@ -409,7 +409,13 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
         except UserConfigValidationException as e:
             raise HTTPException(status_code=400, detail=str(e))
         except KeyError as e:  # Catch KeyError specifically
-            raise HTTPException(status_code=400, detail=f"KeyError: {str(e)}")
+            if "not found in axis" in str(e):
+                raise HTTPException(status_code=400, detail=f"Cannot generate actions. Please choose different parameter configuration.")
+            else:
+                raise HTTPException(status_code=400, detail=f"KeyError: {str(e)}")
         except Exception as e:  # Catch any other unexpected errors
-            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+            if str(e) == "Cannot take a larger sample than population when 'replace=False'":
+                raise HTTPException(status_code=400, detail="Choose valid number of features to change")
+            else:
+                raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
             
