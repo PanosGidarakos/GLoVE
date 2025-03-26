@@ -75,7 +75,7 @@ const steps = [
   "Select Dataset and Model",
   "Explore Dataset",
   "Analyze Counterfactuals",
-  "Compare Models",
+  // "Compare Models",
 ]
 
 const GlanceComponent: React.FC = () => {
@@ -274,8 +274,7 @@ const GlanceComponent: React.FC = () => {
           marginTop: 4,
         }}
       >
-        GLOVES: Global Counterfactual-based Visual Explanations NEW BRANCH NEW
-        ME
+        GLOVES: Global Counterfactual-based Visual Explanations
       </Typography>
 
       <Stepper
@@ -482,11 +481,11 @@ const GlanceComponent: React.FC = () => {
             )}
           </Box>
         )}
-        {selectedTab === 3 && (
+        {/* {selectedTab === 3 && (
           <WorkflowCard title="Compare Model Analysis" description="">
             <CompareMethods />
           </WorkflowCard>
-        )}
+        )} */}
       </Box>
     </Box>
   )
