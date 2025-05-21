@@ -15,8 +15,8 @@ import {
 import UmapScatter from "./PLOTS/UmapScatter"
 import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage"
 import ComparativeGlance from "./CGLANCE/ComparativeGlance"
-import CompareMethods from "./CompareMethods"
-import DatasetExplorer from "./DatasetExplorer"
+import CompareMethods from "./CompareModels/CompareMethods"
+import DatasetExplorer from "./ExploreDataset/DatasetExplorer"
 import FlowStepper from "./FlowStepper"
 import { ReactFlowProvider } from "reactflow"
 

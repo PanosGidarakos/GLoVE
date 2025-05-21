@@ -28,6 +28,7 @@ import ActionScatter from "../PLOTS/ActionScatter"
 import UmapGlanceComponent from "../UmapGlanceComponent"
 import StaticCharts from "../PLOTS/BarCharts"
 import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../PLOTS/chartSpecs"
+import CGlanceExecution from "../../../Deprecated/CGlanceExecution"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -195,6 +196,7 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
 
   return (
     <WorkflowCard title="Counterfactual Analysis Configuration" description="">
+
       <Box marginTop={2}>
         <Box
           display="flex"

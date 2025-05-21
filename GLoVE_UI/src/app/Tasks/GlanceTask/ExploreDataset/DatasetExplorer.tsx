@@ -5,8 +5,18 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material"
-import DataTable from "./PLOTS/DataTable"
-import ResponsiveCardTable from "../../../shared/components/responsive-card-table"
+import DataTable from "../PLOTS/DataTable"
+import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
+interface DatasetExplorerProps {
+  glanceState: any
+  viewOption: string
+  setViewOption: any
+  showUMAPScatter: boolean
+  setShowUMAPScatter: any
+  renderScatterPlot: any
+  selectedDataset: string
+  selectedModel: string
+}
 
 const DatasetExplorer = ({
   glanceState,
@@ -17,7 +27,7 @@ const DatasetExplorer = ({
   renderScatterPlot,
   selectedDataset,
   selectedModel,
-}) => {
+} : DatasetExplorerProps) => {
   const hasData =
     viewOption === "affected"
       ? glanceState.loadDatasetAndModelResult.affected

@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
-import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
+import ResponsiveVegaLite from '../../shared/components/responsive-vegalite';
 
 interface ScatterPlotProps {
   data: any; // The data you want to plot

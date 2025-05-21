@@ -8,13 +8,13 @@ import {
   Select,
 } from "@mui/material"
 import { useState } from "react"
-import { useAppDispatch } from "../../../store/store"
-import { runModelComparative } from "../../../store/slices/glanceSlice"
-import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
-import ResponsiveCardTable from "../../../shared/components/responsive-card-table"
-import Loader from "../../../shared/components/loader"
-import { getCompareMethodsChartSpec } from "./PLOTS/chartSpecs"
-import InfoMessage from "../../../shared/components/infoMessage"
+import { useAppDispatch } from "../../../../store/store"
+import { runModelComparative } from "../../../../store/slices/glanceSlice"
+import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
+import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
+import Loader from "../../../../shared/components/loader"
+import { getCompareMethodsChartSpec } from "../PLOTS/chartSpecs"
+import InfoMessage from "../../../../shared/components/infoMessage"
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 
 const CompareMethods = () => {

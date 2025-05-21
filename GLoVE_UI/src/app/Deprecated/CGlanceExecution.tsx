@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../../../store/store";
-import { applyAffectedActions, runCGlance, setSelectedFeatures, umapReduce } from "../../../../store/slices/glanceSlice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { applyAffectedActions, runCGlance, setSelectedFeatures, umapReduce } from "../../store/slices/glanceSlice";
 import type {
   SelectChangeEvent} from "@mui/material";
 import {
@@ -30,6 +30,7 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
   const dispatch = useAppDispatch();
   const loading = useAppSelector((state) => state.glance.loading);
   const error = useAppSelector((state) => state.glance.error);
+
   const [gcfSize, setGcfSize] = React.useState<number>(3);
   const [cfMethod, setCfMethod] = React.useState<string>(availableCfMethods[0] || "");
   const [actionChoiceStrategy, setActionChoiceStrategy] = React.useState<string>(availableActionStrategies[0] || "");
