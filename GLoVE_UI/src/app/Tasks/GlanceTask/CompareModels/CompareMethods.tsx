@@ -15,7 +15,7 @@ import ResponsiveCardTable from "../../../../shared/components/responsive-card-t
 import Loader from "../../../../shared/components/loader"
 import { getCompareMethodsChartSpec } from "../Plots/chartSpecs"
 import InfoMessage from "../../../../shared/components/infoMessage"
-import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
+import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded"
 
 const CompareMethods = () => {
   const [algorithms, setAlgorithms] = useState<string[]>(["run-c_glance"])
@@ -73,13 +73,16 @@ const CompareMethods = () => {
     return { "0": { eff: 0, cost: 0 }, ...runData }
   }
 
- const transformedData = results
-  ? Object.entries(results).reduce((acc: { [key: string]: any }, [runName, runData]) => {
-      acc[runName] = addZeroStep(runData)
-      return acc
-    }, {})
-  : {}
-  const transformData = (runData : any, runName : string, offset : number) => {
+  const transformedData = results
+    ? Object.entries(results).reduce(
+        (acc: { [key: string]: any }, [runName, runData]) => {
+          acc[runName] = addZeroStep(runData)
+          return acc
+        },
+        {},
+      )
+    : {}
+  const transformData = (runData: any, runName: string, offset: number) => {
     return Object.keys(runData).map(step => ({
       step: parseInt(step) + offset,
       eff: runData[step].eff,
@@ -94,102 +97,101 @@ const CompareMethods = () => {
       )
     : []
 
-
-    console.log("allData", allData)
-
-  
   return (
-
-    <Box sx={{height: "600px" }}>
-    <ResponsiveCardTable
-    
-      title={"Compare Model Analysis"}
-      controlPanel={
-        <Box
-          display="flex"
-          alignItems="center"
-          gap={1}
-          marginBottom={2}
-          marginTop={2}
-          flexWrap="wrap"
-          padding={2}
-        >
-          {/* Algorithm Selection Dropdown (Multiple) */}
-          <FormControl fullWidth sx={{ flex: 1, minWidth: "220px" }}>
-            <InputLabel id="Algorithm Selection">
-              Algorithm Selection
-            </InputLabel>
-            <Select
-              labelId="Algorithm Selection"
-              multiple
-              value={algorithms}
-              onChange={handleChange}
-              input={<OutlinedInput label="Algorithm Selection" />}
-            >
-              <MenuItem value="run-c_glance">GLANCE</MenuItem>
-              <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
-              <MenuItem value="run-globece">GLOBE-CE</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>
-            <InputLabel id="Counterfactial Size">
-              Counterfactial Size
-            </InputLabel>
-            <Select
-              labelId="Counterfactial Size"
-              // multiple
-              value={gcfSize}
-              onChange={e => setGcfSize(e.target.value as number)}
-              input={<OutlinedInput label="GCF Size Selection" />}
-            >
-              {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
-                <MenuItem key={value} value={value}>
-                  {value}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button variant="contained" color="primary" onClick={handleRun}>
-            Run Analysis
-          </Button>
-        </Box>
-      }
-    >
-  {loading ? (
-  <Loader />
-) : errorMessage ? (
-  <InfoMessage
-    message="One or more algorithms failed to run."
-    type="error"
-    icon={
-      <ReportProblemRoundedIcon sx={{ fontSize: 40, color: 'error.main' }} />
-    }
-    fullHeight
-  />
-) : allData.length === 0 ? (
-  
-  <InfoMessage
-    message="Please select algorithm(s) and run the analysis to see results."
-    type="info"
-    icon={
-      <ReportProblemRoundedIcon sx={{ fontSize: 40, color: 'info.main' }} />
-    }
-    fullHeight
-  />
-) : (
-  <ResponsiveVegaLite
-    title="Effectiveness vs. Cost"
-    details={"todo"}
-    spec={getCompareMethodsChartSpec(allData)}
-    actions={false}
-    minWidth={100}
-    minHeight={100}
-    maxWidth={1000}
-    maxHeight={500}
-  />
-)}
-
-    </ResponsiveCardTable>
+    <Box sx={{ height: "600px" }}>
+      <ResponsiveCardTable
+        title={"Compare Model Analysis"}
+        details={
+          "Visualize the performance of the algorithm for different parameter configurations."
+        }
+        controlPanel={
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1}
+            marginBottom={2}
+            marginTop={2}
+            flexWrap="wrap"
+            padding={2}
+          >
+            {/* Algorithm Selection Dropdown (Multiple) */}
+            <FormControl fullWidth sx={{ flex: 1, minWidth: "220px" }}>
+              <InputLabel id="Algorithm Selection">
+                Algorithm Selection
+              </InputLabel>
+              <Select
+                labelId="Algorithm Selection"
+                multiple
+                value={algorithms}
+                onChange={handleChange}
+                input={<OutlinedInput label="Algorithm Selection" />}
+              >
+                <MenuItem value="run-c_glance">GLANCE</MenuItem>
+                <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
+                <MenuItem value="run-globece">GLOBE-CE</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>
+              <InputLabel id="Counterfactial Size">
+                Counterfactial Size
+              </InputLabel>
+              <Select
+                labelId="Counterfactial Size"
+                // multiple
+                value={gcfSize}
+                onChange={e => setGcfSize(e.target.value as number)}
+                input={<OutlinedInput label="GCF Size Selection" />}
+              >
+                {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
+                  <MenuItem key={value} value={value}>
+                    {value}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Button variant="contained" color="primary" onClick={handleRun}>
+              Run Analysis
+            </Button>
+          </Box>
+        }
+      >
+        {loading ? (
+          <Loader />
+        ) : errorMessage ? (
+          <InfoMessage
+            message="One or more algorithms failed to run."
+            type="error"
+            icon={
+              <ReportProblemRoundedIcon
+                sx={{ fontSize: 40, color: "error.main" }}
+              />
+            }
+            fullHeight
+          />
+        ) : allData.length === 0 ? (
+          <InfoMessage
+            message="Please select algorithm(s) and run the analysis to see results."
+            type="info"
+            icon={
+              <ReportProblemRoundedIcon
+                sx={{ fontSize: 40, color: "info.main" }}
+              />
+            }
+            fullHeight
+          />
+        ) : (
+          <ResponsiveVegaLite
+            title="Effectiveness vs. Cost"
+            details={"todo"}
+            spec={getCompareMethodsChartSpec(allData)}
+            actions={false}
+            minWidth={100}
+            minHeight={100}
+            maxWidth={1000}
+            maxHeight={500}
+          />
+        )}
+      </ResponsiveCardTable>
     </Box>
   )
 }

@@ -19,6 +19,7 @@ import CompareMethods from "./CompareModels/CompareMethods"
 import DatasetExplorer from "./ExploreDataset/DatasetExplorer"
 import FlowStepper from "./FlowStepper"
 import { ReactFlowProvider } from "reactflow"
+import Loader from "../../../shared/components/loader";
 
 const styles = {
   sidebar: {
@@ -272,19 +273,10 @@ const GlanceComponent: React.FC = () => {
         )}
 
         {selectedTab === 2 && (
-          <Box>
+          <>
+         
             {glanceState.datasetLoading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="300px" // Adjust the height to ensure proper centering
-              >
-                <CircularProgress size={50} />
-                <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                  Fetching Data...
-                </Typography>
-              </Box>
+              <Loader/>
             ) : (
               <Box>
                 <ComparativeGlance
@@ -308,7 +300,7 @@ const GlanceComponent: React.FC = () => {
                 />
               </Box>
             )}
-          </Box>
+            </>
         )}
         {selectedTab === 3 && <CompareMethods />}
       </Box>
