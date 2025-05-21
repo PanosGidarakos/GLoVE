@@ -3,7 +3,7 @@
 import type React from 'react'
 import type { VisualizationSpec } from 'react-vega';
 import { Box } from '@mui/material';
-import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
+import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
 
 
 
