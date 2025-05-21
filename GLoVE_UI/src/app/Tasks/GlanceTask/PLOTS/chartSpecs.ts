@@ -1,5 +1,7 @@
 // chartSpecs.ts
 
+import { VisualizationSpec } from "react-vega";
+
 interface VegaLiteSpec {
   [key: string]: any; // You can replace this with the actual VegaLiteSpec type if available
 }
@@ -184,3 +186,118 @@ export const getCompareMethodsChartSpec=(allData:any): VegaLiteSpec => ({
     },
   });
   
+
+
+
+
+
+
+export const getAnalyzeCounterFactualsApplyActionChartSpec = (
+  data: { id: string }[],
+  xAxis: string,
+  yAxis: string,
+  colorField: string
+): VisualizationSpec => ({
+  description: "A scatter plot of affected clusters",
+  mark: "circle",
+  encoding: {
+    x: { field: xAxis, type: determineType(xAxis, data) },
+    y: { field: yAxis, type: determineType(yAxis, data) },
+    color: {
+      field: colorField,
+      type: "nominal",
+      scale: {
+        domain: [0, 1],
+        range: ["red", "green"],
+      },
+      title: "Prediction",
+    },
+    tooltip: [
+      { field: xAxis, type: "nominal" },
+      { field: yAxis, type: "nominal" },
+      { field: colorField, type: "nominal" },
+    ],
+  },
+  data: { values: data },
+});
+
+// Helper function to determine type
+export const determineType = (field: string, data: any[]) => {
+  if (!data.length || data[0][field] === undefined) return "nominal";
+  return typeof data[0][field] === "string" ? "ordinal" : "quantitative";
+};
+
+export const getAnalyzeCounterFactualsSharedLegendChartSpec = (
+  data1: any[],
+  data2: any[],
+  xAxis: string,
+  yAxis: string
+): VisualizationSpec => ({
+  description: "Two scatter plots with a shared legend",
+  hconcat: [
+    {
+      title: "Action Selection",
+      width: 350,
+      height: 500,
+      data: { values: data1 },
+      mark: { type: "circle", opacity: 0.8 },
+      params: [
+        {
+          name: "industry",
+          select: { type: "point", fields: ["Chosen_Action"] },
+          bind: "legend",
+        },
+      ],
+      encoding: {
+        x: { field: xAxis, type: determineType(xAxis, data1) },
+        y: { field: yAxis, type: determineType(yAxis, data1) },
+        color: {
+          field: "Chosen_Action",
+          type: "nominal",
+          title: "Chosen Action",
+        },
+        tooltip: [
+          { field: "Chosen_Action", type: "nominal", title: "Chosen Action" },
+          { field: xAxis, type: determineType(xAxis, data1) },
+          { field: yAxis, type: determineType(yAxis, data1) },
+        ],
+        opacity: {
+          condition: { param: "industry", value: 1 },
+          value: 0.01,
+        },
+      },
+    },
+    {
+      title: "Post-Action Selection",
+      width: 350,
+      height: 500,
+      data: { values: data2 },
+      mark: { type: "circle", opacity: 0.8 },
+      params: [
+        {
+          name: "industry",
+          select: { type: "point", fields: ["Chosen_Action"] },
+          bind: "legend",
+        },
+      ],
+      encoding: {
+        x: { field: xAxis, type: determineType(xAxis, data2) },
+        y: { field: yAxis, type: determineType(yAxis, data2) },
+        color: {
+          field: "Chosen_Action",
+          type: "nominal",
+          title: "Chosen Action",
+        },
+        tooltip: [
+          { field: "Chosen_Action", type: "nominal", title: "Chosen Action" },
+          { field: xAxis, type: determineType(xAxis, data2) },
+          { field: yAxis, type: determineType(yAxis, data2) },
+        ],
+        opacity: {
+          condition: { param: "industry", value: 1 },
+          value: 0.01,
+        },
+      },
+    },
+  ],
+});
