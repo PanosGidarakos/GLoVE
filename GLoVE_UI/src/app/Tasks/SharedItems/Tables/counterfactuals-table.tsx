@@ -15,7 +15,7 @@ import grey from "@mui/material/colors/grey"
 import { styled } from "@mui/material/styles"
 import Modal from "@mui/material/Modal"
 import { useEffect } from "react"
-import { RootState, useAppDispatch, useAppSelector } from "../../../../store/store"
+import { useAppDispatch } from "../../../../store/store"
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import CircularProgress from "@mui/material/CircularProgress"
 import { fetchModelAnalysisExplainabilityPlot } from "../../../../shared/models/tasks/model-analysis.model"

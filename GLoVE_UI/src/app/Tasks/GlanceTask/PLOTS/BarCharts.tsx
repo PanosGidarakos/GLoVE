@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Grid, Container, Button, ButtonGroup } from '@mui/material';
+import { useState } from 'react';
+import { Grid, Container } from '@mui/material';
 import ResponsiveCardVegaLite from '../../../../shared/components/responsive-card-vegalite';
 
 const StaticCharts = ({ scatterPlotSpec, chart1, chart2, executionMode }) => {

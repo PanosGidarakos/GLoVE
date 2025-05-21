@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useState } from 'react';
-import { FormControl, InputLabel, Select, MenuItem, Paper, Box } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
 
 interface ScatterPlotProps {

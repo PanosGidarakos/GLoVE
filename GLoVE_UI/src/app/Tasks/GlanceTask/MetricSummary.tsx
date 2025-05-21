@@ -2,7 +2,6 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import ActionsTable from "./PLOTS/ActionsTable";
-import WorkflowCard from "../../../shared/components/workflow-card";
 
 interface MetricSummaryProps {
     cost: number;

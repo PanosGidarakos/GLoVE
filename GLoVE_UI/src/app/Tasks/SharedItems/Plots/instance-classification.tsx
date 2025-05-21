@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box"
-import IconButton from "@mui/material/IconButton"
 import Paper from "@mui/material/Paper"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
@@ -12,10 +11,8 @@ import { useEffect, useState } from "react"
 import grey from "@mui/material/colors/grey"
 import { VegaLite } from "react-vega"
 import _ from "lodash"
-import { Checkbox, CircularProgress, LinearProgress, Skeleton, useTheme } from "@mui/material"
+import { Checkbox, CircularProgress, Skeleton, useTheme } from "@mui/material"
 import type { IDataExplorationResponse } from "../../../../shared/models/dataexploration.model"
-import { green } from "@mui/material/colors"
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 interface IInstanceClassification {
   plotData: {

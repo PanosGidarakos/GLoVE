@@ -11,17 +11,10 @@ import {
   Box,
   Typography,
   CircularProgress,
-  FormControlLabel,
-  Switch,
-  Step,
-  StepLabel,
-  Stepper,
 } from "@mui/material"
-import DataTable from "./PLOTS/DataTable"
 import UmapScatter from "./PLOTS/UmapScatter"
 import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage"
 import ComparativeGlance from "./CGLANCE/ComparativeGlance"
-import WorkflowCard from "../../../shared/components/workflow-card"
 import CompareMethods from "./CompareMethods"
 import DatasetExplorer from "./DatasetExplorer"
 import FlowStepper from "./FlowStepper"

@@ -1,12 +1,7 @@
 import type React from "react";
 import { useState } from "react"
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select } from "@mui/material"
-import UmapScatterGlance from "./PLOTS/UmapScatterGlance"
-import LastUmap from "./LastUmap"
-import WorkflowCard from "../../../shared/components/workflow-card"
+import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material"
 import type { VisualizationSpec } from "react-vega";
-import { VegaLite } from "react-vega"
-import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
 import ResponsiveCardVegaLite from "../../../shared/components/responsive-card-vegalite"
 
 interface UmapGlanceComponentProps {

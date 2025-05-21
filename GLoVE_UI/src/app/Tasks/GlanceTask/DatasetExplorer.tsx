@@ -1,4 +1,3 @@
-import React from "react"
 import {
   Box,
   CircularProgress,
@@ -7,9 +6,6 @@ import {
   Switch,
 } from "@mui/material"
 import DataTable from "./PLOTS/DataTable"
-import UmapScatter from "./PLOTS/UmapScatter"
-import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage"
-import WorkflowCard from "../../../shared/components/workflow-card"
 import ResponsiveCardTable from "../../../shared/components/responsive-card-table"
 
 const DatasetExplorer = ({

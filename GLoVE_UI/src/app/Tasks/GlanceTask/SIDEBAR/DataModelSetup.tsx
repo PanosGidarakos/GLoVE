@@ -12,13 +12,8 @@ import {
   InputLabel,
   OutlinedInput,
   Typography,
-  CircularProgress,
-  Modal,
-  Button,
-  Stack
+  CircularProgress
 } from "@mui/material";
-import WorkflowCard from "../../../../shared/components/workflow-card";
-import UploadComponent from "../UploadComponent";
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table";
 
 interface DataModelSetupProps {
