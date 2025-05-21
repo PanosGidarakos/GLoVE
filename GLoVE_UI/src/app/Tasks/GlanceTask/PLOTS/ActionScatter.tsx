@@ -8,6 +8,7 @@ import {
   Box,
 } from "@mui/material"
 import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
+import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 
 interface ActionScatterProps {
   data1: any
@@ -184,7 +185,7 @@ const ActionScatter = ({
       hconcat: [
         {
           title: "Action Selection",
-          width: 500,
+          width: 350,
           height: 500,
           data: { values: data1 },
           mark: { type: "circle", opacity: 0.8 },
@@ -220,7 +221,7 @@ const ActionScatter = ({
         },
         {
           title: "Post-Action Selection",
-          width: 500,
+          width: 350,
           height: 500,
           data: { values: data2 },
           mark: { type: "circle", opacity: 0.8 },
@@ -259,14 +260,12 @@ const ActionScatter = ({
 
   return (
     <>
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={2}
-        padding={2}
-      >
-        <Box display="flex" justifyContent="center" gap={2}>
+     
+       
+        <ResponsiveCardVegaLite
+          spec={sharedLegendSpec(transformedData1, transformedData2)}
+          actions={false}
+          controlPanel={ <Box>
           <FormControl
             variant="outlined"
             style={{ minWidth: 200, marginRight: "20px" }}
@@ -318,16 +317,16 @@ const ActionScatter = ({
               ))}
             </Select>
           </FormControl>
-        </Box>
-        <VegaLite
-          spec={sharedLegendSpec(transformedData1, transformedData2)}
-          actions={false}
+        </Box>}
         />
-      </Box>
 
       {/* Right side (Vega-Lite Chart) */}
-      <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-        <Box display="flex" justifyContent="center" gap={2}>
+        
+
+        <ResponsiveCardVegaLite
+          spec={Colorspec(transformedData1)}
+          actions={false}
+          controlPanel={<Box display="flex" justifyContent="center" gap={2}>
           <FormControl
             fullWidth
             margin="normal"
@@ -358,18 +357,11 @@ const ActionScatter = ({
               })}
             </Select>
           </FormControl>
-        </Box>
-
-        <ResponsiveVegaLite
-          spec={Colorspec(transformedData1)}
-          actions={false}
-          minWidth={100}
-          minHeight={100}
-          maxHeight={400}
-          maxWidth={1200}
-          aspectRatio={2 / 1}
+        </Box>}
+        isStatic={false}
+        title="Todo"
+        details={"Todo"}
         />
-      </Box>
     </>
   )
 }

@@ -5,6 +5,7 @@ import LastUmap from "./LastUmap"
 import WorkflowCard from "../../../shared/components/workflow-card"
 import { VegaLite, VisualizationSpec } from "react-vega"
 import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
+import ResponsiveCardVegaLite from "../../../shared/components/responsive-card-vegalite"
 
 interface UmapGlanceComponentProps {
   applied_aff_data: any
@@ -27,7 +28,7 @@ const reshapeData = (inputData: Record<string, any>, actions: string[] | null) =
 const generateScatterPlotSpec = (data: any[],title?: string): VisualizationSpec => ({
   mark: 'point',
   title: title || "Scatter Plot", // Default title if none is provided
-  width: 500,
+  width: 350,
   height: 500,
   selection: {
     grid: { type: 'interval', bind: 'scales' }, // Zoom & pan
@@ -145,19 +146,20 @@ const spec: VisualizationSpec = {
   return (
     
     <>
-     <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={2}
-        padding={2}
-      >
+    
           
             
-    <VegaLite spec={spec} actions={false} />
-    </Box>
-    <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-    <Box display="flex" justifyContent="center" gap={2}>
+    <ResponsiveCardVegaLite spec={spec}  
+         
+          actions={false} />
+   
+    {/* <Box display="flex" flexDirection="column" alignItems="center" gap={2}> */}
+  
+        <ResponsiveCardVegaLite 
+        spec={specLast} 
+       
+          actions={false}
+          controlPanel={  <Box display="flex" justifyContent="center" gap={2}>
 
     <FormControl fullWidth margin="normal"             style={{ minWidth: 200, marginRight: "20px" }}
     >
@@ -168,8 +170,7 @@ const spec: VisualizationSpec = {
             onChange={handleChange}
             label="Apply"
           >
-            {/* Dynamically create dropdown options from actions */}
-            {Object.keys(actions)
+             {Object.keys(actions)
           .filter(key => /^Action\d+_Prediction$/.test(key))
           .map(key => {
             const number = parseInt(key.match(/\d+/)?.[0] || "", 10)
@@ -186,9 +187,9 @@ const spec: VisualizationSpec = {
             })}
           </Select>
         </FormControl>
-        </Box>
-        <ResponsiveVegaLite spec={specLast} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1200} aspectRatio={2/1} actions={false} />
-        </Box>
+        </Box>}
+          />
+        {/* </Box> */}
       
 
      
