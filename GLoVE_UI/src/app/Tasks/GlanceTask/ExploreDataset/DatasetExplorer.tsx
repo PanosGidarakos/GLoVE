@@ -4,6 +4,12 @@ import {
   Typography,
   FormControlLabel,
   Switch,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material"
 import DataTable from "./DataTable"
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
@@ -62,18 +68,26 @@ const DatasetExplorer = ({
   return (
     <>
     <ResponsiveCardTable title={cardTitle}
-    details={description} controlPanel={ <FormControlLabel
-          control={
-            <Switch
-              checked={viewOption === "affected"}
-              onChange={e => setViewOption(e.target.checked ? "affected" : "test")}
-              color="primary"
-            />
-          }
-          label={viewOption === "affected" ? "Affected Data" : "Test Data"}
-          labelPlacement="start"
-        
-        />}>
+    details={description} controlPanel={ 
+    <ToggleButtonGroup
+  value={viewOption}
+  fullWidth
+  exclusive
+  onChange={(e, newValue) => {
+    if (newValue !== null) {
+      setViewOption(newValue)
+    }
+  }}
+  color="primary"
+  size="small"
+>
+   <ToggleButton value="affected" sx={{ flex: 1, fontWeight: 'bold' }}>
+      Affected Data
+    </ToggleButton>
+    <ToggleButton value="test" sx={{ flex: 1, fontWeight: 'bold' }}>
+      Test Data
+    </ToggleButton>
+  </ToggleButtonGroup>}>
             
             
              <DataTable
