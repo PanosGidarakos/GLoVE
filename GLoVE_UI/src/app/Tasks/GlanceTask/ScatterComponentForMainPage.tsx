@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { VisualizationSpec } from 'react-vega';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 import ResponsiveVegaLite from '../../../shared/components/responsive-vegalite';
+import ResponsiveCardVegaLite from '../../../shared/components/responsive-card-vegalite';
 interface ScatterPlotComponentForMainPageProps {
   data: any[];
   name: string;
@@ -80,18 +81,11 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
 
   } as VisualizationSpec;
   return (
-    <>
+   
+               
 
-      {/* Selection box for X-Axis */}
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        gap={2}
-        padding={2}
-      >
-                <Box display="flex" justifyContent="center" gap={2}>
-
+        <ResponsiveCardVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} controlPanel={ 
+<>
       <FormControl
             variant="outlined"
             style={{ minWidth: 200, marginRight: "20px" }}
@@ -142,11 +136,10 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
             ))}
           </Select>
         </FormControl>
-      </Box>
-
-        <ResponsiveVegaLite spec={spec} actions={false} minWidth={100} minHeight={100} maxHeight={400} maxWidth={1500} aspectRatio={2/1} />
-      </Box>
-    </>
+        </>
+}
+      isStatic={false} />
+    
   );
 };
 

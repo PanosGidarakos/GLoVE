@@ -68,7 +68,9 @@ const DatasetExplorer = ({
   return (
     <>
     <ResponsiveCardTable title={cardTitle}
-    details={description} controlPanel={ 
+    showControlsInHeader
+    details={description} 
+    controlPanel={ 
     <ToggleButtonGroup
   value={viewOption}
   fullWidth
@@ -87,7 +89,8 @@ const DatasetExplorer = ({
     <ToggleButton value="test" sx={{ flex: 1, fontWeight: 'bold' }}>
       Test Data
     </ToggleButton>
-  </ToggleButtonGroup>}>
+  </ToggleButtonGroup>}
+  >
             
             
              <DataTable
