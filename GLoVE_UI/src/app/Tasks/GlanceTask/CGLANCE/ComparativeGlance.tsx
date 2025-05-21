@@ -22,6 +22,7 @@ import {
   FormControlLabel,
   Switch,
   Tooltip,
+  Container,
 } from "@mui/material"
 import { VisualizationSpec } from "react-vega" // Import VegaLite from react-vega
 import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
@@ -29,6 +30,8 @@ import WorkflowCard from "../../../../shared/components/workflow-card"
 import MetricSummary from "../MetricSummary"
 import ActionScatter from "../PLOTS/ActionScatter"
 import UmapGlanceComponent from "../UmapGlanceComponent"
+import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
+import StaticCharts from "../PLOTS/BarCharts"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -731,56 +734,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
                   {/* Render Plots */}
                   {showPlots && (
-                    <Grid container spacing={2} marginTop={"20px"}>
-                      <Grid item xs={12} md={4}>
-                        <WorkflowCard
-                          title="Cost-Effectiveness"
-                          description="Visualizes the performance of the algorithm for different parameter configurations."
-                        >
-                          <ResponsiveVegaLite
-                            minWidth={100}
-                            minHeight={100}
-                            maxHeight={500}
-                            maxWidth={500}
-                            aspectRatio={1}
-                            actions={false}
-                            spec={scatterPlotSpec as VisualizationSpec}
-                          />
-                        </WorkflowCard>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <WorkflowCard
-                          title={`Cost by ${executionMode}`}
-                          description="Displays the cost of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-                        >
-                          <ResponsiveVegaLite
-                            minWidth={100}
-                            minHeight={100}
-                            maxHeight={500}
-                            maxWidth={500}
-                            aspectRatio={1}
-                            actions={false}
-                            spec={chart1 as VisualizationSpec}
-                          />
-                        </WorkflowCard>
-                      </Grid>
-                      <Grid item xs={12} md={4}>
-                        <WorkflowCard
-                          title={`Effectiveness by ${executionMode}`}
-                          description="Displays the effectiveness of the algorithm across different runs, with the y-axis representing effectiveness and the x-axis showing varying values of the selected parameter."
-                        >
-                          <ResponsiveVegaLite
-                            minWidth={100}
-                            minHeight={100}
-                            maxHeight={500}
-                            maxWidth={500}
-                            aspectRatio={1}
-                            actions={false}
-                            spec={chart2 as VisualizationSpec}
-                          />
-                        </WorkflowCard>
-                      </Grid>
-                    </Grid>
+                    <StaticCharts scatterPlotSpec={scatterPlotSpec} chart1={chart1} chart2={chart2} executionMode={executionMode}/>
                   )}
                 </Box>
               )}

@@ -51,10 +51,12 @@ const DatasetExplorer = ({
   }
 
   if (!hasData) return null
+  
 
   return (
     <>
-    <ResponsiveCardTable title={cardTitle} controlPanel={ <FormControlLabel
+    <ResponsiveCardTable title={cardTitle}
+    details={description} controlPanel={ <FormControlLabel
           control={
             <Switch
               checked={viewOption === "affected"}
@@ -64,6 +66,7 @@ const DatasetExplorer = ({
           }
           label={viewOption === "affected" ? "Affected Data" : "Test Data"}
           labelPlacement="start"
+        
         />}>
             
             
