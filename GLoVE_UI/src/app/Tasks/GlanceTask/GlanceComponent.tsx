@@ -22,6 +22,7 @@ import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage
 import ComparativeGlance from "./CGLANCE/ComparativeGlance"
 import WorkflowCard from "../../../shared/components/workflow-card"
 import CompareMethods from "./CompareMethods"
+import DatasetExplorer from "./DatasetExplorer"
 
 const styles = {
   sidebar: {
@@ -144,8 +145,7 @@ const GlanceComponent: React.FC = () => {
       setActiveStep(1)
     }
   }, [glanceState.loadDatasetAndModelResult])
-
-  // useEffect(() => {
+    // useEffect(() => {
   //   if (glanceState.runGlanceResult) {
   //     const indexValues = new Set(
   //       Object.values(glanceState.runGlanceResult.affected_clusters.index),
@@ -308,142 +308,17 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
         {selectedTab === 1 && (
-          <Box>
-            {glanceState.datasetLoading && (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="300px" // Adjust the height to ensure proper centering
-              >
-                <CircularProgress size={50} />
-                <Typography variant="h6" sx={{ marginLeft: 2 }}>
-                  Fetching Data...
-                </Typography>
-              </Box>
-            )}
-            {glanceState.loadDatasetAndModelResult &&
-              !glanceState.datasetLoading && (
-                <Box >
-                  {viewOption === "affected" &&
-                    glanceState.loadDatasetAndModelResult.affected && (
-                      <>
-                        <WorkflowCard
-                          title={
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="space-between"
-                              width="100%"
-                            >
-                              <Typography variant="h6">{`Affected Data for ${selectedDataset} with ${selectedModel} model`}</Typography>
-                              <FormControlLabel
-                                control={
-                                  <Switch
-                                    checked={viewOption === "affected"}
-                                    onChange={e =>
-                                      setViewOption(
-                                        e.target.checked ? "affected" : "test",
-                                      )
-                                    }
-                                    color="primary"
-                                  />
-                                }
-                                label="Affected Data"
-                                labelPlacement="start"
-                              />
-                            </Box>
-                          }
-                          description="Instances from the test dataset where the model's prediction was equal to 0."
-                        >
-                          <Box padding={2}>
-                            <DataTable
-                              title="Affected Test Data"
-                              data={
-                                glanceState.loadDatasetAndModelResult.affected
-                              }
-                              showArrow={false}
-                            />
-                          </Box>
+         <DatasetExplorer
+    glanceState={glanceState}
+    viewOption={viewOption}
+    setViewOption={setViewOption}
+    showUMAPScatter={showUMAPScatter}
+    setShowUMAPScatter={setShowUMAPScatter}
+    renderScatterPlot={renderScatterPlot}
+    selectedDataset={selectedDataset}
+    selectedModel={selectedModel}
+  />
 
-                          <FormControlLabel
-                            control={
-                              <Switch
-                                checked={showUMAPScatter}
-                                onChange={e =>
-                                  setShowUMAPScatter(e.target.checked)
-                                }
-                                color="primary"
-                                sx={{ marginLeft: 2 }}
-                              />
-                            }
-                            label="Enable Dimensionality Reduction (UMAP)"
-                          />
-                          {renderScatterPlot()}
-                        </WorkflowCard>
-                      </>
-                    )}
-
-                  {viewOption === "test" &&
-                    glanceState.loadDatasetAndModelResult.X_test && (
-                      <>
-                        <WorkflowCard
-                          title={
-                            <Box
-                              display="flex"
-                              alignItems="center"
-                              justifyContent="space-between"
-                              width="100%"
-                            >
-                              <Typography variant="h6">{`Test Data for ${selectedDataset} with ${selectedModel} model`}</Typography>
-                              <FormControlLabel
-                                control={
-                                  <Switch
-                                    checked={viewOption === "affected"}
-                                    onChange={e =>
-                                      setViewOption(
-                                        e.target.checked ? "affected" : "test",
-                                      )
-                                    }
-                                    color="primary"
-                                  />
-                                }
-                                label="Test Data"
-                                labelPlacement="start"
-                              />
-                            </Box>
-                          }
-                          description="A subset of the dataset set aside during the train-test split, used to evaluate the performance of the trained ML model on unseen data."
-                        >
-                          <Box padding={2}>
-                            <DataTable
-                              title="Test Data"
-                              data={
-                                glanceState.loadDatasetAndModelResult.X_test
-                              }
-                              showArrow={false}
-                            />
-                          </Box>
-                          <FormControlLabel
-                            control={
-                              <Switch
-                                checked={showUMAPScatter}
-                                onChange={e =>
-                                  setShowUMAPScatter(e.target.checked)
-                                }
-                                color="primary"
-                                sx={{ marginLeft: 2 }}
-                              />
-                            }
-                            label="Enable Dimensionality Reduction (UMAP)"
-                          />
-                          {renderScatterPlot()}
-                        </WorkflowCard>
-                      </>
-                    )}
-                </Box>
-              )}
-          </Box>
         )}
 
         {selectedTab === 2 && (
