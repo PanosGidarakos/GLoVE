@@ -41,7 +41,7 @@ const createNodes = (activeStep: number): Node[] =>
     id: node.id,
     type: node.type || 'default',
     data: { label: node.label },
-    position: { x: node.x, y: 100 },
+    position: { x: node.x, y: 40 },
     sourcePosition: Position.Right,
     targetPosition: Position.Left,
     style: {
@@ -86,7 +86,7 @@ const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperP
   return (
     <div
       style={{
-        height: '15vh',
+        height: '8vh',
         width: '100%',
         border: '1px solid #ddd',
         borderRadius: '8px',
@@ -112,7 +112,7 @@ const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperP
         }}
       >
         <Background />
-        <Controls />
+        {/* <Controls /> */}
       </ReactFlow>
     </div>
   )

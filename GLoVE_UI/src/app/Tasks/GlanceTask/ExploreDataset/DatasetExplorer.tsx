@@ -103,8 +103,10 @@ const DatasetExplorer = ({
       >
         <DataTable title={tableTitle} data={hasData} showArrow={false} />
       </ResponsiveCardTable>
+      <Box mt={2}>
 
       {renderScatterPlot()}
+      </Box>
     </>
   )
 }
