@@ -23,6 +23,7 @@ import CompareMethods from "./CompareModels/CompareMethods"
 import UmapScatter from "./ExploreDataset/UmapScatter"
 import ScatterPlotComponentForMainPage from "./ExploreDataset/ScatterComponentForMainPage"
 import Loader from "../../../shared/components/loader"
+import UmapToggle from "../../../shared/components/umapToggle"
 
 interface GlanceTabsProps {
   selectedTab: number
@@ -91,6 +92,12 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         <ScatterPlotComponentForMainPage
           data={glanceState.loadDatasetAndModelResult.affected}
           name="Affected Data"
+          controlPanel={
+            <UmapToggle
+              showUMAPScatter={showUMAPScatter}
+              setShowUMAPScatter={setShowUMAPScatter}
+            />
+          }
         />
       )
     }
@@ -100,6 +107,12 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         <ScatterPlotComponentForMainPage
           data={glanceState.loadDatasetAndModelResult.X_test}
           name="Test Data"
+            controlPanel={
+            <UmapToggle
+              showUMAPScatter={showUMAPScatter}
+              setShowUMAPScatter={setShowUMAPScatter}
+            />
+          }
         />
       )
     }
@@ -112,7 +125,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         : "testData"
 
     if (umapCache[datasetKey]) {
-      return <UmapScatter data={umapCache[datasetKey].reduced_data} color={""} />
+      return <UmapScatter controlPanel={<UmapToggle showUMAPScatter={showUMAPScatter} setShowUMAPScatter={setShowUMAPScatter} />} data={umapCache[datasetKey].reduced_data} color={""} />
     }
 
     return (

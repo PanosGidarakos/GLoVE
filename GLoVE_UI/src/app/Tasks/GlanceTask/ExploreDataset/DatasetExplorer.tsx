@@ -13,6 +13,7 @@ import {
 } from "@mui/material"
 import DataTable from "./DataTable"
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
+import UmapToggle from "../../../../shared/components/umapToggle"
 interface DatasetExplorerProps {
   glanceState: any
   viewOption: string
@@ -33,13 +34,14 @@ const DatasetExplorer = ({
   renderScatterPlot,
   selectedDataset,
   selectedModel,
-} : DatasetExplorerProps) => {
+}: DatasetExplorerProps) => {
   const hasData =
     viewOption === "affected"
       ? glanceState.loadDatasetAndModelResult.affected
       : glanceState.loadDatasetAndModelResult.X_test
 
-  const tableTitle = viewOption === "affected" ? "Affected Test Data" : "Test Data"
+  const tableTitle =
+    viewOption === "affected" ? "Affected Test Data" : "Test Data"
   const cardTitle = `${viewOption === "affected" ? "Affected" : "Test"} Data for ${selectedDataset} with ${selectedModel} model`
   const description =
     viewOption === "affected"
@@ -63,56 +65,47 @@ const DatasetExplorer = ({
   }
 
   if (!hasData) return null
-  
 
   return (
     <>
-    <ResponsiveCardTable title={cardTitle}
-    showControlsInHeader
-    details={description} 
-    controlPanel={ 
-    <ToggleButtonGroup
-  value={viewOption}
-  fullWidth
-  exclusive
-  onChange={(e, newValue) => {
-    if (newValue !== null) {
-      setViewOption(newValue)
-    }
-  }}
-  color="primary"
-  size="small"
->
-   <ToggleButton value="affected" sx={{ flex: 1, fontWeight: 'bold' }}>
-      Affected Data
-    </ToggleButton>
-    <ToggleButton value="test" sx={{ flex: 1, fontWeight: 'bold' }}>
-      Test Data
-    </ToggleButton>
-  </ToggleButtonGroup>}
-  >
-            
-            
-             <DataTable
-          title={tableTitle}
-          data={hasData}
-          showArrow={false}
-        />
-        
-    </ResponsiveCardTable>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={showUMAPScatter}
-            onChange={e => setShowUMAPScatter(e.target.checked)}
-            color="primary"
-            sx={{ marginLeft: 2 }}
-          />
+      <ResponsiveCardTable
+        title={cardTitle}
+        showControlsInHeader
+        details={description}
+        controlPanel={
+          <>
+            <Box
+              display="flex"
+              alignItems="center"
+              gap={2} // spacing between buttons and toggle
+              width="100%"
+            >
+              <ToggleButtonGroup
+                value={viewOption}
+                exclusive
+                onChange={(e, newValue) => {
+                  if (newValue !== null) setViewOption(newValue)
+                }}
+                color="primary"
+                size="small"
+                sx={{ flex: 1 }}
+              >
+                <ToggleButton value="affected" sx={{ fontWeight: "bold" }}>
+                  Affected Data
+                </ToggleButton>
+                <ToggleButton value="test" sx={{ fontWeight: "bold" }}>
+                  Test Data
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          </>
         }
-        label="Enable Dimensionality Reduction (UMAP)"
-      />
+      >
+        <DataTable title={tableTitle} data={hasData} showArrow={false} />
+      </ResponsiveCardTable>
+
       {renderScatterPlot()}
-      </>
+    </>
   )
 }
 

@@ -5,9 +5,10 @@ import { getExploreDatasetUmapPlotSpec } from "../Plots/chartSpecs"
 interface ScatterPlotProps {
   data: any // The data you want to plot
   color: string
+  controlPanel?: React.ReactNode
 }
 
-const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color }) => {
+const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) => {
   const hasLabel = Object.keys(data).includes("label")
   const processedData = { ...data }
 
@@ -45,6 +46,8 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color }) => {
       isStatic={false}
       title={`UMAP Plot`}
       details={"Todo"}
+      controlPanel={controlPanel}
+      
     />
   )
 }

@@ -6,11 +6,14 @@ import ResponsiveCardVegaLite from "../../../../shared/components/responsive-car
 interface ScatterPlotComponentForMainPageProps {
   data: any[]
   name: string
+  controlPanel?: React.ReactNode
+
 }
 
 const ScatterPlotComponentForMainPage = ({
   data,
   name,
+  controlPanel,
 }: ScatterPlotComponentForMainPageProps) => {
   const modifiedData = data.map(item => ({
     ...item,
@@ -146,6 +149,7 @@ const ScatterPlotComponentForMainPage = ({
               ))}
             </Select>
           </FormControl>
+          {controlPanel}
         </>
       }
       isStatic={false}
