@@ -87,3 +87,42 @@ export const getEffectivenessChartSpec = (scatterPlotData: any[], executionMode:
     ],
   },
 });
+
+
+export const getCompareMethodsChartSpec=(allData:any): VegaLiteSpec => ({
+   $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    mark: { type: "line", point: true, interpolate: "step-after" },
+    selection: {
+      // Interval selection for zoom and pan
+     
+      // Point selection for legend interaction
+      industry: {
+        type: 'point',
+        fields: ['run'], // Field for legend interaction
+        bind: 'legend',           // Bind selection to the legend
+      },
+    },
+    encoding: {
+      y: {
+        field: "eff",
+        type: "quantitative",
+        title: "Effectiveness", // X-axis is now effectiveness
+      },
+      x: {
+        field: "cost",
+        type: "quantitative",
+        title: "Cost", // Y-axis is now cost
+      },
+      color: {
+        field: "run",
+        type: "nominal",
+        title: "Method",
+      },
+      opacity: {
+        condition: { "param": "industry", "value": 1 },
+        value: 0.01
+      }
+    },
+    data: { values: allData },
+  });
+  
