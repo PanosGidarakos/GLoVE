@@ -112,7 +112,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         : "testData"
 
     if (umapCache[datasetKey]) {
-      return <UmapScatter data={umapCache[datasetKey].reduced_data} />
+      return <UmapScatter data={umapCache[datasetKey].reduced_data} color={""} />
     }
 
     return (

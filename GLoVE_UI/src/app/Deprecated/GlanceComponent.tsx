@@ -1,25 +1,25 @@
 import type React from "react";
 import { useEffect, useState } from "react"
-import DataModelSetup from "./DataAndModelSelection/DataModelSetup"
-import { useAppDispatch, useAppSelector } from "../../../store/store"
+import DataModelSetup from "../Tasks/GlanceTask/DataAndModelSelection/DataModelSetup"
+import { useAppDispatch, useAppSelector } from "../../store/store"
 import {
   fetchAvailableFeatures,
   fetchInitialGlanceData,
   umapReduce,
-} from "../../../store/slices/glanceSlice"
+} from "../../store/slices/glanceSlice"
 import {
   Box,
   Typography,
   CircularProgress,
 } from "@mui/material"
-import UmapScatter from "./UmapScatter"
-import ScatterPlotComponentForMainPage from "./ScatterComponentForMainPage"
-import ComparativeGlance from "./AnalyzeCounterFactuals/ComparativeGlance"
-import CompareMethods from "./CompareModels/CompareMethods"
-import DatasetExplorer from "./ExploreDataset/DatasetExplorer"
-import FlowStepper from "./FlowStepper"
+import UmapScatter from "../Tasks/GlanceTask/UmapScatter"
+import ScatterPlotComponentForMainPage from "../Tasks/GlanceTask/ScatterComponentForMainPage"
+import ComparativeGlance from "../Tasks/GlanceTask/AnalyzeCounterFactuals/ComparativeGlance"
+import CompareMethods from "../Tasks/GlanceTask/CompareModels/CompareMethods"
+import DatasetExplorer from "../Tasks/GlanceTask/ExploreDataset/DatasetExplorer"
+import FlowStepper from "../Tasks/GlanceTask/FlowStepper"
 import { ReactFlowProvider } from "reactflow"
-import Loader from "../../../shared/components/loader";
+import Loader from "../../shared/components/loader";
 
 const styles = {
   sidebar: {
