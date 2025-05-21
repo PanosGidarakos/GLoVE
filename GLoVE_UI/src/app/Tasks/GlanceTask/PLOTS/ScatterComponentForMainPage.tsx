@@ -32,12 +32,12 @@ const ScatterPlotComponentForMainPage = ({ data, name }: ScatterPlotComponentFor
   // State variables to track user selection for axes and color field
   const [xField, setXField] = useState(fields[0]);
   const [yField, setYField] = useState(fields[1]);
-  const [colorField, setColorField] = useState(fields[2]);
+  // const [colorField, setColorField] = useState(fields[2]);
 
   useEffect(() => {
     setXField(fields[0] || ''); // Set to the first field or an empty string if no fields
     setYField(fields[1] || ''); // Set to the second field or an empty string if no fields
-    setColorField(fields[2] || ''); // Set to the third field or an empty string if no fields
+    // setColorField(fields[2] || ''); // Set to the third field or an empty string if no fields
   }, [data]);
 
   // Vega-Lite specification

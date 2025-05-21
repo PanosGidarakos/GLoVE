@@ -19,18 +19,7 @@ const ActionScatter = ({
   data2,
   eff_cost_actions,
 }: ActionScatterProps) => {
-  const tableRows = Object.keys(eff_cost_actions).map(key => ({
-    id: key,
-    eff: (eff_cost_actions[key].eff * 100).toFixed(2),
-    cost: eff_cost_actions[key].cost.toFixed(2),
-  }))
-
-  const tableColumns = [
-    { field: "id", headerName: "Action", flex: 1 },
-    { field: "eff", headerName: "Effectiveness %", flex: 1 },
-    { field: "cost", headerName: "Cost", flex: 1 },
-  ]
-
+  
   // Utility function to filter out unwanted fields for dropdown options only
   const isExcludedField = (field: string) => {
     const excludedFields = ["index", "Cluster", "Chosen_Action"]
@@ -96,51 +85,7 @@ const ActionScatter = ({
   }
 
   // Vega-Lite specifications for both plots
-  const spec = (data: { id: string }[]) =>
-    ({
-      description: "A scatter plot of affected clusters",
-      mark: "circle",
-      params: [
-        {
-          name: "industry",
-          select: { type: "point", fields: ["Chosen_Action"] },
-          bind: "legend",
-        },
-      ],
-      encoding: {
-        x: { field: xAxis, type: determineType(xAxis, data) },
-        y: { field: yAxis, type: determineType(yAxis, data) },
-        color: {
-          field: "Chosen_Action",
-          type: "nominal",
-          title: "Chosen Action",
-        },
-        tooltip: [
-          { field: "Chosen_Action", type: "nominal", title: "Chosen Action" },
-          { field: xAxis, type: "nominal" },
-          { field: yAxis, type: "nominal" },
-        ],
-        opacity: {
-          condition: { param: "industry", value: 1 },
-          value: 0.01,
-        },
-      },
-      data: { values: data },
-
-      // config: {
-      //   legend: {
-      //     orient: "top", // Position the legend at the top
-      //     direction: "horizontal", // Arrange items in a row
-      //     padding: 10, // Space between legend items
-      //     labelFontSize: 12, // Font size for legend labels
-      //     symbolSize: 100, // Size of the legend symbols
-      //     symbolType: "circle", // Make the symbols circles
-      //     titleFontSize: 14, // Font size for the legend title
-      //   },
-      // }
-    }) as VisualizationSpec
-
-  const Colorspec = (data: { id: string }[]) =>
+   const Colorspec = (data: { id: string }[]) =>
     ({
       description: "A scatter plot of affected clusters",
       mark: "circle",
@@ -174,9 +119,6 @@ const ActionScatter = ({
     }
     return null // Return null if no match
   }
-
-  // Fetch the corresponding eff_cost_actions for the selected colorField
-  const selectedEffCost = getEffCostForColorField(colorField)
 
   const sharedLegendSpec = (data1: any[], data2: any[]) =>
     ({

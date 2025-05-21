@@ -30,9 +30,6 @@ const CGlanceExecution: React.FC<CGlanceExecutionProps> = ({
   const dispatch = useAppDispatch();
   const loading = useAppSelector((state) => state.glance.loading);
   const error = useAppSelector((state) => state.glance.error);
-  const glanceState = useAppSelector((state) => state.glance);
-
-
   const [gcfSize, setGcfSize] = React.useState<number>(3);
   const [cfMethod, setCfMethod] = React.useState<string>(availableCfMethods[0] || "");
   const [actionChoiceStrategy, setActionChoiceStrategy] = React.useState<string>(availableActionStrategies[0] || "");
