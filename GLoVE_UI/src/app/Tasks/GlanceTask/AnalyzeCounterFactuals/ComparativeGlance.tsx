@@ -7,19 +7,9 @@ import {
   Select,
   MenuItem,
   Box,
-  CircularProgress,
   InputLabel,
   FormControl,
   OutlinedInput,
-  TableContainer,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  FormControlLabel,
-  Switch,
   Tooltip,
 } from "@mui/material"
 import WorkflowCard from "../../../../shared/components/workflow-card"
@@ -27,7 +17,11 @@ import MetricSummary from "./MetricSummary"
 import ActionScatter from "./ActionScatter"
 import UmapGlanceComponent from "./UmapGlanceComponent"
 import StaticCharts from "./BarCharts"
-import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../Plots/chartSpecs"
+import {
+  getCostChartSpec,
+  getEffectivenessChartSpec,
+  getCostEffectivenessChartSpec,
+} from "../Plots/chartSpecs"
 import CounterfactualResultsTable from "./CounterfactualResultsTable"
 import AnalysisErrorsTable from "./AnalysisErrorsTable"
 import Loader from "../../../../shared/components/loader"
@@ -155,11 +149,12 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       }))
     : []
 
-
-
-  const scatterPlotSpec = getCostEffectivenessChartSpec(scatterPlotData, executionMode);
-const chart1 = getCostChartSpec(scatterPlotData, executionMode);
-const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
+  const scatterPlotSpec = getCostEffectivenessChartSpec(
+    scatterPlotData,
+    executionMode,
+  )
+  const chart1 = getCostChartSpec(scatterPlotData, executionMode)
+  const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode)
 
   const hasErrors = glanceState.comparativeResults
     ? Object.values(glanceState.comparativeResults).some(
@@ -178,27 +173,28 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
       )
     : []
 
+  const executionModesByAlgorithm = {
+    "run-c_glance": [
+      "Number of Counterfactual Actions",
+      "Local Counterfactual Method",
+      "Action Choice Strategy",
+    ],
+    "run-groupcfe": ["Number of Counterfactual Actions"],
+    "run-globece": [
+      "Number of Counterfactual Actions",
+      "Direction",
+      "Features to change",
+    ],
+  }
 
-    const executionModesByAlgorithm = {
-      "run-c_glance": [
-        "Number of Counterfactual Actions",
-        "Local Counterfactual Method",
-        "Action Choice Strategy",
-      ],
-      "run-groupcfe": ["Number of Counterfactual Actions"],
-      "run-globece": ["Number of Counterfactual Actions","Direction", "Features to change"],
-    };
-    
-    useEffect(() => {
-      if (!executionModesByAlgorithm[algorithm]?.includes(executionMode)) {
-        setExecutionMode(executionModesByAlgorithm[algorithm]?.[0] || "");
-      }
-    }, [algorithm]);
-    
+  useEffect(() => {
+    if (!executionModesByAlgorithm[algorithm]?.includes(executionMode)) {
+      setExecutionMode(executionModesByAlgorithm[algorithm]?.[0] || "")
+    }
+  }, [algorithm])
 
   return (
     <WorkflowCard title="Counterfactual Analysis Configuration" description="">
-
       <Box marginTop={2}>
         <Box
           display="flex"
@@ -252,11 +248,11 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
               }}
               input={<OutlinedInput label="Execution Mode" />}
             >
-             {executionModesByAlgorithm[algorithm]?.map((mode) => (
-    <MenuItem key={mode} value={mode}>
-      {mode}
-    </MenuItem>
-  ))}
+              {executionModesByAlgorithm[algorithm]?.map(mode => (
+                <MenuItem key={mode} value={mode}>
+                  {mode}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -267,7 +263,6 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                 <Select
                   labelId="Direction"
                   multiple={isMultiSelect("Direction")}
-
                   value={direction}
                   onChange={e =>
                     setDirection(
@@ -292,7 +287,6 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                 <Select
                   labelId="Features to change"
                   multiple={isMultiSelect("Features to change")}
-
                   value={features_to_change}
                   onChange={e =>
                     setFeaturestoChange(
@@ -496,41 +490,43 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
 
         <Box marginTop={4}>
           {comparativeLoading ? (
-           <Loader/>
+            <Loader />
           ) : (
             <>
               {/* Render Errors */}
               {errorResults.length > 0 && (
-              <AnalysisErrorsTable errorResults={errorResults} executionMode={executionMode} getSuffix={getSuffix}/>
+                <AnalysisErrorsTable
+                  errorResults={errorResults}
+                  executionMode={executionMode}
+                  getSuffix={getSuffix}
+                />
               )}
 
               {/* Render Valid Results */}
               {validResults.length > 0 && (
                 <Box sx={{ marginTop: 5, padding: 2 }}>
-    <CounterfactualResultsTable
-      validResults={validResults}
-      executionMode={executionMode}
-      selectedRowKey={selectedRowKey}
-      handleViewDetails={handleViewDetails}
-      getSuffix={getSuffix}
-    />
+                  <CounterfactualResultsTable
+                    validResults={validResults}
+                    executionMode={executionMode}
+                    selectedRowKey={selectedRowKey}
+                    handleViewDetails={handleViewDetails}
+                    getSuffix={getSuffix}
+                  />
                   {selectedDetails && (
                     <>
                       <Box marginTop={4} padding={2}>
-                       
-                          <MetricSummary
-                            cost={selectedDetails.TotalCost}
-                            eff={selectedDetails.TotalEffectiveness}
-                            actions={selectedDetails.actions}
-                            instances={
-                              selectedDetails.applyAffectedActions[
-                                "Chosen_Action"
-                              ]
-                            }
-                            eff_cost_actions={selectedDetails.eff_cost_actions}
-                          />
-                        
-                        
+                        <MetricSummary
+                          cost={selectedDetails.TotalCost}
+                          eff={selectedDetails.TotalEffectiveness}
+                          actions={selectedDetails.actions}
+                          instances={
+                            selectedDetails.applyAffectedActions[
+                              "Chosen_Action"
+                            ]
+                          }
+                          eff_cost_actions={selectedDetails.eff_cost_actions}
+                        />
+
                         {/* <FormControlLabel
                           control={
                             <Switch
@@ -544,26 +540,24 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                           label="Enable Dimensionality Reduction (UMAP)"
                         /> */}
                         {!showUMAPInTab1 ? (
-                          
-                            <Box sx={{padding:2}}>
-                              <ActionScatter
-                                data1={selectedDetails.affected_clusters}
-                                data2={selectedDetails.applyAffectedActions}
-                                eff_cost_actions={
-                                  selectedDetails.eff_cost_actions
-                                }
-                              />
-                            </Box>
+                          <Box sx={{ padding: 2 }}>
+                            <ActionScatter
+                              data1={selectedDetails.affected_clusters}
+                              data2={selectedDetails.applyAffectedActions}
+                              eff_cost_actions={
+                                selectedDetails.eff_cost_actions
+                              }
+                            />
+                          </Box>
                         ) : (
-                          
-                          <Box sx={{padding:2,marginTop:8}}>
-                          <UmapGlanceComponent
-                            applied_aff_data={
-                              selectedDetails.umapOfAppliedAffected.data
-                            }
-                            aff_data={glanceState.umapReduceResults}
-                            actions={selectedDetails.affected_clusters}
-                          />
+                          <Box sx={{ padding: 2, marginTop: 8 }}>
+                            <UmapGlanceComponent
+                              applied_aff_data={
+                                selectedDetails.umapOfAppliedAffected.data
+                              }
+                              aff_data={glanceState.umapReduceResults}
+                              actions={selectedDetails.affected_clusters}
+                            />
                           </Box>
                         )}
                       </Box>
@@ -572,7 +566,12 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
 
                   {/* Render Plots */}
                   {showBarPlots && (
-                    <StaticCharts scatterPlotSpec={scatterPlotSpec} chart1={chart1} chart2={chart2} executionMode={executionMode}/>
+                    <StaticCharts
+                      scatterPlotSpec={scatterPlotSpec}
+                      chart1={chart1}
+                      chart2={chart2}
+                      executionMode={executionMode}
+                    />
                   )}
                 </Box>
               )}

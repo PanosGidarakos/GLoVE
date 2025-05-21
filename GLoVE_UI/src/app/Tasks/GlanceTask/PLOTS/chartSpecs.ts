@@ -301,3 +301,86 @@ export const getAnalyzeCounterFactualsSharedLegendChartSpec = (
     },
   ],
 });
+
+
+// shared/utils/chartSpec.ts
+
+// Basic scatter plot generator with legend binding
+export const getAnalyzeCounterFactualsUmapSharedLegendChartSpec = (
+  data: any[],
+  title?: string
+): VisualizationSpec => ({
+  mark: "point",
+  title: title || "Scatter Plot",
+  width: 350,
+  height: 500,
+  selection: {
+    grid: { type: "interval", bind: "scales" },
+    industry: { type: "point", fields: ["Chosen_Action"], bind: "legend" },
+  },
+  encoding: {
+    x: { field: "0", type: "quantitative", title: "Component 0" },
+    y: { field: "1", type: "quantitative", title: "Component 1" },
+    color: {
+      field: "Chosen_Action",
+      type: "nominal",
+      title: "Chosen Action",
+    },
+    tooltip: [
+      { field: "0", type: "quantitative", title: "Component 0" },
+      { field: "1", type: "quantitative", title: "Component 1" },
+      { field: "Chosen_Action", type: "nominal", title: "Chosen Action" },
+    ],
+    opacity: {
+      condition: { param: "industry", value: 1 },
+      value: 0.1,
+    },
+  },
+  data: { values: data },
+});
+
+// Prediction-based scatter plot
+export const getAnalyzeCounterFactualsUmapApplyActionChartSpec = (
+  data: any[],
+  selectedAction: string
+): VisualizationSpec => ({
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  description: "A scatter plot with tooltips",
+  selection: {
+    grid: {
+      type: "interval",
+      bind: "scales",
+    },
+    industry: {
+      type: "point",
+      fields: [selectedAction],
+      bind: "legend",
+    },
+  },
+  data: {
+    values: data,
+  },
+  mark: "point",
+  encoding: {
+    x: { field: "x", type: "quantitative", title: "Component 0" },
+    y: { field: "y", type: "quantitative", title: "Component 1" },
+    color: {
+      field: selectedAction,
+      type: "nominal",
+      title: "Prediction",
+      scale: {
+        domain: [0, 1],
+        range: ["red", "green"],
+      },
+    },
+    tooltip: [
+      { field: "x", type: "quantitative", title: "Component 0" },
+      { field: "y", type: "quantitative", title: "Component 1" },
+      { field: selectedAction, type: "nominal", title: selectedAction },
+    ],
+    opacity: {
+      condition: { param: "industry", value: 1 },
+      value: 0.1,
+    },
+  },
+});
