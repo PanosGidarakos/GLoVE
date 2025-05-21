@@ -90,53 +90,23 @@ const GlanceComponent: React.FC = () => {
     useState<string>("COMPAS Dataset")
   const [selectedModel, setSelectedModel] = useState<string>("XGBoost")
 
-  useEffect(() => {
-    if (!glanceState.loadDatasetAndModelResult) {
-      dispatch(fetchInitialGlanceData())
-      dispatch(fetchAvailableFeatures())
-      dispatch(
-        umapReduce({ dataset_identifier: "affectedData", n_components: 2 }),
-      )
-      dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }))
-    }
-  }, [dispatch])
-
-  useEffect(() => {
-    if (viewOption && showUMAPScatter) {
-      const datasetIdentifier =
-        viewOption === "data"
-          ? "rawData"
-          : viewOption === "affected"
-            ? "affectedData"
-            : "testData"
-      // Check if UMAP data is already cached
-      if (!umapCache[datasetIdentifier]) {
-        dispatch(
-          umapReduce({
-            dataset_identifier: datasetIdentifier,
-            n_components: 2,
-          }),
-        ).then(action => {
-          // Store the result in the cache
-          if (action.payload) {
-            setUmapCache(prevCache => ({
-              ...prevCache,
-              [datasetIdentifier]: action.payload.data,
-            }))
-          }
-        })
-      }
-    }
-  }, [viewOption, dispatch, showUMAPScatter, umapCache])
-
-  useEffect(() => {
-    if (glanceState.loadDatasetAndModelResult) {
-      // Clear the UMAP cache when the dataset/model changes
-      setUmapCache({})
-      setSelectedTab(1)
-      setActiveStep(1)
-    }
-  }, [glanceState.loadDatasetAndModelResult])
+  const Header = (
+    <Typography
+      variant="h4"
+      gutterBottom
+      sx={{
+        ...styles.header,
+        background: "linear-gradient(90deg, green, blue)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        fontWeight: "bold",
+        marginBottom: 2,
+        marginTop: 4,
+      }}
+    >
+      GLOVES: Global Counterfactual-based Visual Explanations
+    </Typography>
+  )
 
   const renderScatterPlot = () => {
     if (!showUMAPScatter && viewOption === "affected") {
@@ -202,9 +172,61 @@ const GlanceComponent: React.FC = () => {
     }
   }
 
+
+  useEffect(() => {
+    if (!glanceState.loadDatasetAndModelResult) {
+      dispatch(fetchInitialGlanceData())
+      dispatch(fetchAvailableFeatures())
+      dispatch(
+        umapReduce({ dataset_identifier: "affectedData", n_components: 2 }),
+      )
+      dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }))
+    }
+  }, [dispatch])
+
+  useEffect(() => {
+    if (viewOption && showUMAPScatter) {
+      const datasetIdentifier =
+        viewOption === "data"
+          ? "rawData"
+          : viewOption === "affected"
+            ? "affectedData"
+            : "testData"
+      // Check if UMAP data is already cached
+      if (!umapCache[datasetIdentifier]) {
+        dispatch(
+          umapReduce({
+            dataset_identifier: datasetIdentifier,
+            n_components: 2,
+          }),
+        ).then(action => {
+          // Store the result in the cache
+          if (action.payload) {
+            setUmapCache(prevCache => ({
+              ...prevCache,
+              [datasetIdentifier]: action.payload.data,
+            }))
+          }
+        })
+      }
+    }
+  }, [viewOption, dispatch, showUMAPScatter, umapCache])
+
+  useEffect(() => {
+    if (glanceState.loadDatasetAndModelResult) {
+      // Clear the UMAP cache when the dataset/model changes
+      setUmapCache({})
+      setSelectedTab(1)
+      setActiveStep(1)
+    }
+  }, [glanceState.loadDatasetAndModelResult])
+
+  
+
   if (glanceState.initialLoading && !glanceState.loadDatasetAndModelResult) {
     return (
       <Box sx={styles.loaderContainer}>
+        {Header}
         <CircularProgress />
         <Typography variant="h6" sx={{ marginTop: 2 }}>
           Initializing page...
@@ -212,8 +234,6 @@ const GlanceComponent: React.FC = () => {
       </Box>
     )
   }
-
-  console.log("glance", glanceState)
 
   return (
     <Box
@@ -223,21 +243,7 @@ const GlanceComponent: React.FC = () => {
         minHeight: "100vh", // Ensures full viewport height
       }}
     >
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          ...styles.header,
-          background: "linear-gradient(90deg, green, blue)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          fontWeight: "bold", // Optional, makes the text bold
-          marginBottom: 2,
-          marginTop: 4,
-        }}
-      >
-        GLOVES: Global Counterfactual-based Visual Explanations
-      </Typography>
+     {Header}
 
       <ReactFlowProvider>
         <FlowStepper
