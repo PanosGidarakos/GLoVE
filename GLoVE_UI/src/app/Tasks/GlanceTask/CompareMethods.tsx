@@ -14,6 +14,8 @@ import ResponsiveVegaLite from "../../../shared/components/responsive-vegalite"
 import ResponsiveCardTable from "../../../shared/components/responsive-card-table"
 import Loader from "../../../shared/components/loader"
 import { getCompareMethodsChartSpec } from "./PLOTS/chartSpecs"
+import InfoMessage from "../../../shared/components/infoMessage"
+import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 
 const CompareMethods = () => {
   const [algorithms, setAlgorithms] = useState<string[]>(["run-c_glance"])
@@ -93,8 +95,15 @@ const CompareMethods = () => {
       )
     : []
 
+
+    console.log("allData", allData)
+
+  
   return (
+
+    <Box sx={{height: "600px" }}>
     <ResponsiveCardTable
+    
       title={"Compare Model Analysis"}
       controlPanel={
         <Box
@@ -147,21 +156,42 @@ const CompareMethods = () => {
         </Box>
       }
     >
-      {loading ? (
-        <Loader />
-      ) : (
-        <ResponsiveVegaLite
-          title="Effectiveness vs. Cost"
-          details={"todo"}
-          spec={getCompareMethodsChartSpec(allData)}
-          actions={false}
-          minWidth={100}
-          minHeight={100}
-          maxWidth={1000}
-          maxHeight={500}
-        />
-      )}
+  {loading ? (
+  <Loader />
+) : errorMessage ? (
+  <InfoMessage
+    message="One or more algorithms failed to run."
+    type="error"
+    icon={
+      <ReportProblemRoundedIcon sx={{ fontSize: 40, color: 'error.main' }} />
+    }
+    fullHeight
+  />
+) : allData.length === 0 ? (
+  
+  <InfoMessage
+    message="Please select algorithm(s) and run the analysis to see results."
+    type="info"
+    icon={
+      <ReportProblemRoundedIcon sx={{ fontSize: 40, color: 'info.main' }} />
+    }
+    fullHeight
+  />
+) : (
+  <ResponsiveVegaLite
+    title="Effectiveness vs. Cost"
+    details={"todo"}
+    spec={getCompareMethodsChartSpec(allData)}
+    actions={false}
+    minWidth={100}
+    minHeight={100}
+    maxWidth={1000}
+    maxHeight={500}
+  />
+)}
+
     </ResponsiveCardTable>
+    </Box>
   )
 }
 

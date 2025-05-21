@@ -17,20 +17,15 @@ import {
   TableBody,
   TableCell,
   TableHead,
-  Grid,
   TableRow,
   FormControlLabel,
   Switch,
   Tooltip,
-  Container,
 } from "@mui/material"
-import { VisualizationSpec } from "react-vega" // Import VegaLite from react-vega
-import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
 import WorkflowCard from "../../../../shared/components/workflow-card"
 import MetricSummary from "../MetricSummary"
 import ActionScatter from "../PLOTS/ActionScatter"
 import UmapGlanceComponent from "../UmapGlanceComponent"
-import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import StaticCharts from "../PLOTS/BarCharts"
 import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../PLOTS/chartSpecs"
 

@@ -32,6 +32,7 @@
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.23.0",
     "react-vega": "^7.6.0",
+    "reactflow": "^11.11.4",
     "ts-node": "^10.9.2",
     "vega": "^5.29.0",
     "vega-lite": "^5.18.1",

@@ -23,6 +23,8 @@ import ComparativeGlance from "./CGLANCE/ComparativeGlance"
 import WorkflowCard from "../../../shared/components/workflow-card"
 import CompareMethods from "./CompareMethods"
 import DatasetExplorer from "./DatasetExplorer"
+import FlowStepper from "./FlowStepper"
+import { ReactFlowProvider } from "reactflow"
 
 const styles = {
   sidebar: {
@@ -82,21 +84,16 @@ const steps = [
 const GlanceComponent: React.FC = () => {
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
-  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">("affected") 
+  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">(
+    "affected",
+  )
   const [selectedTab, setSelectedTab] = useState<number>(0) // Track selected tab
   const [showUMAPScatter, setShowUMAPScatter] = useState(true) // State to toggle scatter plot
-  const [processedDataset, setProcessedDataset] = useState([])
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({})
   const [activeStep, setActiveStep] = useState(0)
-  
   const [selectedDataset, setSelectedDataset] =
     useState<string>("COMPAS Dataset")
   const [selectedModel, setSelectedModel] = useState<string>("XGBoost")
-
-  const handleStepClick = index => {
-    setActiveStep(index)
-    setSelectedTab(index)
-  }
 
   useEffect(() => {
     if (!glanceState.loadDatasetAndModelResult) {
@@ -145,34 +142,6 @@ const GlanceComponent: React.FC = () => {
       setActiveStep(1)
     }
   }, [glanceState.loadDatasetAndModelResult])
-    // useEffect(() => {
-  //   if (glanceState.runGlanceResult) {
-  //     const indexValues = new Set(
-  //       Object.values(glanceState.runGlanceResult.affected_clusters.index),
-  //     )
-  //     const newDataset = glanceState.loadDatasetAndModelResult.X_test.map(
-  //       (item: any, idx: unknown) => {
-  //         if (indexValues.has(idx)) {
-  //           const indexArray = Object.values(
-  //             glanceState.runGlanceResult.affected_clusters.index,
-  //           )
-  //           const actionIndex = indexArray.indexOf(idx)
-  //           const actionValue =
-  //             glanceState.runGlanceResult.affected_clusters.Chosen_Action[
-  //               actionIndex
-  //             ]
-  //           return { ...item, action: actionValue }
-  //         } else {
-  //           return { ...item, action: "-1" }
-  //         }
-  //       },
-  //     )
-
-  //     setProcessedDataset(newDataset) // Set the state
-  //   }
-  // }, [glanceState.runGlanceResult])
-
-
 
   const renderScatterPlot = () => {
     if (!showUMAPScatter && viewOption === "affected") {
@@ -212,8 +181,6 @@ const GlanceComponent: React.FC = () => {
           ? "affectedData"
           : "testData" // Update or expand if necessary
 
-    //  if (glanceState.umapReduceResults[datasetKey]) {
-    //   const umapData = glanceState.umapReduceResults[datasetKey].reduced_data; // Retrieve the UMAP data based on dataset key
     if (umapCache[datasetKey]) {
       const umapData = umapCache[datasetKey].reduced_data
       // Use `umapData` for your visualization logic
@@ -251,7 +218,7 @@ const GlanceComponent: React.FC = () => {
     )
   }
 
-  console.log("glance",glanceState)
+  console.log("glance", glanceState)
 
   return (
     <Box
@@ -277,7 +244,15 @@ const GlanceComponent: React.FC = () => {
         GLOVES: Global Counterfactual-based Visual Explanations
       </Typography>
 
-      <Stepper
+      <ReactFlowProvider>
+        <FlowStepper
+          setSelectedTab={setSelectedTab}
+          setActiveStep={setActiveStep}
+          activeStep={activeStep}
+        />
+      </ReactFlowProvider>
+
+      {/* <Stepper
         activeStep={activeStep}
         alternativeLabel
         sx={{ marginBottom: 2, marginTop: 2 }}
@@ -294,7 +269,7 @@ const GlanceComponent: React.FC = () => {
             </StepLabel>
           </Step>
         ))}
-      </Stepper>
+      </Stepper> */}
 
       <Box sx={{ padding: 2 }}>
         {selectedTab === 0 && (
@@ -308,17 +283,16 @@ const GlanceComponent: React.FC = () => {
           </Box>
         )}
         {selectedTab === 1 && (
-         <DatasetExplorer
-    glanceState={glanceState}
-    viewOption={viewOption}
-    setViewOption={setViewOption}
-    showUMAPScatter={showUMAPScatter}
-    setShowUMAPScatter={setShowUMAPScatter}
-    renderScatterPlot={renderScatterPlot}
-    selectedDataset={selectedDataset}
-    selectedModel={selectedModel}
-  />
-
+          <DatasetExplorer
+            glanceState={glanceState}
+            viewOption={viewOption}
+            setViewOption={setViewOption}
+            showUMAPScatter={showUMAPScatter}
+            setShowUMAPScatter={setShowUMAPScatter}
+            renderScatterPlot={renderScatterPlot}
+            selectedDataset={selectedDataset}
+            selectedModel={selectedModel}
+          />
         )}
 
         {selectedTab === 2 && (
@@ -343,22 +317,24 @@ const GlanceComponent: React.FC = () => {
                     glanceState.availableActionStrategies
                   }
                   availableFeatures={
-                    (selectedDataset === "Heloc Dataset" ||
-                     selectedDataset === "German Credit Dataset" ||
-                     selectedDataset === "Default Credit Dataset" ||
-                    selectedDataset === "COMPAS Dataset")
+                    selectedDataset === "Heloc Dataset" ||
+                    selectedDataset === "German Credit Dataset" ||
+                    selectedDataset === "Default Credit Dataset" ||
+                    selectedDataset === "COMPAS Dataset"
                       ? glanceState.availableFeatures.slice(0, -1)
-                      : glanceState.targetName && glanceState.targetName[0] !== undefined
-                        ? glanceState.availableFeatures.filter(feature => feature !== glanceState.targetName[0])
+                      : glanceState.targetName &&
+                          glanceState.targetName[0] !== undefined
+                        ? glanceState.availableFeatures.filter(
+                            feature => feature !== glanceState?.targetName[0],
+                          )
                         : glanceState.availableFeatures
-                  }      />
+                  }
+                />
               </Box>
             )}
           </Box>
         )}
-        {selectedTab === 3 && (
-            <CompareMethods />
-        )}
+        {selectedTab === 3 && <CompareMethods />}
       </Box>
     </Box>
   )
