@@ -27,7 +27,7 @@ import MetricSummary from "./MetricSummary"
 import ActionScatter from "./ActionScatter"
 import UmapGlanceComponent from "./UmapGlanceComponent"
 import StaticCharts from "./BarCharts"
-import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../PLOTS/chartSpecs"
+import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../Plots/chartSpecs"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
