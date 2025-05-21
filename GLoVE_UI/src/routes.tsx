@@ -1,12 +1,13 @@
 import { createBrowserRouter } from "react-router-dom"
 import NotFound from "./not-found";
 import GlanceComponent from "./app/Tasks/GlanceTask/GlanceComponent";
+import GlanceLayout from "./app/Tasks/GlanceTask/GlanceLayout";
 
 const routes = createBrowserRouter([
  
   {
     path: "/",
-    element: <GlanceComponent />,
+    element: <GlanceLayout />,
     errorElement: <NotFound />
   },
   // {

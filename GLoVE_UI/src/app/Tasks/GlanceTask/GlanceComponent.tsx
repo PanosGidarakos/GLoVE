@@ -69,13 +69,6 @@ const styles = {
   },
 }
 
-const steps = [
-  "Select Dataset and Model",
-  "Explore Dataset",
-  "Analyze Counterfactuals",
-  "Compare Models",
-]
-
 const GlanceComponent: React.FC = () => {
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
