@@ -99,8 +99,8 @@ const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperP
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
         fitView
-        panOnDrag={true}
-        zoomOnScroll={true}
+        panOnDrag={false}
+        zoomOnScroll={false}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         zoomOnPinch={false}
         proOptions={{ hideAttribution: true }}

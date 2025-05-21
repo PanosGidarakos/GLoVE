@@ -28,6 +28,9 @@ import ActionScatter from "./ActionScatter"
 import UmapGlanceComponent from "./UmapGlanceComponent"
 import StaticCharts from "./BarCharts"
 import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../Plots/chartSpecs"
+import CounterfactualResultsTable from "./CounterfactualResultsTable"
+import AnalysisErrorsTable from "./AnalysisErrorsTable"
+import Loader from "../../../../shared/components/loader"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -493,102 +496,24 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
 
         <Box marginTop={4}>
           {comparativeLoading ? (
-            <Box
-              display="flex"
-              flexDirection="column"
-              justifyContent="center"
-              alignItems="center"
-              height="400px"
-            >
-              <CircularProgress size={50} />
-              <Typography variant="h6" sx={{ marginTop: 2 }}>
-                Running Experiments...
-              </Typography>
-            </Box>
+           <Loader/>
           ) : (
             <>
               {/* Render Errors */}
               {errorResults.length > 0 && (
-                <WorkflowCard
-                  title="Analysis Errors"
-                  description="Some configurations encountered errors:"
-                >
-                  <TableContainer component={Paper} sx={{ marginBottom: 2 }}>
-                    <Table>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>{executionMode}</TableCell>
-                          <TableCell>Error Message</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {errorResults.map(([key, result]: any) => (
-                          <TableRow key={key}>
-                            <TableCell>{getSuffix(key)}</TableCell>
-                            <TableCell>{result.error}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </WorkflowCard>
+              <AnalysisErrorsTable errorResults={errorResults} executionMode={executionMode} getSuffix={getSuffix}/>
               )}
 
               {/* Render Valid Results */}
               {validResults.length > 0 && (
-                <Box sx={{ marginTop: 2,  padding:2}}>
-                  <WorkflowCard
-                    title="Counterfactual Analysis Results"
-                    description=""
-                  >
-                    <TableContainer component={Paper}>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>{executionMode}</TableCell>
-                            <TableCell>Total Cost</TableCell>
-                            <TableCell>Total Effectiveness %</TableCell>
-                            <TableCell></TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {validResults.map(([key, data]: any) => (
-                            <TableRow
-                              key={key}
-                              style={{
-                                backgroundColor:
-                                  selectedRowKey === key
-                                    ? "#e0f7fa"
-                                    : "inherit",
-                              }}
-                            >
-                              <TableCell>{getSuffix(key)}</TableCell>
-                              <TableCell>{data.TotalCost}</TableCell>
-                              <TableCell>
-                                {data.TotalEffectiveness * 100}
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  onClick={() => handleViewDetails(key, data)}
-                                  size="small"
-                                  style={{
-                                    backgroundColor:
-                                      selectedRowKey === key
-                                        ? "#00796b"
-                                        : undefined,
-                                  }}
-                                >
-                                  View Details
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </WorkflowCard>
+                <Box sx={{ marginTop: 5, padding: 2 }}>
+    <CounterfactualResultsTable
+      validResults={validResults}
+      executionMode={executionMode}
+      selectedRowKey={selectedRowKey}
+      handleViewDetails={handleViewDetails}
+      getSuffix={getSuffix}
+    />
                   {selectedDetails && (
                     <>
                       <Box marginTop={4} padding={2}>
@@ -606,7 +531,7 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                           />
                         
                         
-                        <FormControlLabel
+                        {/* <FormControlLabel
                           control={
                             <Switch
                               checked={showUMAPInTab1}
@@ -617,7 +542,7 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                             />
                           }
                           label="Enable Dimensionality Reduction (UMAP)"
-                        />
+                        /> */}
                         {!showUMAPInTab1 ? (
                           
                             <Box sx={{padding:2}}>
