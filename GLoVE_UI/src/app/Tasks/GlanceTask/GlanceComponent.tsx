@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useState } from "react"
-import DataModelSetup from "./SIDEBAR/DataModelSetup"
+import DataModelSetup from "./DataAndModelSelection/DataModelSetup"
 import { useAppDispatch, useAppSelector } from "../../../store/store"
 import {
   fetchAvailableFeatures,
@@ -14,7 +14,7 @@ import {
 } from "@mui/material"
 import UmapScatter from "./PLOTS/UmapScatter"
 import ScatterPlotComponentForMainPage from "./PLOTS/ScatterComponentForMainPage"
-import ComparativeGlance from "./CGLANCE/ComparativeGlance"
+import ComparativeGlance from "./AnalyzeCounterFactuals/ComparativeGlance"
 import CompareMethods from "./CompareModels/CompareMethods"
 import DatasetExplorer from "./ExploreDataset/DatasetExplorer"
 import FlowStepper from "./FlowStepper"
@@ -246,24 +246,6 @@ const GlanceComponent: React.FC = () => {
         />
       </ReactFlowProvider>
 
-      {/* <Stepper
-        activeStep={activeStep}
-        alternativeLabel
-        sx={{ marginBottom: 2, marginTop: 2 }}
-      >
-        {steps.map((label, index) => (
-          <Step key={label} onClick={() => handleStepClick(index)}>
-            <StepLabel
-              sx={{
-                cursor: "pointer",
-                "& .MuiStepLabel-label": { textDecoration: "underline" },
-              }}
-            >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper> */}
 
       <Box sx={{ padding: 2 }}>
         {selectedTab === 0 && (

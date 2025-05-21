@@ -2,7 +2,7 @@ import type React from "react";
 import { useState } from "react"
 import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material"
 import type { VisualizationSpec } from "react-vega";
-import ResponsiveCardVegaLite from "../../../shared/components/responsive-card-vegalite"
+import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 
 interface UmapGlanceComponentProps {
   applied_aff_data: any

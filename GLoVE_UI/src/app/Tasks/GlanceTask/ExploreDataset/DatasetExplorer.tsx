@@ -5,7 +5,7 @@ import {
   FormControlLabel,
   Switch,
 } from "@mui/material"
-import DataTable from "../PLOTS/DataTable"
+import DataTable from "./DataTable"
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
 interface DatasetExplorerProps {
   glanceState: any

@@ -69,18 +69,17 @@ const CompareMethods = () => {
     setAlgorithms(typeof value === "string" ? value.split(",") : value)
   }
 
-  const addZeroStep = runData => {
+  const addZeroStep = (runData: any) => {
     return { "0": { eff: 0, cost: 0 }, ...runData }
   }
 
-  const transformedData = results
-    ? Object.entries(results).reduce((acc, [runName, runData]) => {
-        acc[runName] = addZeroStep(runData)
-        return acc
-      }, {})
-    : {}
-
-  const transformData = (runData, runName, offset) => {
+ const transformedData = results
+  ? Object.entries(results).reduce((acc: { [key: string]: any }, [runName, runData]) => {
+      acc[runName] = addZeroStep(runData)
+      return acc
+    }, {})
+  : {}
+  const transformData = (runData : any, runName : string, offset : number) => {
     return Object.keys(runData).map(step => ({
       step: parseInt(step) + offset,
       eff: runData[step].eff,

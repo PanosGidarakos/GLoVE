@@ -23,12 +23,11 @@ import {
   Tooltip,
 } from "@mui/material"
 import WorkflowCard from "../../../../shared/components/workflow-card"
-import MetricSummary from "../MetricSummary"
-import ActionScatter from "../PLOTS/ActionScatter"
-import UmapGlanceComponent from "../UmapGlanceComponent"
-import StaticCharts from "../PLOTS/BarCharts"
+import MetricSummary from "./MetricSummary"
+import ActionScatter from "./ActionScatter"
+import UmapGlanceComponent from "./UmapGlanceComponent"
+import StaticCharts from "./BarCharts"
 import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../PLOTS/chartSpecs"
-import CGlanceExecution from "../../../Deprecated/CGlanceExecution"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
