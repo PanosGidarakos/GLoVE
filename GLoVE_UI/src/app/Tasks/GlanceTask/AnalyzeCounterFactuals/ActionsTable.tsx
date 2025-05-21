@@ -84,12 +84,6 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
   });
 
   return (
-    <Box>
-      <Box display="flex" alignItems="center">
-        <Typography variant="h6" sx={{ padding: 1, fontWeight: "bold" }}>
-          {title}
-        </Typography>
-      </Box>
       <DataGrid
         rows={enrichedData}
         columns={getColumns(data)}
@@ -104,7 +98,6 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
         }}
         pageSizeOptions={[5, 10]}
       />
-    </Box>
   );
 };
 

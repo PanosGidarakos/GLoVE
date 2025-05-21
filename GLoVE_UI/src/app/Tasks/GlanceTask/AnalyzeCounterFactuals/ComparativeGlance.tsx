@@ -592,11 +592,7 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                   {selectedDetails && (
                     <>
                       <Box marginTop={4} padding={2}>
-                        <WorkflowCard
-                          title={"Metric Summary"}
-                          description="Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. 
-            Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."
-                        >
+                       
                           <MetricSummary
                             cost={selectedDetails.TotalCost}
                             eff={selectedDetails.TotalEffectiveness}
@@ -608,7 +604,7 @@ const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
                             }
                             eff_cost_actions={selectedDetails.eff_cost_actions}
                           />
-                        </WorkflowCard>
+                        
                         
                         <FormControlLabel
                           control={
