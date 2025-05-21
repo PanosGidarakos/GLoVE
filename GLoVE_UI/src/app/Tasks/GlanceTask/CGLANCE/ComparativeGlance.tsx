@@ -32,6 +32,7 @@ import ActionScatter from "../PLOTS/ActionScatter"
 import UmapGlanceComponent from "../UmapGlanceComponent"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import StaticCharts from "../PLOTS/BarCharts"
+import {getCostChartSpec, getEffectivenessChartSpec, getCostEffectivenessChartSpec } from "../PLOTS/chartSpecs"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -53,7 +54,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const glanceState = useAppSelector(state => state.glance)
   const [selectedDetails, setSelectedDetails] = React.useState<any | null>(null) // State for selected details
-  const [showPlots, setShowPlots] = React.useState(true) // New state to manage plot visibility
+  const [showBarPlots, setShowBarPlots] = React.useState(true) // New state to manage plot visibility
   const [executionMode, setExecutionMode] = React.useState<string>(
     "Number of Counterfactual Actions",
   )
@@ -93,14 +94,14 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
     } else {
       setSelectedDetails(data) // Update selected details when button is clicked
       setSelectedRowKey(key) // Mark the row as selected
-      setShowPlots(false) // Hide plots
+      setShowBarPlots(false) // Hide plots
     }
   }
 
   const clearDetails = () => {
     setSelectedDetails(null) // Clear selected details
     setSelectedRowKey(null) // Clear selected row key
-    setShowPlots(true) // Show plots again
+    setShowBarPlots(true) // Show plots again
   }
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null) // Add state for error messages
@@ -156,91 +157,11 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
       }))
     : []
 
-  const scatterPlotSpec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    data: { values: scatterPlotData },
-    transform: [
-      {
-        calculate: "datum.TotalEffectiveness * 100", // Multiply TotalEffectiveness by 100
-        as: "ScaledEffectiveness", // Store the result in a new field
-      },
-    ],
-    mark: "point",
-    encoding: {
-      x: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      y: {
-        field: "ScaledEffectiveness", // Use the scaled field for the y-axis
-        type: "quantitative",
-        title: "Total Effectiveness (%)", // Adjust the title to reflect the scaling
-      },
-      color: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
-      tooltip: [
-        { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        {
-          field: "ScaledEffectiveness",
-          type: "quantitative",
-          title: "Total Effectiveness (%)", // Reflect the scaled value in the tooltip
-        },
-        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
-      ],
-    },
-  }
 
-  const chart1 = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    data: { values: scatterPlotData },
-    transform: [
-      {
-        calculate: "datum.TotalEffectiveness * 100", // Scale TotalEffectiveness by 100
-        as: "ScaledEffectiveness", // Store in a new field
-      },
-    ],
-    mark: "bar",
-    encoding: {
-      y: { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-      x: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
-      tooltip: [
-        { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        {
-          field: "ScaledEffectiveness",
-          type: "quantitative",
-          title: "Total Effectiveness (%)", // Reflect scaled value
-        },
-        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
-      ],
-    },
-  
-  }
 
-  const chart2 = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    data: { values: scatterPlotData },
-    transform: [
-      {
-        calculate: "datum.TotalEffectiveness * 100", // Scale TotalEffectiveness by 100
-        as: "ScaledEffectiveness", // Store in a new field
-      },
-    ],
-    mark: "bar",
-    encoding: {
-      y: {
-        field: "ScaledEffectiveness", // Use scaled field for the y-axis
-        type: "quantitative",
-        title: "Total Effectiveness (%)", // Update axis title
-      },
-      x: { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' with dynamic field
-      tooltip: [
-        { field: "TotalCost", type: "quantitative", title: "Total Cost" },
-        {
-          field: "ScaledEffectiveness",
-          type: "quantitative",
-          title: "Total Effectiveness (%)", // Reflect scaled value in the tooltip
-        },
-        { field: "DisplayKey", type: "nominal", title: executionMode }, // Replace 'key' in tooltip
-      ],
-    },
-  }
-
+  const scatterPlotSpec = getCostEffectivenessChartSpec(scatterPlotData, executionMode);
+const chart1 = getCostChartSpec(scatterPlotData, executionMode);
+const chart2 = getEffectivenessChartSpec(scatterPlotData, executionMode);
 
   const hasErrors = glanceState.comparativeResults
     ? Object.values(glanceState.comparativeResults).some(
@@ -733,7 +654,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                   )}
 
                   {/* Render Plots */}
-                  {showPlots && (
+                  {showBarPlots && (
                     <StaticCharts scatterPlotSpec={scatterPlotSpec} chart1={chart1} chart2={chart2} executionMode={executionMode}/>
                   )}
                 </Box>
