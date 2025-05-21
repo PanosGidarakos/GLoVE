@@ -12,8 +12,8 @@ import {
   Typography,
   CircularProgress,
 } from "@mui/material"
-import UmapScatter from "../Tasks/GlanceTask/UmapScatter"
-import ScatterPlotComponentForMainPage from "../Tasks/GlanceTask/ScatterComponentForMainPage"
+import UmapScatter from "../Tasks/GlanceTask/ExploreDataset/UmapScatter"
+import ScatterPlotComponentForMainPage from "../Tasks/GlanceTask/ExploreDataset/ScatterComponentForMainPage"
 import ComparativeGlance from "../Tasks/GlanceTask/AnalyzeCounterFactuals/ComparativeGlance"
 import CompareMethods from "../Tasks/GlanceTask/CompareModels/CompareMethods"
 import DatasetExplorer from "../Tasks/GlanceTask/ExploreDataset/DatasetExplorer"

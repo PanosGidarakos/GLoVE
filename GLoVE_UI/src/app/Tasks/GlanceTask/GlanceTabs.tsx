@@ -20,8 +20,8 @@ import DataModelSetup from "./DataAndModelSelection/DataModelSetup"
 import DatasetExplorer from "./ExploreDataset/DatasetExplorer"
 import ComparativeGlance from "./AnalyzeCounterFactuals/ComparativeGlance"
 import CompareMethods from "./CompareModels/CompareMethods"
-import UmapScatter from "./UmapScatter"
-import ScatterPlotComponentForMainPage from "./ScatterComponentForMainPage"
+import UmapScatter from "./ExploreDataset/UmapScatter"
+import ScatterPlotComponentForMainPage from "./ExploreDataset/ScatterComponentForMainPage"
 import Loader from "../../../shared/components/loader"
 
 interface GlanceTabsProps {

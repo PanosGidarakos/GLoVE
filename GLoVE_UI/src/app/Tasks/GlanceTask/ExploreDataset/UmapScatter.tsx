@@ -1,6 +1,6 @@
 import type React from "react"
-import ResponsiveCardVegaLite from "../../../shared/components/responsive-card-vegalite"
-import { getExploreDatasetUmapPlotSpec } from "./Plots/chartSpecs"
+import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
+import { getExploreDatasetUmapPlotSpec } from "../Plots/chartSpecs"
 
 interface ScatterPlotProps {
   data: any // The data you want to plot
@@ -40,10 +40,10 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color }) => {
       minWidth={100}
       minHeight={100}
       maxHeight={400}
-      maxWidth={1500}
+      maxWidth={2000}
       aspectRatio={2 / 1}
       isStatic={false}
-      title={"Umap"}
+      title={`UMAP Plot`}
       details={"Todo"}
     />
   )
