@@ -150,8 +150,9 @@
 
 
 
-import React from 'react';
-import { VegaLite, VisualizationSpec } from 'react-vega';
+import type React from 'react';
+import type { VisualizationSpec } from 'react-vega';
+import { VegaLite } from 'react-vega';
 
 interface ScatterPlotProps {
   data: Record<string, any>;

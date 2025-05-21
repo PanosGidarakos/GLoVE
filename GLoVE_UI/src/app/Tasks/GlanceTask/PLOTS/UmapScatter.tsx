@@ -1,7 +1,7 @@
 
 
-import React from 'react'
-import { VisualizationSpec } from 'react-vega';
+import type React from 'react'
+import type { VisualizationSpec } from 'react-vega';
 import { Box, Paper } from '@mui/material';
 import ResponsiveVegaLite from '../../../../shared/components/responsive-vegalite';
 

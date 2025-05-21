@@ -10,10 +10,10 @@ import MenuItem from "@mui/material/MenuItem"
 import { SetStateAction, useEffect, useState } from "react"
 import FormControl from "@mui/material/FormControl"
 import grey from "@mui/material/colors/grey"
-import { IPlotModel } from "../../../../shared/models/plotmodel.model"
+import type { IPlotModel } from "../../../../shared/models/plotmodel.model"
 import { useAppDispatch } from "../../../../store/store"
 import { fetchExplanation } from "../../../../store/slices/explainabilitySlice"
-import { AsyncThunk } from "@reduxjs/toolkit"
+import type { AsyncThunk } from "@reduxjs/toolkit"
 import CircularProgress from "@mui/material/CircularProgress"
 
 interface IContourplot {

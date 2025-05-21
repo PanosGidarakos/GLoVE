@@ -19,7 +19,7 @@ import { RootState, useAppDispatch, useAppSelector } from "../../../../store/sto
 import ModelTrainingIcon from '@mui/icons-material/ModelTraining';
 import CircularProgress from "@mui/material/CircularProgress"
 import { fetchModelAnalysisExplainabilityPlot } from "../../../../shared/models/tasks/model-analysis.model"
-import { IPlotModel } from "../../../../shared/models/plotmodel.model"
+import type { IPlotModel } from "../../../../shared/models/plotmodel.model"
 
 const style = {
   position: 'absolute' as 'absolute',

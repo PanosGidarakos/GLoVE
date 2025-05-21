@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { useAppSelector, useAppDispatch } from "../../../../store/store";
 import { fetchAvailableFeatures, loadDatasetAndModel } from "../../../../store/slices/glanceSlice";
+import type {
+  SelectChangeEvent} from "@mui/material";
 import {
   Select,
   MenuItem,
@@ -10,13 +13,13 @@ import {
   OutlinedInput,
   Typography,
   CircularProgress,
-  SelectChangeEvent,
   Modal,
   Button,
   Stack
 } from "@mui/material";
 import WorkflowCard from "../../../../shared/components/workflow-card";
 import UploadComponent from "../UploadComponent";
+import ResponsiveCardTable from "../../../../shared/components/responsive-card-table";
 
 interface DataModelSetupProps {
   selectedDataset: string;
@@ -94,8 +97,11 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={2}>
-      <WorkflowCard title={"Dataset & Model Selection"} description="This section allows you to select a dataset and model for analysis.">
+      <ResponsiveCardTable 
+      title={"Dataset & Model Selection"} 
+      details={"This section allows you to select a dataset and model for analysis."}
+      
+      >
         {datasetLoading ? (
           <Box
             display="flex"
@@ -148,24 +154,24 @@ const DataModelSetup: React.FC<DataModelSetupProps> = ({
             </FormControl>
           </>
         )}
-      </WorkflowCard>
+      </ResponsiveCardTable>
 
-      {/* Modal for uploading new dataset and model */}
-      <Modal
-        open={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        aria-labelledby="upload-modal-title"
-        aria-describedby="upload-modal-description"
-      >
-        <Box sx={styles.modalStyle}>
+    //   {/* Modal for uploading new dataset and model */}
+    //   <Modal
+    //     open={isUploadModalOpen}
+    //     onClose={() => setIsUploadModalOpen(false)}
+    //     aria-labelledby="upload-modal-title"
+    //     aria-describedby="upload-modal-description"
+    //   >
+    //     <Box sx={styles.modalStyle}>
 
-          <UploadComponent onUploadComplete={handleUploadComplete} />
-          <Stack direction="row" justifyContent="center" sx={{ marginTop: 2 }}>
-            <Button onClick={() => setIsUploadModalOpen(false)}>Close</Button>
-          </Stack>
-        </Box>
-      </Modal>
-    </Box>
+    //       <UploadComponent onUploadComplete={handleUploadComplete} />
+    //       <Stack direction="row" justifyContent="center" sx={{ marginTop: 2 }}>
+    //         <Button onClick={() => setIsUploadModalOpen(false)}>Close</Button>
+    //       </Stack>
+    //     </Box>
+    //   </Modal>
+    // </Box>
   );
 };
 

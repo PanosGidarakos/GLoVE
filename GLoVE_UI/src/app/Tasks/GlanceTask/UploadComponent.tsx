@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../../store/store";
+import type { RootState} from "../../../store/store";
+import { useAppDispatch } from "../../../store/store";
 import {
   fetchAvailableFeatures,
   fetchGetData,

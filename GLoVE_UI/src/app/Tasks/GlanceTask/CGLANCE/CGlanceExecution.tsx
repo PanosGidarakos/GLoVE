@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
 import { applyAffectedActions, runCGlance, setSelectedFeatures, umapReduce } from "../../../../store/slices/glanceSlice";
+import type {
+  SelectChangeEvent} from "@mui/material";
 import {
   Button,
   Typography,
@@ -10,7 +12,6 @@ import {
   InputLabel,
   FormControl,
   OutlinedInput,
-  SelectChangeEvent,
   Collapse,
   Tooltip
 } from "@mui/material";
