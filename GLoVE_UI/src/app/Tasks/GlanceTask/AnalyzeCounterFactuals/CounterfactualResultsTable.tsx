@@ -1,8 +1,7 @@
-import React from 'react';
+import type React from 'react';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button,
 } from '@mui/material';
-import WorkflowCard from '../../../../shared/components/workflow-card';
 import ResponsiveCardTable from '../../../../shared/components/responsive-card-table';
 
 interface Props {

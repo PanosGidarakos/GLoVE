@@ -4,7 +4,6 @@ import type {
   Edge} from 'reactflow';
 import ReactFlow, {
   Background,
-  Controls,
   useNodesState,
   useEdgesState,
   Position,

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import type { VisualizationSpec } from "react-vega"
-import { FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material"
-import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 interface ScatterPlotComponentForMainPageProps {
   data: any[]

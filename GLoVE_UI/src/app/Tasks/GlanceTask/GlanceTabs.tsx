@@ -38,12 +38,10 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
-
   const [viewOption, setViewOption] = useState<"data" | "affected" | "test">("affected")
   const [showUMAPScatter, setShowUMAPScatter] = useState(true)
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({})
-  const [selectedDataset, setSelectedDataset] = useState("COMPAS Dataset")
-  const [selectedModel, setSelectedModel] = useState("XGBoost")
+  
 
   useEffect(() => {
     if (!glanceState.loadDatasetAndModelResult) {
@@ -154,28 +152,25 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
       </Box>
     )
   }
+  const selectedModel = glanceState.selectedModel;
+  const selectedDataset = glanceState.selectedDataset;
+
+// const handleModelChange = (model: string) => {
+//     dispatch(setSelectedModel(model));
+//   };
+//    const handleDatasetChange = (dataset: string) => {
+//     dispatch(setSelectedDataset(dataset));
+//   };
 
   return (
     <Box sx={{ padding: 2 }}>
       {selectedTab === 0 && (
-        <DataModelSetup
-          selectedDataset={selectedDataset}
-          setSelectedDataset={setSelectedDataset}
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-        />
+        <DataModelSetup/>
       )}
 
       {selectedTab === 1 && (
-        <DatasetExplorer
-          glanceState={glanceState}
-          viewOption={viewOption}
-          setViewOption={setViewOption}
-          showUMAPScatter={showUMAPScatter}
-          setShowUMAPScatter={setShowUMAPScatter}
-          renderScatterPlot={renderScatterPlot}
-          selectedDataset={selectedDataset}
-          selectedModel={selectedModel}
+        <DatasetExplorer renderScatterPlot={renderScatterPlot()
+        }         
         />
       )}
 
@@ -197,6 +192,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
                   : glanceState.availableFeatures
               }
             />
+            // <></>
           )}
         </>
       )}

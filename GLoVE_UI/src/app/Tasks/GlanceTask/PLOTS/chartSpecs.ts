@@ -1,6 +1,6 @@
 // chartSpecs.ts
 
-import { VisualizationSpec } from "react-vega";
+import type { VisualizationSpec } from "react-vega";
 
 interface VegaLiteSpec {
   [key: string]: any; // You can replace this with the actual VegaLiteSpec type if available

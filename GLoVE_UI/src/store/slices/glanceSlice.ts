@@ -43,6 +43,11 @@ interface GlanceState {
   comparativeLoading: boolean; // New state for comparative process
   targetName: string | null; // Add this field
   modelComparativeLoading: any;
+   selectedModel: string | null;
+  selectedDataset: string | null;
+  viewOption: "test" | "affected";
+  showUMAPScatter: boolean;
+
 
 
 }
@@ -73,6 +78,10 @@ const initialState: GlanceState = {
   comparativeLoading: false,
   modelComparativeLoading: false,
   targetName: null, // Initialize it
+  selectedModel: null,
+  selectedDataset: null,
+  viewOption: "test",
+  showUMAPScatter: false
 };
 
 interface AvailableResources {
@@ -121,7 +130,7 @@ const API_BASE_URL = "http://localhost:8000/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
-  async () => {
+  async (_, { dispatch }) => {
     const [resourcesResponse, cfMethodsResponse, welcomeMessageResponse, actionsStrategiesResponse, loadDatasetAndModelResponse, loadGetDataResponse] = await Promise.all([
       axios.get(`${API_BASE_URL}available-resources/`),
       axios.get(`${API_BASE_URL}available-cf-methods/`),
@@ -129,8 +138,11 @@ export const fetchInitialGlanceData = createAsyncThunk(
 
       axios.get(`${API_BASE_URL}available-action-strategies/`),
       axios.post(`${API_BASE_URL}load-dataset-and-model/?dataset_name=compas&model_name=xgb`)
+    
 
     ]);
+      dispatch(setSelectedDataset("COMPAS Dataset"))
+    dispatch(setSelectedModel("XGBoost"))
 
     return {
       availableResources: resourcesResponse.data,
@@ -551,6 +563,19 @@ const glanceSlice = createSlice({
         state.processedSizes.push(action.payload);
       }
     },
+    
+    setSelectedModel: (state, action: PayloadAction<string>) => {
+      state.selectedModel = action.payload;
+    },
+    setSelectedDataset: (state, action: PayloadAction<string>) => {
+      state.selectedDataset = action.payload;
+    },
+    setViewOption(state, action: PayloadAction<"test" | "affected">) {
+      state.viewOption = action.payload;
+    },
+    setShowUMAPScatter(state, action: PayloadAction<boolean>) {
+      state.showUMAPScatter = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -734,7 +759,7 @@ const glanceSlice = createSlice({
       });
   },
 });
-export const { setSelectedFeatures } = glanceSlice.actions
+export const { setSelectedFeatures, setSelectedDataset, setSelectedModel,setViewOption,setShowUMAPScatter } = glanceSlice.actions
 export default glanceSlice.reducer;
 
 
