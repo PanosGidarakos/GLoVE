@@ -79,7 +79,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   // Check if NearestNeighbors is selected
   const isNearestNeighborsSelected = cfMethod.includes("NearestNeighbors")
 
+  console.log("comparativeLoading", comparativeLoading)
   const handleViewDetails = (key: any, data: any) => {
+    
     if (selectedRowKey === key) {
       // If the same row is clicked again, clear the details and show plots
       clearDetails()
@@ -98,6 +100,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null) // Add state for error messages
 
+  
   const handleRun = () => {
     dispatch(
       runCGlanceComparative({
@@ -123,6 +126,9 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           setErrorMessage("An unexpected error occurred.") // Default error message
         }
       })
+     
+    clearDetails();
+  
   }
 
   const getRowLabelKey = () => {
