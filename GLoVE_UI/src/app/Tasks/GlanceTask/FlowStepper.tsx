@@ -99,10 +99,13 @@ const FlowStepper = () => {
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
         fitView
-        panOnDrag={true}
-        zoomOnScroll={true}
-        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+        panOnDrag={false}
+        zoomOnScroll={false}
         zoomOnPinch={false}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         proOptions={{ hideAttribution: true }}
         fitViewOptions={{
           padding: 0.2,
