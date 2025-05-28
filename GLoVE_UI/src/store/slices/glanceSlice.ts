@@ -48,6 +48,7 @@ interface GlanceState {
   showUMAPScatter: boolean;
   selectedTab: number;
   activeStep: number;
+  umapLoader: boolean;
 
 
 
@@ -85,6 +86,7 @@ const initialState: GlanceState = {
   showUMAPScatter: false,
   selectedTab: 1,
   activeStep: 1,
+  umapLoader: true
 };
 
 interface AvailableResources {
@@ -665,10 +667,10 @@ const glanceSlice = createSlice({
         state.error = action.error.message || "Error applying affected actions";
       })
       .addCase(umapReduce.pending, (state) => {
-        state.loading = true;
+        state.umapLoader = true;
       })
       .addCase(umapReduce.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
+        state.umapLoader = false;
         state.umapReduceResults[action.payload.datasetIdentifier] = action.payload.data; // Store result by identifier
         state.error = null;
       })

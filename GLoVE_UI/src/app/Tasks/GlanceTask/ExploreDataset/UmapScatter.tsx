@@ -1,6 +1,8 @@
 import type React from "react"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import { getExploreDatasetUmapPlotSpec } from "../Plots/chartSpecs"
+import Loader from "../../../../shared/components/loader"
+import { useAppSelector } from "../../../../store/store"
 
 interface ScatterPlotProps {
   data: any // The data you want to plot
@@ -33,6 +35,7 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) 
   // Define the Vega-Lite scatter plot specification
   const exploreDatasetUmapPlotSpec = getExploreDatasetUmapPlotSpec( reshapedData)
   
+  const glanceState = useAppSelector((state) => state.glance);
 
   return (
     <ResponsiveCardVegaLite
@@ -47,6 +50,8 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) 
       title={`UMAP Plot`}
       details={"Todo"}
       controlPanel={controlPanel}
+      infoMessage={<Loader/>}
+      showInfoMessage={glanceState.umapLoader || !data}
       
     />
   )

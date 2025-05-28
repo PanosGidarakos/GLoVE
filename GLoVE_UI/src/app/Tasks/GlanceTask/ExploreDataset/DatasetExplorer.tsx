@@ -91,6 +91,9 @@ const DatasetExplorer: React.FC<DatasetExplorerProps> = ({ renderScatterPlot }) 
 
        
       </ResponsiveCardTable>
+
+      
+      
       <Box mt={2}>{renderScatterPlot}</Box>
     </>
   );
