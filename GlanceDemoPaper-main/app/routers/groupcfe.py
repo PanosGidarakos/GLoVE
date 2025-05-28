@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import logging
 from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
-from app.services.resources_service import load_dataset_and_model
+from app.services.resources_service import load_dataset_and_model,get_data
 from methods.glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
 from raiutils.exceptions import UserConfigValidationException
@@ -75,12 +75,19 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
                     shared_resources["target_name"] = target_name
                     shared_resources["umap_model"] = None
                     shared_resources["preprocess_pipeline"] = None
-                    
-        shared_resources["method"] = 'groupcfe'    
-        data = shared_resources.get("data").copy(deep=True)
-        X_test = shared_resources.get("X_test").copy(deep=True)
+                    shared_resources["method"] = 'groupcfe'
+        
+        else:
+            shared_resources["method"] = 'groupcfe'    
+            data,X_test,affected = get_data()
+            # shared_resources["data"] = data
+            # shared_resources["X_test"] = X_test
+            shared_resources["affected"] = affected
+        # data = shared_resources.get("data").copy(deep=True)
+        # X_test = shared_resources.get("X_test").copy(deep=True)
         print(X_test)
-        affected = shared_resources.get("affected").copy(deep=True)
+        print(affected)
+        # affected = shared_resources.get("affected").copy(deep=True)
         model = shared_resources.get("model")
         target_name = shared_resources.get("target_name")
         train_dataset = shared_resources.get("train_dataset")

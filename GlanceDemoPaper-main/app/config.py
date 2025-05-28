@@ -3,6 +3,8 @@ shared_resources = {
     "method": None,
     "train_dataset": None,
     "data": None,
+    "data_original": None,
+    "X_test_original": None,
     "X_train": None,
     "y_train": None,
     "X_test": None,

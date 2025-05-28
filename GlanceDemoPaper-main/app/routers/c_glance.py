@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import logging
 from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
-from app.services.resources_service import load_dataset_and_model
+from app.services.resources_service import load_dataset_and_model,get_data
 from methods.glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
 from raiutils.exceptions import UserConfigValidationException
@@ -74,12 +74,19 @@ async def run_glance(gcf_size: int = 3, cf_method: str = 'Dice', action_choice_s
             shared_resources["target_name"] = target_name
             shared_resources["umap_model"] = None
             shared_resources["preprocess_pipeline"] = None
+        else:
+            shared_resources["method"] = 'groupcfe'    
+            data,X_test,affected = get_data()
+            # shared_resources["data"] = data
+            # #shared_resources["X_test"] = X_test
+            shared_resources["affected"] = affected
 
 
         shared_resources["method"] = "glance"
-        data = shared_resources.get("data").copy(deep=True)
-        X_test = shared_resources.get("X_test").copy(deep=True)
-        affected = shared_resources.get("affected").copy(deep=True)
+        print(shared_resources["X_test"])
+        # data = shared_resources.get("data").copy(deep=True)
+        # X_test = shared_resources.get("X_test").copy(deep=True)
+        # affected = shared_resources.get("affected").copy(deep=True)
         model = shared_resources.get("model")
         target_name = shared_resources.get("target_name")
         print(X_test)
@@ -137,7 +144,7 @@ async def run_glance(gcf_size: int = 3, cf_method: str = 'Dice', action_choice_s
             combined_df = pd.concat(all_clusters.values(), ignore_index=True)
             cluster = combined_df['Cluster']
             combined_df = combined_df.drop(columns='Cluster')
-            new_aff = shared_resources['affected'].copy(deep=True)
+            new_aff = affected.copy(deep=True)
             new_aff['unique_id'] = new_aff.groupby(list(new_aff.columns.difference(['index']))).cumcount()
             combined_df['unique_id'] = combined_df.groupby(list(combined_df.columns)).cumcount()
             result = combined_df.merge(new_aff, on=list(combined_df.columns) + ['unique_id'], how='left')
@@ -205,7 +212,7 @@ async def run_glance(gcf_size: int = 3, cf_method: str = 'Dice', action_choice_s
                 }
                 for k, v in clusters_res.items()
             }
-            print(X_test)
+            print(shared_resources["X_test"])
             cache_ret = {
                 "method": "glance",
                 "data": shared_resources["data"].to_dict(orient='records'),

@@ -12,7 +12,7 @@ import redis
 import json
 from methods.globe_ce.helper_functions import find_actions,report_globece_actions
 from methods.globe_ce.ares import AReS
-from app.services.resources_service import load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot,round_categorical
+from app.services.resources_service import get_data,load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot,round_categorical
 import math
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline
@@ -35,8 +35,8 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
         }
         for k, v in cache_res["clusters_res"].items()}
         shared_resources["affected"] = pd.DataFrame(cache_res["affected"])
-        shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
-        shared_resources["data"] = pd.DataFrame(cache_res["data"])
+        #shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
+        #shared_resources["data"] = pd.DataFrame(cache_res["data"])
         shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])
         shared_resources['actions'] = pd.DataFrame(cache_res['actions'])
         shared_resources['features'] = cache_res['features']
@@ -86,6 +86,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
             else:
                 model = clone(model)
 
+            data,X_test,_ = get_data()
             X_test = shared_resources["X_test"].drop(columns=['label'])
 
             X_train = data.merge(X_test, on=X_test.columns.tolist(), how='left', indicator=True)
@@ -108,16 +109,16 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
             dataset.features = features
             dataset.features.append(data.columns[-1])
             dataset.data = pd.concat([one_hot_data, data[data.columns[-1]]], axis=1)
-            shared_resources["data"] = dataset.data
+            #shared_resources["data"] = dataset.data
 
             X_test=X_test.reindex(columns=dataset.data.columns, fill_value=0)
             X_test = X_test.drop(columns=[target_name])
-            shared_resources["X_test"] = X_test
+            #shared_resources["X_test"] = X_test
             X_train=X_train.reindex(columns=dataset.data.columns, fill_value=0)
             model.fit(X_train.drop(columns=[target_name]),X_train[target_name])
-            preds = model.predict(X_test)
-            affected = X_test[preds == 0].reset_index()
-            shared_resources["affected"] = affected
+            # preds = model.predict(X_test)
+            # affected = X_test[preds == 0].reset_index()
+            # shared_resources["affected"] = affected
             normalise = None
 
 
@@ -288,7 +289,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                 cache_ret = {
                     "method" : 'globece',
                     "actions_ret": actions_returned,
-                    "data": shared_resources["data"].to_dict(orient='records'),
+                    "data": dataset.data.to_dict(orient='records'),
                     "X_test": X_test.to_dict(orient='records'),
                     "clusters_res": serialized_clusters_res,
                     "affected": affected.to_dict(orient='records'),
@@ -408,7 +409,7 @@ async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction
                 cache_ret = {
                     "method" : 'globece',
                     "actions_ret": actions_returned,
-                    "data": shared_resources["data"].to_dict(orient='records'),
+                    "data": dataset.data.to_dict(orient='records'),
                     "clusters_res": serialized_clusters_res,
                     "affected": affected.to_dict(orient='records'),
                     "X_test": X_test.to_dict(orient='records'),

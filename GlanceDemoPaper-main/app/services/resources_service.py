@@ -2,6 +2,7 @@ import pandas as pd
 from methods.globe_ce.datasets import dataset_loader
 import pickle
 import numpy as np
+from app.config import shared_resources
 # This file holds the logic for fetching datasets and models
 # In real usage, you would replace this with actual logic, like reading from a database
 
@@ -168,3 +169,14 @@ def one_hot(dataset,data):
         data_oh = pd.concat(data_oh, axis=1, ignore_index=True)
         data_oh.columns = features
         return data_oh, features
+
+def get_data():
+    data = shared_resources.get("data").copy(deep=True)
+    X_test = shared_resources.get("X_test").copy(deep=True)
+    model = shared_resources.get("model")
+    preds = model.predict(X_test)
+    X_test['label'] = preds
+    affected = X_test[X_test.label == 0].reset_index()
+    affected = affected.drop(columns='label')
+
+    return data,X_test,affected
