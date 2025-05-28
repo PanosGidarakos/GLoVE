@@ -78,6 +78,7 @@ const DataTable: React.FC<DataTableProps> = ({ title, data, showArrow }) => {
     <>
       <DataGrid
         rows={processedData.map((item, index) => ({ id: index, ...item }))}
+        disableRowSelectionOnClick
         columns={getColumns(processedData)}
         autoHeight
         sx={{ marginTop: 1 }}

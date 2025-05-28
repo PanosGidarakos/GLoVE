@@ -85,6 +85,7 @@ const ActionsTable: React.FC<DataTableProps> = ({ title, data, showArrow, eff_co
   return (
       <DataGrid
         rows={enrichedData}
+        disableRowSelectionOnClick
         columns={getColumns(data)}
         autoHeight
         sx={{ marginTop: 1 }}
