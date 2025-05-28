@@ -122,14 +122,7 @@ const GlanceTabs= () => {
       return <UmapScatter controlPanel={<UmapToggle showUMAPScatter={showUMAPScatter} setShowUMAPScatter={setShowUMAPScatter} />} data={umapCache[datasetKey].reduced_data} color={""} />
     }
 
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-        <CircularProgress size={50} />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>
-          Fetching Data...
-        </Typography>
-      </Box>
-    )
+   
   }
 
   if (glanceState.initialLoading && !glanceState.loadDatasetAndModelResult) {

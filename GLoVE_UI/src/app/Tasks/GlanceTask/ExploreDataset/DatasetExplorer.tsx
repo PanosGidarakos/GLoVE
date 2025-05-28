@@ -10,6 +10,7 @@ import DataTable from "./DataTable";
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table";
 import { useAppSelector, useAppDispatch } from "../../../../store/store";
 import { setViewOption } from "../../../../store/slices/glanceSlice";
+import Loader from "../../../../shared/components/loader";
 interface DatasetExplorerProps {
   renderScatterPlot: any
 }
@@ -38,16 +39,7 @@ const DatasetExplorer: React.FC<DatasetExplorerProps> = ({ renderScatterPlot }) 
       ? "Instances from the test dataset where the model's prediction was equal to 0."
       : "A subset of the dataset used to evaluate model performance on unseen data.";
 
-  if (glanceState.datasetLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-        <CircularProgress size={50} />
-        <Typography variant="h6" sx={{ marginLeft: 2 }}>
-          Fetching Data...
-        </Typography>
-      </Box>
-    );
-  }
+ 
 
   if (!hasData) return null;
 
@@ -83,9 +75,21 @@ const DatasetExplorer: React.FC<DatasetExplorerProps> = ({ renderScatterPlot }) 
               </ToggleButton>
             </ToggleButtonGroup>
           </Box>
+
         }
+        
       >
-        <DataTable title={tableTitle} data={hasData} showArrow={false} />
+      
+        {
+          glanceState.datasetLoading ? (
+            <Loader/>
+          ) : (
+            <DataTable title={tableTitle} data={hasData} showArrow={false} />)
+          
+        }
+              
+
+       
       </ResponsiveCardTable>
       <Box mt={2}>{renderScatterPlot}</Box>
     </>
