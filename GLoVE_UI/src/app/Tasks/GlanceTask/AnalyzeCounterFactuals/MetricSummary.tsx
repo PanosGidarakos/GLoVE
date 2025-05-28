@@ -4,9 +4,9 @@ import ActionsTable from "./ActionsTable"
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
 import Card from "@mui/material/Card"
 import Stack from "@mui/material/Stack"
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney"
 import CheckCircleIcon from "@mui/icons-material/CheckCircle"
 import LinearProgress from "@mui/material/LinearProgress"
+import SavingsIcon from '@mui/icons-material/Savings';
 
 interface MetricSummaryProps {
   cost: number
@@ -53,20 +53,22 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({
       }
     >
       <Box sx={{ minWidth: "300px" }}>
-        <Stack direction="row" spacing={2} padding={2}>
+        <Stack direction="row" spacing={1} padding={1}>
           <Card
             sx={{
               flex: 1,
               padding: 1,
-              borderRadius: 3,
+              borderRadius: 2,
               background: "linear-gradient(135deg, #f3f4f6, #e0e7ff)",
-              boxShadow: 3,
+              boxShadow: 1,
             }}
           >
-            <Box display="flex" alignItems="center" gap={1}>
-              <AttachMoneyIcon color="primary" />
-              <Typography fontWeight={600}>Total Cost:</Typography>
-              <Typography variant="h6">{cost}</Typography>
+            <Box display="flex" alignItems="center" gap={0.5}>
+              <SavingsIcon fontSize="small" color="primary" />
+              <Typography fontWeight={600} variant="body2">
+                Total Cost:
+              </Typography>
+              <Typography variant="body1">{cost}</Typography>
             </Box>
           </Card>
 
@@ -74,20 +76,22 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({
             sx={{
               flex: 1,
               padding: 1,
-              borderRadius: 3,
+              borderRadius: 2,
               background: "linear-gradient(135deg, #d7f5d1, #a2d57a)",
-              boxShadow: 3,
+              boxShadow: 1,
             }}
           >
-            <Box display="flex" alignItems="center" gap={1}>
-              <CheckCircleIcon color="success" />
-              <Typography fontWeight={600}>Total Effectiveness:</Typography>
-              <Typography variant="h6">{(eff * 100).toFixed(2)}%</Typography>
+            <Box display="flex" alignItems="center" gap={0.5}>
+              <CheckCircleIcon fontSize="small" color="success" />
+              <Typography fontWeight={600} variant="body2">
+                Total Effectiveness:
+              </Typography>
+              <Typography variant="body1">{(eff * 100).toFixed(2)}%</Typography>
             </Box>
             <LinearProgress
               variant="determinate"
               value={eff * 100}
-              sx={{ mt: 1, borderRadius: 1, height: 8 }}
+              sx={{ mt: 0.5, borderRadius: 1, height: 6 }}
             />
           </Card>
         </Stack>
