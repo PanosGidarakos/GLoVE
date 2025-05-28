@@ -98,8 +98,8 @@ const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperP
         onEdgesChange={onEdgesChange}
         onNodeClick={handleNodeClick}
         fitView
-        panOnDrag={false}
-        zoomOnScroll={false}
+        panOnDrag={true}
+        zoomOnScroll={true}
         defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         zoomOnPinch={false}
         proOptions={{ hideAttribution: true }}
@@ -113,7 +113,7 @@ const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperP
         <Background />
         {/* <Controls /> */}
       </ReactFlow>
-    </div>
+    </div> 
   )
 }
 

@@ -64,6 +64,7 @@ const DatasetExplorer: React.FC<DatasetExplorerProps> = ({ renderScatterPlot }) 
         title={cardTitle}
         showControlsInHeader
         details={description}
+        showFullScreenButton={false}
         controlPanel={
           <Box display="flex" alignItems="center" gap={2} width="100%">
             <ToggleButtonGroup
