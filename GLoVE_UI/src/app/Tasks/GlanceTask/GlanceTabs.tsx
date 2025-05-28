@@ -40,8 +40,8 @@ const GlanceTabs= () => {
     if (!glanceState.loadDatasetAndModelResult) {
       dispatch(fetchInitialGlanceData())
       dispatch(fetchAvailableFeatures())
-      dispatch(umapReduce({ dataset_identifier: "affectedData", n_components: 2 }))
-      dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }))
+      // dispatch(umapReduce({ dataset_identifier: "affectedData", n_components: 2 }))
+      // dispatch(umapReduce({ dataset_identifier: "testData", n_components: 2 }))
     }
   }, [dispatch])
 
@@ -55,6 +55,7 @@ const GlanceTabs= () => {
           : "testData"
 
       if (!umapCache[datasetIdentifier]) {
+        console.log("this goes", datasetIdentifier)
         dispatch(umapReduce({ dataset_identifier: datasetIdentifier, n_components: 2 })).then(
           action => {
             if (action.payload) {

@@ -38,7 +38,6 @@ interface GlanceState {
     appliedAffected?: any;
 
   };
-
   getDataResults: any | null;
   comparativeLoading: boolean; // New state for comparative process
   targetName: string | null; // Add this field
@@ -80,8 +79,8 @@ const initialState: GlanceState = {
   comparativeLoading: false,
   modelComparativeLoading: false,
   targetName: null, // Initialize it
-  selectedModel: null,
-  selectedDataset: null,
+  selectedModel: "XGBoost",
+  selectedDataset: "COMPAS Dataset",
   viewOption: "affected",
   showUMAPScatter: false,
   selectedTab: 1,
@@ -135,28 +134,20 @@ const API_BASE_URL = "http://localhost:8000/";
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
   async (_, { dispatch }) => {
-    const [resourcesResponse, cfMethodsResponse, welcomeMessageResponse, actionsStrategiesResponse, loadDatasetAndModelResponse, loadGetDataResponse] = await Promise.all([
+    const [resourcesResponse, cfMethodsResponse, actionsStrategiesResponse,loadDatasetAndModelResponse] = await Promise.all([
       axios.get(`${API_BASE_URL}available-resources/`),
       axios.get(`${API_BASE_URL}available-cf-methods/`),
-      axios.get(`${API_BASE_URL}`),
-
       axios.get(`${API_BASE_URL}available-action-strategies/`),
       axios.post(`${API_BASE_URL}load-dataset-and-model/?dataset_name=compas&model_name=xgb`)
     
-
     ]);
-      dispatch(setSelectedDataset("COMPAS Dataset"))
-    dispatch(setSelectedModel("XGBoost"))
+
 
     return {
       availableResources: resourcesResponse.data,
       availableCfMethods: cfMethodsResponse.data,
-      welcomeMessage: welcomeMessageResponse.data,
       availableActionStrategies: actionsStrategiesResponse.data,
       loadDatasetAndModelResult: loadDatasetAndModelResponse.data,
-      // getDataResults:loadGetDataResponse.data
-      // runCGlanceResult: GlanceResponse.data
-
     };
   }
 );
@@ -597,20 +588,19 @@ const glanceSlice = createSlice({
         state.initialLoading = false;
         state.availableResources = action.payload.availableResources;
         state.availableCfMethods = action.payload.availableCfMethods;
-        state.welcomeMessage = action.payload.welcomeMessage;
         state.availableActionStrategies = action.payload.availableActionStrategies;
         state.loadDatasetAndModelResult = action.payload.loadDatasetAndModelResult;
-        state.runGlanceResult = action.payload.runCGlanceResult || null;
-        state.getDataResults = action.payload.getDataResults || null;
-      })
-      .addCase(runCGlance.rejected, (state, action: PayloadAction<any, string, never, string | undefined>) => {
-        state.loading = false;
-        state.error = action.payload || "Error generating counterfactuals"; // Use specific error message if available
+        state.error = null;
       })
       .addCase(fetchInitialGlanceData.rejected, (state, action) => {
         state.initialLoading = false;
         state.error = action.error.message || "Error fetching initial data";
       })
+      .addCase(runCGlance.rejected, (state, action: PayloadAction<any, string, never, string | undefined>) => {
+        state.loading = false;
+        state.error = action.payload || "Error generating counterfactuals"; // Use specific error message if available
+      })
+      
       .addCase(runCGlance.pending, (state) => {
         state.loading = true;
         state.error = null; // Clear any previous error

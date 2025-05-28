@@ -212,6 +212,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table";
+import Loader from "../../../../shared/components/loader";
 
 const DataModelSetup: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -219,6 +220,10 @@ const DataModelSetup: React.FC = () => {
   const datasetLoading = useAppSelector((state) => state.glance.datasetLoading);
   const selectedDataset = useAppSelector((state) => state.glance.selectedDataset);
   const selectedModel = useAppSelector((state) => state.glance.selectedModel);
+
+    console.log("Selected Dataset:", selectedDataset);
+  console.log("Selected Dataset:", selectedModel);
+
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
@@ -269,25 +274,17 @@ const DataModelSetup: React.FC = () => {
     handleLoad(selectedDataset || "", newModel);
   };
 
-  // Optional: If dataset or model changes externally, automatically trigger load
-  useEffect(() => {
-    if (selectedDataset && selectedModel) {
-      handleLoad(selectedDataset, selectedModel);
-    }
-  }, []);
+  console.log("selectedDataset:", selectedDataset);
+  console.log("availableResources:", availableResources);
 
   return (
+   
     <ResponsiveCardTable
       title={"Dataset & Model Selection"}
       details={"This section allows you to select a dataset and model for analysis."}
     >
       {datasetLoading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-          <CircularProgress size={50} />
-          <Typography variant="h6" sx={{ marginLeft: 2 }}>
-            Fetching Data...
-          </Typography>
-        </Box>
+        <Loader/>
       ) : (
         <>
           <FormControl fullWidth sx={{ marginTop: 2 }}>
