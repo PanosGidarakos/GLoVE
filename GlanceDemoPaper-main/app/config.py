@@ -3,6 +3,8 @@ shared_resources = {
     "method": None,
     "train_dataset": None,
     "data": None,
+    "data_original": None,
+    "X_test_original": None,
     "X_train": None,
     "y_train": None,
     "X_test": None,
@@ -19,13 +21,6 @@ shared_resources = {
     "preprocess_pipeline": None,
     "umap_model_globece": None,
     "preprocess_pipeline_globece": None
-}
-
-shared_resources_globece = {
-    "data": None,
-    "X_test": None,
-    "affected": None,
-    "model": None,
 }
 
 

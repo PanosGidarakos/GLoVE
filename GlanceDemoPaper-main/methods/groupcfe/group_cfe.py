@@ -57,44 +57,31 @@ class Group_CF():
         m = dice_ml.Model(model=self.model, backend="sklearn")
         exp = dice_ml.Dice(d, m, method='random')
         
-        cfs_list = {}
-        no_actions = []
+        cfs_list = []
         for i,cluster in enumerate(clusters):
             cfs = generate_counterfactuals(clusters[i],1,exp,self.feat_to_vary)
-            if 'target' not in pd.concat(cfs).columns:
-                no_actions.append(i)
-            else:
-                #cfs_list.append(cfs)
-                cfs_list[i] = cfs
+            cfs_list.append(cfs)
             
         # Find key features that change the most times
         print("Finding key difference features")
-        key_difference_features_list = {}
+        key_difference_features_list = []
         direction_info_list = []
         for i in range(len(cfs_list)):
             #direction_info below if you put directions
-            if i in no_actions:
-                continue
-            else:
-                key_difference_features,change_counts = get_key_difference_features(cfs_list[i], clusters[i],'target')
-                # key_difference_features_list.append(key_difference_features)
-                key_difference_features_list[i] = key_difference_features
+            key_difference_features,change_counts = get_key_difference_features(cfs_list[i], clusters[i],'target')
+            key_difference_features_list.append(key_difference_features)
             #direction_info_list.append(direction_info)
         
         
         #Find group candidate counterfactuals from unaffected
         print("Finding candidate counterfactuals from unaffacted")
-        candidate_counterfactuals_list = {}
+        candidate_counterfactuals_list = []
         for i in  range(len(cfs_list)):
-            if i in no_actions:
-                continue
-            else:
-                counterfactuals = pd.concat(cfs_list[i])
+            counterfactuals = pd.concat(cfs_list[i])
             #direction_info = direction_info_list[i]
             key_features = key_difference_features_list[i]
             candidate_counterfactuals = generate_candidate_group_counterfactuals(self.unaffected,key_difference_features_list[i],100,clusters[i])
-            # candidate_counterfactuals_list.append(candidate_counterfactuals)
-            candidate_counterfactuals_list[i] = candidate_counterfactuals
+            candidate_counterfactuals_list.append(candidate_counterfactuals)
             
         #Select best counterfactual for each cluster from the candidate counterfactuals
         dist_func_dataframe = build_dist_func_dataframe(
@@ -107,8 +94,7 @@ class Group_CF():
         costs = []
         best_cfs = []
         print("Finding best counterfactual for each cluster")
-        # for i in range(len(candidate_counterfactuals_list)):
-        for i in candidate_counterfactuals_list.keys():
+        for i in range(len(candidate_counterfactuals_list)):
             
             best_counterfactual , best_coverage , best_cost = select_best_counterfactual(self.model, candidate_counterfactuals_list[i], clusters[i],key_difference_features_list[i],dist_func_dataframe)
             

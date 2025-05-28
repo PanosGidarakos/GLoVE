@@ -2,6 +2,7 @@ import pandas as pd
 from methods.globe_ce.datasets import dataset_loader
 import pickle
 import numpy as np
+from app.config import shared_resources
 # This file holds the logic for fetching datasets and models
 # In real usage, you would replace this with actual logic, like reading from a database
 
@@ -169,34 +170,13 @@ def one_hot(dataset,data):
         data_oh.columns = features
         return data_oh, features
 
-def create_globe_ce_data(data,X_test,target,dataset_name,model):
-    X_train = data.merge(X_test, on=X_test.columns.tolist(), how='left', indicator=True)
-    X_train = X_train[X_train['_merge'] == 'left_only'].drop(columns=['_merge'])
-
-
-    categorical_columns = data.drop(columns=[target]).select_dtypes(include=['object', 'category']).columns.tolist()
-    numerical_columns = data.select_dtypes(include=['number']).columns.tolist()
-    if data.columns[-1] != target:
-        data = data[[col for col in data.columns if col != target] + [target]]
-    dataset = dataset_loader()
-    dataset.name = dataset_name
-    dataset.continuous_features = {}
-    dataset.columns = {dataset_name: data.columns.tolist()}
-    dataset.categorical_features = {dataset_name: categorical_columns}
-    dataset.continuous_features = {}
-
-    dataset = prepare_globece_data(dataset)
-    one_hot_data, features = one_hot(dataset,data)
-    dataset.features = features
-    dataset.features.append(data.columns[-1])
-    dataset.data = pd.concat([one_hot_data, data[data.columns[-1]]], axis=1)
-
-    X_test=X_test.reindex(columns=dataset.data.columns, fill_value=0)
-    X_test = X_test.drop(columns=[target])
-    #shared_resources["X_test"] = X_test
-    X_train=X_train.reindex(columns=dataset.data.columns, fill_value=0)
-    model.fit(X_train.drop(columns=[target]),X_train[target])
+def get_data():
+    data = shared_resources.get("data").copy(deep=True)
+    X_test = shared_resources.get("X_test").copy(deep=True)
+    model = shared_resources.get("model")
     preds = model.predict(X_test)
-    affected = X_test[preds == 0].reset_index()
+    X_test['label'] = preds
+    affected = X_test[X_test.label == 0].reset_index()
+    affected = affected.drop(columns='label')
 
-    return X_train,X_test,dataset,model,affected
+    return data,X_test,affected

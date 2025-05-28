@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import logging
-from app.config import shared_resources,shared_resources_globece
+from app.config import shared_resources
 logging.basicConfig(level=logging.DEBUG)
 from methods.glance.iterative_merges.iterative_merges import C_GLANCE
 from typing import List, Optional
@@ -12,7 +12,7 @@ import redis
 import json
 from methods.globe_ce.helper_functions import find_actions,report_globece_actions
 from methods.globe_ce.ares import AReS
-from app.services.resources_service import create_globe_ce_data,load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot,round_categorical
+from app.services.resources_service import get_data,load_dataset_and_model_globece,reverse_one_hot,prepare_globece_data,one_hot,round_categorical
 import math
 from sklearn.base import clone
 from sklearn.pipeline import Pipeline
@@ -22,7 +22,7 @@ router = APIRouter()
 rd = redis.Redis(host="localhost", port=6379, db=0)
 
 @router.post("/run-globece", summary="Run GLOBE_CE")
-async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction: int =1):
+async def run_groupcfe(gcf_size: int = 3, features_to_change: int = 5, direction: int =1):
     cache_key = f"run-globece:{shared_resources['dataset_name']}:{shared_resources['model_name']}:{gcf_size}:{features_to_change}:{direction}"
     cache = rd.get(cache_key)
     if cache:
@@ -35,8 +35,8 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
         }
         for k, v in cache_res["clusters_res"].items()}
         shared_resources["affected"] = pd.DataFrame(cache_res["affected"])
-        shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
-        shared_resources["data"] = pd.DataFrame(cache_res["data"])
+        #shared_resources["X_test"] = pd.DataFrame(cache_res["X_test"])
+        #shared_resources["data"] = pd.DataFrame(cache_res["data"])
         shared_resources["affected_clusters"] = pd.DataFrame(cache_res["affected_clusters"])
         shared_resources['actions'] = pd.DataFrame(cache_res['actions'])
         shared_resources['features'] = cache_res['features']
@@ -72,8 +72,6 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
             dataset , X_test, model, normalise = load_dataset_and_model_globece(shared_resources['dataset_name'],shared_resources['model_name'])
             shared_resources["data"] = dataset.data
             shared_resources["X_test"] = X_test
-            shared_resources_globece["data"] = dataset.data
-            shared_resources_globece["X_test"] = X_test
             if shared_resources['dataset_name'] == 'default_credit':
                 target_name = 'Status'
             else:
@@ -81,22 +79,46 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
         else:
             from methods.globe_ce.datasets import dataset_loader
             data = shared_resources["data"]
-            model = shared_resources["model"] 
+            model = shared_resources["model"]
             target_name = shared_resources.get("target_name")
             if isinstance(model, Pipeline):
                 model = clone(model.named_steps['classifier'])
             else:
                 model = clone(model)
-            if 'label' in shared_resources["X_test"].columns.tolist():
-                X_test = shared_resources["X_test"].drop(columns=['label']).copy(deep=True)
-            else: 
-                X_test = shared_resources["X_test"].copy(deep=True)
 
-            X_train,X_test,dataset,model,affected = create_globe_ce_data(data,X_test,target_name,shared_resources["dataset_name"],model)
-            shared_resources_globece["affected"] = affected
-            shared_resources_globece['X_test'] = X_test
-            shared_resources_globece['data'] = dataset.data
-            shared_resources_globece['model'] = model
+            data,X_test,_ = get_data()
+            X_test = shared_resources["X_test"].drop(columns=['label'])
+
+            X_train = data.merge(X_test, on=X_test.columns.tolist(), how='left', indicator=True)
+            X_train = X_train[X_train['_merge'] == 'left_only'].drop(columns=['_merge'])
+
+
+            categorical_columns = data.drop(columns=[shared_resources["target_name"]]).select_dtypes(include=['object', 'category']).columns.tolist()
+            numerical_columns = data.select_dtypes(include=['number']).columns.tolist()
+            if data.columns[-1] != shared_resources["target_name"]:
+                data = data[[col for col in data.columns if col != shared_resources["target_name"]] + [shared_resources["target_name"]]]
+            dataset = dataset_loader()
+            dataset.name = shared_resources["dataset_name"]
+            dataset.continuous_features = {}
+            dataset.columns = {shared_resources["dataset_name"]: data.columns.tolist()}
+            dataset.categorical_features = {shared_resources["dataset_name"]: categorical_columns}
+            dataset.continuous_features = {}
+
+            dataset = prepare_globece_data(dataset)
+            one_hot_data, features = one_hot(dataset,data)
+            dataset.features = features
+            dataset.features.append(data.columns[-1])
+            dataset.data = pd.concat([one_hot_data, data[data.columns[-1]]], axis=1)
+            #shared_resources["data"] = dataset.data
+
+            X_test=X_test.reindex(columns=dataset.data.columns, fill_value=0)
+            X_test = X_test.drop(columns=[target_name])
+            #shared_resources["X_test"] = X_test
+            X_train=X_train.reindex(columns=dataset.data.columns, fill_value=0)
+            model.fit(X_train.drop(columns=[target_name]),X_train[target_name])
+            # preds = model.predict(X_test)
+            # affected = X_test[preds == 0].reset_index()
+            # shared_resources["affected"] = affected
             normalise = None
 
 
@@ -121,7 +143,7 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
             
             x_aff = globe_ce.x_aff
             affected = pd.DataFrame(x_aff,columns=globe_ce.feature_values)
-            shared_resources_globece['affected'] = affected
+            shared_resources['affected'] = affected
             delta = globe_ce.best_delta
             if direction > 1:
                 globe_ce.select_n_deltas(n_div=direction)
@@ -267,10 +289,10 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
                 cache_ret = {
                     "method" : 'globece',
                     "actions_ret": actions_returned,
-                    "data": shared_resources["data"].to_dict(orient='records'),
-                    "X_test": shared_resources["X_test"].to_dict(orient='records'),
+                    "data": dataset.data.to_dict(orient='records'),
+                    "X_test": X_test.to_dict(orient='records'),
                     "clusters_res": serialized_clusters_res,
-                    "affected": shared_resources["affected"].to_dict(orient='records'),
+                    "affected": affected.to_dict(orient='records'),
                     "TotalEffectiveness": round(corrects_bound[-1]/100,2),
                     "TotalCost": round(costs_bound[-1],2),
                     "affected_clusters": affected_clusters.to_dict(orient='records'),
@@ -293,6 +315,7 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
                 print(f"Total Effectiveness : {effectiveness}")
                 print(f"Average cost : {costs_bound[-1]}")
                 print(f"Total Effectiveness : {corrects_bound[-1]}")
+                print(actions)
                 #all actions
                 # actions = find_actions(scalars,delta)
                 # actions = pd.DataFrame(actions,columns=globe_ce.feature_values)
@@ -301,6 +324,7 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
                 processed_actions =  reverse_one_hot(pd.DataFrame(round_categorical(actions.drop(columns=['idx','mean_cost','sum_flipped']).values,np.array(list(globe_ce.features_tree)),globe_ce.features_tree),columns=globe_ce.feature_values)[actions.loc[:, (actions != 0.0).any(axis=0)].drop(columns=['idx','mean_cost','sum_flipped']).columns.tolist()])
 
                 flipped_idxs = idxs[~np.isnan(idxs)]
+                print(actions)
                 counterfactual_dict = {
                     i + 1: {
                         "action": action,
@@ -363,7 +387,6 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
                 y = affected_clusters[affected_clusters.action_idxs =='-']
                 y['Chosen_Action'] = '-'
                 x = pd.concat([x,y])
-                print(x.Chosen_Action.value_counts())
                 
                 # eff_cost_plot = {}
                 # for i in x["Chosen_Action"].tolist():
@@ -386,10 +409,10 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
                 cache_ret = {
                     "method" : 'globece',
                     "actions_ret": actions_returned,
-                    "data": shared_resources["data"].to_dict(orient='records'),
+                    "data": dataset.data.to_dict(orient='records'),
                     "clusters_res": serialized_clusters_res,
-                    "affected": shared_resources["affected"].to_dict(orient='records'),
-                    "X_test": shared_resources["X_test"].to_dict(orient='records'),
+                    "affected": affected.to_dict(orient='records'),
+                    "X_test": X_test.to_dict(orient='records'),
                     "TotalEffectiveness": round(corrects_bound[-1]/100,2),
                     "TotalCost": round(costs_bound[-1],2),
                     "affected_clusters": x.to_dict(orient='records'),
@@ -409,13 +432,7 @@ async def run_globece(gcf_size: int = 3, features_to_change: int = 5, direction:
         except UserConfigValidationException as e:
             raise HTTPException(status_code=400, detail=str(e))
         except KeyError as e:  # Catch KeyError specifically
-            if "not found in axis" in str(e):
-                raise HTTPException(status_code=400, detail=f"Cannot generate actions. Please choose different parameter configuration.")
-            else:
-                raise HTTPException(status_code=400, detail=f"KeyError: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"KeyError: {str(e)}")
         except Exception as e:  # Catch any other unexpected errors
-            if str(e) == "Cannot take a larger sample than population when 'replace=False'":
-                raise HTTPException(status_code=400, detail="Choose valid number of features to change")
-            else:
-                raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
             
