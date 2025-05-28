@@ -9,6 +9,8 @@ import ReactFlow, {
   Position,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { useAppDispatch, useAppSelector } from '../../../store/store';
+import { setActiveStep, setSelectedTab } from '../../../store/slices/glanceSlice';
 
 const initialNodesData = [
   {
@@ -59,28 +61,27 @@ const initialEdges: Edge[] = [
   { id: 'e3-4', source: '3', target: '4', animated: true },
 ]
 
-interface FlowStepperProps {
-  setSelectedTab: (index: any) => void;
-  setActiveStep: (step: number) => void;
-  activeStep: number;
-}
 
-const FlowStepper = ({ setSelectedTab, setActiveStep, activeStep }: FlowStepperProps) => {
+const FlowStepper = () => {
+  const dispatch = useAppDispatch()
+  const glanceState = useAppSelector((state) => state.glance);
+
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    createNodes(activeStep),
+    createNodes(glanceState.activeStep),
   )
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges)
 
   const handleNodeClick = (_: any, node: Node) => {
     const stepIndex = parseInt(node.id, 10) - 1
-    setSelectedTab(stepIndex)
-    setActiveStep(stepIndex)
+    dispatch(setActiveStep(stepIndex))
+    dispatch(setSelectedTab(stepIndex))
+
   }
 
   // Update node styles when activeStep changes
   useEffect(() => {
-    setNodes(createNodes(activeStep))
-  }, [activeStep, setNodes])
+    setNodes(createNodes(glanceState.activeStep))
+  }, [glanceState.activeStep, setNodes])
 
   return (
     <div

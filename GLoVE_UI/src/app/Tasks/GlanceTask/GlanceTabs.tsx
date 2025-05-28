@@ -1,4 +1,3 @@
-import type React from "react"
 import {
   useEffect,
   useState,
@@ -25,17 +24,12 @@ import ScatterPlotComponentForMainPage from "./ExploreDataset/ScatterComponentFo
 import Loader from "../../../shared/components/loader"
 import UmapToggle from "../../../shared/components/umapToggle"
 
-interface GlanceTabsProps {
-  selectedTab: number
-  setSelectedTab: (tab: number) => void
-  setActiveStep: (step: number) => void
-}
+import { setActiveStep, setSelectedTab } from '../../../store/slices/glanceSlice';
 
-const GlanceTabs: React.FC<GlanceTabsProps> = ({
-  selectedTab,
-  setSelectedTab,
-  setActiveStep,
-}) => {
+
+const GlanceTabs= () => {
+  
+
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
   const [showUMAPScatter, setShowUMAPScatter] = useState(true)
@@ -78,8 +72,10 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
   useEffect(() => {
     if (glanceState.loadDatasetAndModelResult) {
       setUmapCache({})
-      setSelectedTab(1)
-      setActiveStep(1)
+    dispatch(setSelectedTab(1))
+    dispatch(setActiveStep(1))
+
+      // setActiveStep(1)
     }
   }, [glanceState.loadDatasetAndModelResult])
 
@@ -163,17 +159,17 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
 
   return (
     <Box sx={{ padding: 2 }}>
-      {selectedTab === 0 && (
+      {glanceState.selectedTab === 0 && (
         <DataModelSetup/>
       )}
 
-      {selectedTab === 1 && (
+      {glanceState.selectedTab === 1 && (
         <DatasetExplorer renderScatterPlot={renderScatterPlot()
         }         
         />
       )}
 
-      {selectedTab === 2 && (
+      {glanceState.selectedTab === 2 && (
         <>
           {glanceState.datasetLoading ? (
             <Loader />
@@ -196,7 +192,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         </>
       )}
 
-      {selectedTab === 3 && <CompareMethods />}
+      {glanceState.selectedTab === 3 && <CompareMethods />}
     </Box>
   )
 }

@@ -47,6 +47,8 @@ interface GlanceState {
   selectedDataset: string | null;
   viewOption: string;
   showUMAPScatter: boolean;
+  selectedTab: number;
+  activeStep: number;
 
 
 
@@ -81,7 +83,9 @@ const initialState: GlanceState = {
   selectedModel: null,
   selectedDataset: null,
   viewOption: "affected",
-  showUMAPScatter: false
+  showUMAPScatter: false,
+  selectedTab: 1,
+  activeStep: 1,
 };
 
 interface AvailableResources {
@@ -576,6 +580,13 @@ const glanceSlice = createSlice({
     setShowUMAPScatter(state, action: PayloadAction<boolean>) {
       state.showUMAPScatter = action.payload;
     },
+    setSelectedTab(state, action: PayloadAction<number>) {
+      state.selectedTab = action.payload;
+    },
+    setActiveStep(state, action: PayloadAction<number>) {
+      state.activeStep = action.payload;
+    },
+
   },
   extraReducers: (builder) => {
     builder
@@ -759,7 +770,7 @@ const glanceSlice = createSlice({
       });
   },
 });
-export const { setSelectedFeatures, setSelectedDataset, setSelectedModel,setViewOption,setShowUMAPScatter } = glanceSlice.actions
+export const { setSelectedFeatures, setSelectedDataset, setSelectedModel,setViewOption,setShowUMAPScatter,setActiveStep,setSelectedTab} = glanceSlice.actions
 export default glanceSlice.reducer;
 
 

@@ -1,5 +1,4 @@
 import type React from "react";
-import { useState } from "react"
 import { Box, Typography } from "@mui/material"
 import { ReactFlowProvider } from "reactflow"
 import FlowStepper from "./FlowStepper"
@@ -18,8 +17,6 @@ const styles = {
 }
 
 const GlanceLayout: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState(0)
-  const [activeStep, setActiveStep] = useState(0)
 
   return (
     <Box
@@ -48,9 +45,7 @@ const GlanceLayout: React.FC = () => {
 
         <ReactFlowProvider>
           <FlowStepper
-            setSelectedTab={setSelectedTab}
-            setActiveStep={setActiveStep}
-            activeStep={activeStep}
+           
           />
         </ReactFlowProvider>
       </Box>
@@ -64,9 +59,6 @@ const GlanceLayout: React.FC = () => {
         }}
       >
         <GlanceTabs
-          selectedTab={selectedTab}
-          setSelectedTab={setSelectedTab}
-          setActiveStep={setActiveStep}
         />
       </Box>
     </Box>
