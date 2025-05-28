@@ -45,6 +45,8 @@ interface ResponsiveCardTableProps {
   noPadding?: boolean
   details?: string | null
   showControlsInHeader?: boolean
+  showOptions?: boolean // Add a prop to control showOptions && (
+
 }
 
 export const SectionHeader = ({
@@ -110,6 +112,7 @@ const ResponsiveCardTable: React.FC<ResponsiveCardTableProps> = ({
   noPadding = false,
   details = null,
   showControlsInHeader = false,
+  showOptions = true,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
@@ -228,7 +231,7 @@ const ResponsiveCardTable: React.FC<ResponsiveCardTableProps> = ({
                   )}
                 </Box>
               )}
-              {(!shouldShowControlsInHeader || additionalMenuItems) && (
+              {(!shouldShowControlsInHeader || additionalMenuItems) && showOptions && (
                 <>
                   <IconButton
                     aria-label="settings"

@@ -47,6 +47,8 @@ const MetricSummary: React.FC<MetricSummaryProps> = ({
 
   return (
     <ResponsiveCardTable
+    showFullScreenButton={false}
+    showOptions={false}
       title={"Metric Summary"}
       details={
         "Total Effectiveness: is the percentage of individuals that achieve the favorable outcome, if each one of the final actions is applied to the whole affected population. Total Cost: is calculated as the mean recourse cost of the whole set of final actions over the entire population."

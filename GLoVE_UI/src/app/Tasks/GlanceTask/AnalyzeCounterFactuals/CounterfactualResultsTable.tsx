@@ -20,7 +20,7 @@ const CounterfactualResultsTable: React.FC<Props> = ({
   getSuffix,
 }) => {
   return (
-    <ResponsiveCardTable  title={"Counterfactual Analysis Results"}>
+    <ResponsiveCardTable  title={"Counterfactual Analysis Results"} showOptions={false} showFullScreenButton={false}>
       <TableContainer component={Paper}>
         <Table>
           <TableHead>

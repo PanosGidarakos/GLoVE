@@ -25,6 +25,7 @@ import {
 import CounterfactualResultsTable from "./CounterfactualResultsTable"
 import AnalysisErrorsTable from "./AnalysisErrorsTable"
 import Loader from "../../../../shared/components/loader"
+import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
 
 interface CGlanceExecutionProps {
   availableCfMethods: string[]
@@ -200,7 +201,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   }, [algorithm])
 
   return (
-    <WorkflowCard title="Counterfactual Analysis Configuration" description="">
+    <ResponsiveCardTable title="Counterfactual Analysis Configuration" details={"Configure the parameters for the Counterfactual Analysis."} showFullScreenButton={false}showOptions={false} >
       <Box marginTop={2}>
         <Box
           display="flex"
@@ -585,7 +586,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           )}
         </Box>
       </Box>
-    </WorkflowCard>
+    </ResponsiveCardTable>
   )
 }
 

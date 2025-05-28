@@ -75,6 +75,7 @@ const StaticCharts = ({ scatterPlotSpec, chart1, chart2, executionMode }) => {
               maxWidth={500}
               maxHeight={500}
               aspectRatio={1}
+              showOptions={false}
             />
           </Grid>
         ))}

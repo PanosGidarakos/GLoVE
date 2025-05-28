@@ -46,6 +46,7 @@ interface ResponsiveCardVegaLiteProps {
   isStatic?: boolean // If true, means the chart will be inside a static panel
   details?: string | null
   loading?: boolean // ✅ Add this
+  showOptions?: boolean
 }
 const SectionHeader = ({
   icon,
@@ -108,6 +109,7 @@ const ResponsiveCardVegaLite: React.FC<ResponsiveCardVegaLiteProps> = ({
   isStatic = true,
   details = null,
   loading = false,
+  showOptions = true,
 
   ...otherProps
 }) => {
@@ -273,6 +275,10 @@ const ResponsiveCardVegaLite: React.FC<ResponsiveCardVegaLiteProps> = ({
         <CardHeader
           action={
             <>
+             {showOptions && (
+              <>
+               
+
               <IconButton
                 aria-label="settings"
                 onClick={handleMenuClick}
@@ -360,6 +366,8 @@ const ResponsiveCardVegaLite: React.FC<ResponsiveCardVegaLiteProps> = ({
                   </MenuItem>
                 </Box>
               </Menu>
+              </>
+             )}
               <Tooltip title="Fullscreen">
                 <IconButton
                   aria-label="fullscreen"
@@ -375,6 +383,8 @@ const ResponsiveCardVegaLite: React.FC<ResponsiveCardVegaLiteProps> = ({
                   <FullscreenIcon />
                 </IconButton>
               </Tooltip>
+            
+              
             </>
           }
           title={
@@ -411,6 +421,7 @@ const ResponsiveCardVegaLite: React.FC<ResponsiveCardVegaLiteProps> = ({
             flexShrink: 0, // Prevent header from shrinking
           }}
         />
+
         <CardContent
           sx={{
             backgroundColor: '#ffffff',
