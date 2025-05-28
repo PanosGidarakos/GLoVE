@@ -55,28 +55,49 @@ async def run_groupcfe(gcf_size: int, features_to_change: Optional[List[str]] = 
         from methods.groupcfe.group_cfe import Group_CF
         print(f"Cache key {cache_key} does not exist - Running GroupCFE Algorithm")    
         if shared_resources["method"] == 'globece' and shared_resources.get("dataset_name") in ['compas', 'default_credit', 'german_credit', 'heloc']:
-                    train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
-                    affected = X_test[X_test.label == 0].reset_index()
-                    affected = affected.drop(columns='label')
-                    logging.debug("Model loaded successfully.")
+            train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
+            affected = X_test[X_test.label == 0].reset_index()
+            affected = affected.drop(columns='label')
+            logging.debug("Model loaded successfully.")
 
-                    # shared_resources['dataset_name'] = dataset_name
-                    # shared_resources['model_name'] = model_name
-                    shared_resources["train_dataset"] = train_dataset
-                    shared_resources["data"] = data
-                    shared_resources["X_train"] = X_train
-                    shared_resources["y_train"] = y_train
-                    shared_resources["X_test"] = X_test
-                    shared_resources["y_test"] = y_test
-                    shared_resources["affected"] = affected
-                    shared_resources["_unaffected"] = _unaffected
-                    shared_resources["model"] = model
-                    shared_resources["feat_to_vary"] = feat_to_vary
-                    shared_resources["target_name"] = target_name
-                    shared_resources["umap_model"] = None
-                    shared_resources["preprocess_pipeline"] = None
-                    shared_resources["method"] = 'groupcfe'
-        
+            # shared_resources['dataset_name'] = dataset_name
+            # shared_resources['model_name'] = model_name
+            shared_resources["train_dataset"] = train_dataset
+            shared_resources["data"] = data
+            shared_resources["X_train"] = X_train
+            shared_resources["y_train"] = y_train
+            shared_resources["X_test"] = X_test
+            shared_resources["y_test"] = y_test
+            shared_resources["affected"] = affected
+            shared_resources["_unaffected"] = _unaffected
+            shared_resources["model"] = model
+            shared_resources["feat_to_vary"] = feat_to_vary
+            shared_resources["target_name"] = target_name
+            shared_resources["umap_model"] = None
+            shared_resources["preprocess_pipeline"] = None
+            shared_resources["method"] = 'groupcfe'
+        elif shared_resources.get("dataset_name") in ['adult', 'bank_marketing', 'compas', 'default_credit', 'german_credit', 'heloc']:
+            train_dataset, data, X_train, y_train, X_test, y_test, _, _unaffected, model, feat_to_vary, target_name,num_features,cate_features = load_dataset_and_model(shared_resources['dataset_name'], shared_resources['model_name'])
+            affected = X_test[X_test.label == 0].reset_index()
+            affected = affected.drop(columns='label')
+            logging.debug("Model loaded successfully.")
+
+            # shared_resources['dataset_name'] = dataset_name
+            # shared_resources['model_name'] = model_name
+            shared_resources["train_dataset"] = train_dataset
+            shared_resources["data"] = data
+            shared_resources["X_train"] = X_train
+            shared_resources["y_train"] = y_train
+            shared_resources["X_test"] = X_test
+            shared_resources["y_test"] = y_test
+            shared_resources["affected"] = affected
+            shared_resources["_unaffected"] = _unaffected
+            shared_resources["model"] = model
+            shared_resources["feat_to_vary"] = feat_to_vary
+            shared_resources["target_name"] = target_name
+            shared_resources["umap_model"] = None
+            shared_resources["preprocess_pipeline"] = None
+            shared_resources["method"] = 'groupcfe'
         else:
             shared_resources["method"] = 'groupcfe'    
             data,X_test,affected = get_data()
