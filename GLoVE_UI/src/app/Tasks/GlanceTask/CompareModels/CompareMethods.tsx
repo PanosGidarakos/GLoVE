@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   OutlinedInput,
@@ -98,49 +99,55 @@ const CompareMethods = () => {
     : []
 
   return (
-    <Box sx={{ height: "600px" }}>
-      <ResponsiveCardTable
-        title={"Compare Methods Analysis"}
-        details={
-          "Visualize the performance of the algorithm for different parameter configurations."
-        }
-        controlPanel={
-          <Box
-            display="flex"
-            alignItems="center"
-            gap={1}
-            marginBottom={2}
-            marginTop={2}
-            flexWrap="wrap"
-            padding={2}
-          >
-            {/* Algorithm Selection Dropdown (Multiple) */}
-            <FormControl fullWidth sx={{ flex: 1, minWidth: "220px" }}>
-              <InputLabel id="Algorithm Selection">
-                Algorithm Selection
-              </InputLabel>
+  <ResponsiveCardTable
+    title={"Compare Methods Analysis"}
+    details={
+      "Visualize the performance of the algorithm for different parameter configurations."
+    }
+    controlPanel={
+      <Box sx={{ flexGrow: 1, padding: 2 }}>
+        <Grid container spacing={2}>
+          {/* Full width form controls */}
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="Algorithm Selection">Algorithm Selection</InputLabel>
               <Select
                 labelId="Algorithm Selection"
                 multiple
                 value={algorithms}
                 onChange={handleChange}
                 input={<OutlinedInput label="Algorithm Selection" />}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 250,
+                      maxWidth: 300,
+                    },
+                  },
+                }}
               >
                 <MenuItem value="run-c_glance">GLANCE</MenuItem>
                 <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
                 <MenuItem value="run-globece">GLOBE-CE</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth sx={{ flex: 1, minWidth: "100px" }}>
-              <InputLabel id="Counterfactial Size">
-                Counterfactial Size
-              </InputLabel>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <FormControl fullWidth>
+              <InputLabel id="Counterfactial Size">Counterfactial Size</InputLabel>
               <Select
                 labelId="Counterfactial Size"
-                // multiple
                 value={gcfSize}
                 onChange={e => setGcfSize(e.target.value as number)}
                 input={<OutlinedInput label="GCF Size Selection" />}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 200,
+                      maxWidth: 300,
+                    },
+                  },
+                }}
               >
                 {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
                   <MenuItem key={value} value={value}>
@@ -149,50 +156,56 @@ const CompareMethods = () => {
                 ))}
               </Select>
             </FormControl>
-            <Button variant="contained" color="primary" onClick={handleRun}>
+          </Grid>
+
+          {/* Run Button, always full width and below */}
+          <Grid item xs={12}>
+            <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
               Run Analysis
             </Button>
-          </Box>
+          </Grid>
+        </Grid>
+      </Box>
+    }
+  >
+    {loading ? (
+      <Loader />
+    ) : errorMessage ? (
+      <InfoMessage
+        message="One or more algorithms failed to run."
+        type="error"
+        icon={
+          <ReportProblemRoundedIcon
+            sx={{ fontSize: 40, color: "error.main" }}
+          />
         }
-      >
-        {loading ? (
-          <Loader />
-        ) : errorMessage ? (
-          <InfoMessage
-            message="One or more algorithms failed to run."
-            type="error"
-            icon={
-              <ReportProblemRoundedIcon
-                sx={{ fontSize: 40, color: "error.main" }}
-              />
-            }
-            fullHeight
+        fullHeight
+      />
+    ) : allData.length === 0 ? (
+      <InfoMessage
+        message="Please select algorithm(s) and run the analysis to see results."
+        type="info"
+        icon={
+          <ReportProblemRoundedIcon
+            sx={{ fontSize: 40, color: "info.main" }}
           />
-        ) : allData.length === 0 ? (
-          <InfoMessage
-            message="Please select algorithm(s) and run the analysis to see results."
-            type="info"
-            icon={
-              <ReportProblemRoundedIcon
-                sx={{ fontSize: 40, color: "info.main" }}
-              />
-            }
-            fullHeight
-          />
-        ) : (
-          <ResponsiveVegaLite
-            title="Effectiveness vs. Cost"
-            details={"todo"}
-            spec={getCompareMethodsChartSpec(allData)}
-            actions={false}
-            minWidth={100}
-            minHeight={100}
-            maxWidth={1000}
-            maxHeight={500}
-          />
-        )}
-      </ResponsiveCardTable>
-    </Box>
+        }
+        fullHeight
+      />
+    ) : (
+      <ResponsiveVegaLite
+        title="Effectiveness vs. Cost"
+        details={"todo"}
+        spec={getCompareMethodsChartSpec(allData)}
+        actions={false}
+        minWidth={100}
+        minHeight={100}
+        maxWidth={1000}
+        maxHeight={500}
+      />
+    )}
+  </ResponsiveCardTable>
+
   )
 }
 

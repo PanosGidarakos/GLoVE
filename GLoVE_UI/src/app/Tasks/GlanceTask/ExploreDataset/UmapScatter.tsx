@@ -51,7 +51,7 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) 
       details={"Todo"}
       controlPanel={controlPanel}
       infoMessage={<Loader/>}
-      showInfoMessage={glanceState.umapLoader || !data}
+      showInfoMessage={glanceState.umapLoader }
       
     />
   )

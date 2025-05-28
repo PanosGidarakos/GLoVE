@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import type { VisualizationSpec } from "react-vega"
-import { FormControl, InputLabel, Select, MenuItem } from "@mui/material"
+import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 interface ScatterPlotComponentForMainPageProps {
   data: any[]
@@ -93,12 +93,11 @@ const ScatterPlotComponentForMainPage = ({
       maxWidth={2000}
       aspectRatio={2 / 1}
       controlPanel={
-        <>
-          <FormControl
-            variant="outlined"
-            style={{ minWidth: 200, marginRight: "20px" }}
-          >
-            {" "}
+         <Box sx={{ flexGrow: 1, padding: 2 }}>
+      <Grid container spacing={2}>
+        {/* X-Axis Field */}
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth variant="outlined">
             <InputLabel>X-Axis</InputLabel>
             <Select
               value={xField}
@@ -120,13 +119,11 @@ const ScatterPlotComponentForMainPage = ({
               ))}
             </Select>
           </FormControl>
+        </Grid>
 
-          {/* Selection box for Y-Axis */}
-          <FormControl
-            variant="outlined"
-            style={{ minWidth: 200, marginRight: "20px" }}
-          >
-            {" "}
+        {/* Y-Axis Field */}
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth variant="outlined">
             <InputLabel>Y-Axis</InputLabel>
             <Select
               value={yField}
@@ -148,8 +145,16 @@ const ScatterPlotComponentForMainPage = ({
               ))}
             </Select>
           </FormControl>
-          {controlPanel}
-        </>
+        </Grid>
+
+        {/* Additional Controls (like buttons, extra filters) */}
+        {controlPanel && (
+          <Grid item xs={12}>
+            {controlPanel}
+          </Grid>
+        )}
+      </Grid>
+    </Box>
       }
       isStatic={false}
     />

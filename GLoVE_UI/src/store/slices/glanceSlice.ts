@@ -585,6 +585,8 @@ const glanceSlice = createSlice({
     builder
       .addCase(fetchInitialGlanceData.pending, (state) => {
         state.initialLoading = true;
+
+
       })
       .addCase(fetchInitialGlanceData.fulfilled, (state, action: PayloadAction<any>) => {
         state.initialLoading = false;
@@ -610,9 +612,11 @@ const glanceSlice = createSlice({
       })
       .addCase(loadDatasetAndModel.pending, (state) => {
         state.datasetLoading = true;
+        state.umapLoader = true;
       })
       .addCase(loadDatasetAndModel.fulfilled, (state, action: PayloadAction<any>) => {
         state.datasetLoading = false;
+        state.umapLoader = true;
         state.loadDatasetAndModelResult = action.payload;
         state.runGlanceResult = null;
         state.comparativeResults = {};
