@@ -45,7 +45,7 @@ interface GlanceState {
   modelComparativeLoading: any;
    selectedModel: string | null;
   selectedDataset: string | null;
-  viewOption: "test" | "affected";
+  viewOption: string;
   showUMAPScatter: boolean;
 
 
@@ -80,7 +80,7 @@ const initialState: GlanceState = {
   targetName: null, // Initialize it
   selectedModel: null,
   selectedDataset: null,
-  viewOption: "test",
+  viewOption: "affected",
   showUMAPScatter: false
 };
 
@@ -570,7 +570,7 @@ const glanceSlice = createSlice({
     setSelectedDataset: (state, action: PayloadAction<string>) => {
       state.selectedDataset = action.payload;
     },
-    setViewOption(state, action: PayloadAction<"test" | "affected">) {
+    setViewOption(state, action: PayloadAction<string>) {
       state.viewOption = action.payload;
     },
     setShowUMAPScatter(state, action: PayloadAction<boolean>) {

@@ -38,7 +38,6 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
 }) => {
   const dispatch = useAppDispatch()
   const glanceState = useAppSelector(state => state.glance)
-  const [viewOption, setViewOption] = useState<"data" | "affected" | "test">("affected")
   const [showUMAPScatter, setShowUMAPScatter] = useState(true)
   const [umapCache, setUmapCache] = useState<{ [key: string]: any }>({})
   
@@ -53,11 +52,11 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
   }, [dispatch])
 
   useEffect(() => {
-    if (viewOption && showUMAPScatter) {
+    if (glanceState.viewOption && showUMAPScatter) {
       const datasetIdentifier =
-        viewOption === "data"
+       glanceState.viewOption === "data"
           ? "rawData"
-          : viewOption === "affected"
+          : glanceState.viewOption === "affected"
           ? "affectedData"
           : "testData"
 
@@ -74,7 +73,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
         )
       }
     }
-  }, [viewOption, showUMAPScatter, dispatch, umapCache])
+  }, [glanceState.viewOption, showUMAPScatter, dispatch, umapCache])
 
   useEffect(() => {
     if (glanceState.loadDatasetAndModelResult) {
@@ -85,7 +84,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
   }, [glanceState.loadDatasetAndModelResult])
 
   const renderScatterPlot = () => {
-    if (!showUMAPScatter && viewOption === "affected") {
+    if (!showUMAPScatter && glanceState.viewOption === "affected") {
       return (
         <ScatterPlotComponentForMainPage
           data={glanceState.loadDatasetAndModelResult.affected}
@@ -100,7 +99,7 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
       )
     }
 
-    if (!showUMAPScatter && viewOption === "test") {
+    if (!showUMAPScatter && glanceState.viewOption === "test") {
       return (
         <ScatterPlotComponentForMainPage
           data={glanceState.loadDatasetAndModelResult.X_test}
@@ -116,9 +115,9 @@ const GlanceTabs: React.FC<GlanceTabsProps> = ({
     }
 
     const datasetKey =
-      viewOption === "data"
+      glanceState.viewOption === "data"
         ? "rawData"
-        : viewOption === "affected"
+        : glanceState.viewOption === "affected"
         ? "affectedData"
         : "testData"
 
