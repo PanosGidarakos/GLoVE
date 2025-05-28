@@ -202,15 +202,14 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   return (
     <ResponsiveCardTable title="Counterfactual Analysis Configuration" details={"Configure the parameters for the Counterfactual Analysis."} showFullScreenButton={false}showOptions={false} >
-      <Box marginTop={2}>
+      <Box >
         <Box
           display="flex"
           alignItems="center"
           gap={1}
-          marginBottom={2}
-          marginTop={2}
+          
           flexWrap="wrap"
-          padding={2}
+          padding={1}
         >
           {/* Execution Mode Dropdown */}
           {/*algo*/}
@@ -495,7 +494,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           </Box>
         </Box>
 
-        <Box marginTop={4}>
+        <Box >
           {comparativeLoading ? (
             <Loader />
           ) : (
@@ -511,7 +510,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
               {/* Render Valid Results */}
               {validResults.length > 0 && (
-                <Box sx={{ marginTop: 5, padding: 2 }}>
+                <Box sx={{  padding: 2 }}>
                   <CounterfactualResultsTable
                     validResults={validResults}
                     executionMode={executionMode}
@@ -520,8 +519,8 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                     getSuffix={getSuffix}
                   />
                   {selectedDetails && (
-                    <>
-                      <Box marginTop={4} padding={2}>
+                  
+                      <Box padding={2}>
                         <MetricSummary
                           cost={selectedDetails.TotalCost}
                           eff={selectedDetails.TotalEffectiveness}
@@ -557,7 +556,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             />
                           </Box>
                         ) : (
-                          <Box sx={{ padding: 2, marginTop: 8 }}>
+                          <Box sx={{ padding: 2 }}>
                             <UmapGlanceComponent
                               applied_aff_data={
                                 selectedDetails.umapOfAppliedAffected.data
@@ -568,7 +567,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                           </Box>
                         )}
                       </Box>
-                    </>
+                    
                   )}
 
                   {/* Render Plots */}
