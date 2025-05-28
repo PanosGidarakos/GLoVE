@@ -30,7 +30,7 @@ const initialNodesData = [
   {
     id: '4',
     type: 'output',
-    label: 'Compare Models',
+    label: 'Compare Methods',
     x: 750,
   },
 ]

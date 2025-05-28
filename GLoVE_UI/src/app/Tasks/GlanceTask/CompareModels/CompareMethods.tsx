@@ -100,7 +100,7 @@ const CompareMethods = () => {
   return (
     <Box sx={{ height: "600px" }}>
       <ResponsiveCardTable
-        title={"Compare Model Analysis"}
+        title={"Compare Methods Analysis"}
         details={
           "Visualize the performance of the algorithm for different parameter configurations."
         }
