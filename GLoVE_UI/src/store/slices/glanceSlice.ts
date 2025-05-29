@@ -131,15 +131,17 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-const API_BASE_URL = "http://localhost:8000/";
+const API_BASE_URL = "/api/";
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
   async (_, { dispatch }) => {
-    const [resourcesResponse, cfMethodsResponse, actionsStrategiesResponse,loadDatasetAndModelResponse] = await Promise.all([
+    const [resourcesResponse, cfMethodsResponse,loadDatasetAndModelResponse] = await Promise.all([
+
       axios.get(`${API_BASE_URL}available-resources/`),
       axios.get(`${API_BASE_URL}available-cf-methods/`),
-      axios.get(`${API_BASE_URL}available-action-strategies/`),
+      // axios.get(`${API_BASE_URL}available-action-strategies/`),
+
       axios.post(`${API_BASE_URL}load-dataset-and-model/?dataset_name=compas&model_name=xgb`)
     
     ]);
@@ -148,7 +150,7 @@ export const fetchInitialGlanceData = createAsyncThunk(
     return {
       availableResources: resourcesResponse.data,
       availableCfMethods: cfMethodsResponse.data,
-      availableActionStrategies: actionsStrategiesResponse.data,
+      availableActionStrategies: ["Max Effectiveness","Min Cost","Mean Action"],
       loadDatasetAndModelResult: loadDatasetAndModelResponse.data,
     };
   }
