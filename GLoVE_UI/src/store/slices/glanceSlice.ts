@@ -49,6 +49,7 @@ interface GlanceState {
   selectedTab: number;
   activeStep: number;
   umapLoader: boolean;
+  showUMAPInTab1: boolean
 
 
 
@@ -86,7 +87,8 @@ const initialState: GlanceState = {
   showUMAPScatter: false,
   selectedTab: 1,
   activeStep: 1,
-  umapLoader: true
+  umapLoader: true,
+  showUMAPInTab1: true
 };
 
 interface AvailableResources {
@@ -576,6 +578,11 @@ const glanceSlice = createSlice({
       if (!state.availableResources.datasets.includes(action.payload)) {
       state.availableResources.datasets.push(action.payload);
     }
+   
+    },
+     setShowUMAPInTab1(state, action: PayloadAction<boolean>) {
+      state.showUMAPInTab1 = action.payload;
+      
     },
     setViewOption(state, action: PayloadAction<string>) {
       state.viewOption = action.payload;
@@ -783,7 +790,7 @@ if (state.targetName && state.targetName.length > 0) {
       });
   },
 });
-export const { setSelectedFeatures, setSelectedDataset, setSelectedModel,setViewOption,setShowUMAPScatter,setActiveStep,setSelectedTab} = glanceSlice.actions
+export const { setSelectedFeatures,setShowUMAPInTab1, setSelectedDataset, setSelectedModel,setViewOption,setShowUMAPScatter,setActiveStep,setSelectedTab} = glanceSlice.actions
 export default glanceSlice.reducer;
 
 

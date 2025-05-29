@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react"
-import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from "@mui/material"
+import { FormControl, InputLabel, Select, MenuItem, Box, Grid, FormControlLabel, Switch } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import {
   getAnalyzeCounterFactualsApplyActionChartSpec,
   getAnalyzeCounterFactualsSharedLegendChartSpec,
 } from "../Plots/chartSpecs"
+import { useAppDispatch, useAppSelector } from "../../../../store/store"
+import { setShowUMAPInTab1 } from "../../../../store/slices/glanceSlice"
 
 interface ActionScatterProps {
   data1: any
@@ -34,7 +36,9 @@ const ActionScatter = ({
   const [colorField, setColorField] = useState("")
   const [options, setOptions] = useState([])
   const [colorOptions, setColorOptions] = useState([])
-
+const dispatch = useAppDispatch()
+  const glanceState = useAppSelector(state => state.glance)
+  const showUMAPInTab1 = useAppSelector(state => state.glance.showUMAPInTab1)
   // Extract options from the data for dropdowns (excluding certain fields)
   const getOptions = (clusters: {}) => {
     if (!clusters) return []
@@ -87,10 +91,11 @@ const ActionScatter = ({
         actions={false}
         controlPanel={
           <Box>
-            <FormControl
-              variant="outlined"
-              style={{ minWidth: 200, marginRight: "20px" }}
-            >
+             <Box sx={{ flexGrow: 1, padding: 2 }}>
+                 <Grid container spacing={2}>
+                   {/* X-Axis Field */}
+                   <Grid item xs={12} md={6}>
+                     <FormControl fullWidth variant="outlined">
               <InputLabel>X-Axis</InputLabel>
               <Select
                 value={xAxis}
@@ -112,11 +117,12 @@ const ActionScatter = ({
                 ))}
               </Select>
             </FormControl>
+            </Grid>
+                               <Grid item xs={12} md={6}>
 
-            <FormControl
-              variant="outlined"
-              style={{ minWidth: 200, marginRight: "20px" }}
-            >
+
+                      <FormControl fullWidth variant="outlined">
+
               <InputLabel>Y-Axis</InputLabel>
               <Select
                 value={yAxis}
@@ -138,6 +144,21 @@ const ActionScatter = ({
                 ))}
               </Select>
             </FormControl>
+            </Grid>
+                 </Grid>
+               </Box>
+            <FormControlLabel
+                                            control={
+                                              <Switch
+                                                checked={showUMAPInTab1}
+                                                onChange={e => {
+                                                  dispatch(setShowUMAPInTab1(e.target.checked))
+                                                }}
+                                                color="primary"
+                                              />
+                                            }
+                                            label="UMAP"
+                                          />
           </Box>
         }
       />
@@ -156,10 +177,13 @@ const ActionScatter = ({
         title="Post-Action Selection"
         controlPanel={
           <Box>
-            <FormControl
-              variant="outlined"
-              style={{ minWidth: 200, marginRight: "20px" }}
-            >
+           
+             <Box sx={{ flexGrow: 1, padding: 2 }}>
+                 <Grid container spacing={2}>
+                   {/* X-Axis Field */}
+                   <Grid item xs={12} md={6}>
+                     <FormControl fullWidth variant="outlined">
+
               <InputLabel>X-Axis</InputLabel>
               <Select
                 value={xAxis}
@@ -181,10 +205,11 @@ const ActionScatter = ({
                 ))}
               </Select>
             </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
 
             <FormControl
               variant="outlined"
-              style={{ minWidth: 200, marginRight: "20px" }}
             >
               <InputLabel>Y-Axis</InputLabel>
               <Select
@@ -207,6 +232,23 @@ const ActionScatter = ({
                 ))}
               </Select>
             </FormControl>
+            </Grid>
+            </Grid>
+            </Box>
+
+
+            <FormControlLabel
+                                            control={
+                                              <Switch
+                                                checked={showUMAPInTab1}
+                                                onChange={e => {
+                                                  dispatch(setShowUMAPInTab1(e.target.checked))
+                                                }}
+                                                color="primary"
+                                              />
+                                            }
+                                            label="UMAP"
+                                          />
           </Box>
         }
       />
@@ -228,6 +270,7 @@ const ActionScatter = ({
         )}
         actions={false}
         controlPanel={
+          <>
           <Box display="flex" justifyContent="center" gap={2}>
             <FormControl
               fullWidth
@@ -259,7 +302,21 @@ const ActionScatter = ({
                 })}
               </Select>
             </FormControl>
+            
           </Box>
+          <FormControlLabel
+                                            control={
+                                              <Switch
+                                                checked={showUMAPInTab1}
+                                                onChange={e => {
+                                                  dispatch(setShowUMAPInTab1(e.target.checked))
+                                                }}
+                                                color="primary"
+                                              />
+                                            }
+                                            label="UMAP"
+                                          />
+          </>
         }
         isStatic={false}
        

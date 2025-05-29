@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useAppDispatch, useAppSelector } from "../../../../store/store"
-import { runCGlanceComparative } from "../../../../store/slices/glanceSlice"
+import { runCGlanceComparative, setShowUMAPInTab1 } from "../../../../store/slices/glanceSlice"
 import {
   Button,
   Typography,
@@ -65,7 +65,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const [results, setResults] = React.useState<any | null>(null)
   const isMultiSelect = (type: string) => executionMode === type
   const getSuffix = (value: string) => value.split("_").pop() || value
-  const [showUMAPInTab1, setShowUMAPInTab1] = useState(true) // New state for UMAP in Tab 1
   const [selectedRowKey, setSelectedRowKey] = useState<string | null>(null)
   const [algorithm, setAlgorithm] = useState<string>("run-c_glance")
   const [direction, setDirection] = useState<number[]>([2])
@@ -82,6 +81,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   // Check if NearestNeighbors is selected
   const isNearestNeighborsSelected = cfMethod.includes("NearestNeighbors")
 
+  const showUMAPInTab1= glanceState.showUMAPInTab1
   console.log("comparativeLoading", comparativeLoading)
   const handleViewDetails = (key: any, data: any) => {
     
@@ -535,18 +535,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                           eff_cost_actions={selectedDetails.eff_cost_actions}
                         />
 
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={showUMAPInTab1}
-                              onChange={e => {
-                                setShowUMAPInTab1(e.target.checked)
-                              }}
-                              color="primary"
-                            />
-                          }
-                          label="Enable Dimensionality Reduction (UMAP)"
-                        />
+                        
                         {!showUMAPInTab1 ? (
                           <Box sx={{ padding: 2 }}>
                             <ActionScatter

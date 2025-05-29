@@ -1,11 +1,13 @@
 import type React from "react"
 import { useState } from "react"
-import { Box, FormControl, Grid, InputLabel, MenuItem, Select } from "@mui/material"
+import { Box, FormControl, FormControlLabel, Grid, InputLabel, MenuItem, Select, Switch } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import {
   getAnalyzeCounterFactualsUmapApplyActionChartSpec,
   getAnalyzeCounterFactualsUmapSharedLegendChartSpec,
 } from "../Plots/chartSpecs"
+import { useAppDispatch, useAppSelector } from "../../../../store/store"
+import { setShowUMAPInTab1 } from "../../../../store/slices/glanceSlice"
 
 interface UmapGlanceComponentProps {
   applied_aff_data: any
@@ -94,21 +96,31 @@ const spec2 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
     selectedAction,
   )
 
+  const dispatch = useAppDispatch()
+  const glanceState = useAppSelector(state => state.glance)
+  const showUMAPInTab1 = useAppSelector(state => state.glance.showUMAPInTab1)
+
   return (
     <>
-   {/* <div style={{display:"inline-block" }}>
-
-        <ResponsiveCardVegaLite title={scatterPlotTitles[0]} spec={spec1} actions={false}  maxHeight={200} />     
-       <ResponsiveCardVegaLite title={scatterPlotTitles[1]} spec={spec2} actions={false}  maxHeight={200} />
-
-   </div> */}
-    
+  
   <Grid container spacing={2} mb={1}>
   <Grid item xs={12} md={6}>
     <ResponsiveCardVegaLite
       title={scatterPlotTitles[0]}
       spec={spec1}
       actions={false}
+      controlPanel={<FormControlLabel
+                                control={
+                                  <Switch
+                                    checked={showUMAPInTab1}
+                                    onChange={e => {
+                                      dispatch(setShowUMAPInTab1(e.target.checked))
+                                    }}
+                                    color="primary"
+                                  />
+                                }
+                                label="UMAP"
+                              />}
       // other props
     />
   </Grid>
@@ -117,6 +129,18 @@ const spec2 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
       title={scatterPlotTitles[1]}
       spec={spec2}
       actions={false}
+       controlPanel={<FormControlLabel
+                                control={
+                                  <Switch
+                                    checked={showUMAPInTab1}
+                                    onChange={e => {
+                                      dispatch(setShowUMAPInTab1(e.target.checked))
+                                    }}
+                                    color="primary"
+                                  />
+                                }
+                                label="UMAP"
+                              />}
       // other props
     />
   </Grid>
@@ -129,6 +153,7 @@ const spec2 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
         spec={specLast}
         actions={false}
         controlPanel={
+          <>
           <Box display="flex" justifyContent="center" gap={2}>
             <FormControl
               fullWidth
@@ -163,7 +188,21 @@ const spec2 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
                   })}
               </Select>
             </FormControl>
+           
           </Box>
+           <FormControlLabel
+                                control={
+                                  <Switch
+                                    checked={showUMAPInTab1}
+                                    onChange={e => {
+                                      dispatch(setShowUMAPInTab1(e.target.checked))
+                                    }}
+                                    color="primary"
+                                  />
+                                }
+                                label="UMAP"
+                              />
+                              </>
         }
       />
     </>
