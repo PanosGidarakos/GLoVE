@@ -93,6 +93,7 @@ export const getEffectivenessChartSpec = (scatterPlotData: any[], executionMode:
 
 export const getCompareMethodsChartSpec=(allData:any): VegaLiteSpec => ({
    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+   width:"container",
     mark: { type: "line", point: true, interpolate: "step-after" },
     selection: {
       // Interval selection for zoom and pan
@@ -311,7 +312,7 @@ export const getAnalyzeCounterFactualsUmapSharedLegendChartSpec = (
   title?: string
 ): VisualizationSpec => ({
   mark: "point",
-  title: title || "Scatter Plot",
+  title: title || "",
   width: 350,
   height: 500,
   selection: {

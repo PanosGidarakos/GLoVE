@@ -1,6 +1,6 @@
 import type React from "react"
 import { useState } from "react"
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material"
+import { Box, FormControl, Grid, InputLabel, MenuItem, Select } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import {
   getAnalyzeCounterFactualsUmapApplyActionChartSpec,
@@ -78,6 +78,17 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
     ),
   }
 
+
+  const spec1 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
+  reshapedData,
+  ""
+);
+
+const spec2 = getAnalyzeCounterFactualsUmapSharedLegendChartSpec(
+  reshapedOtherData,
+  ""
+);
+
   const specLast = getAnalyzeCounterFactualsUmapApplyActionChartSpec(
     formattedData,
     selectedAction,
@@ -85,9 +96,36 @@ const UmapGlanceComponent: React.FC<UmapGlanceComponentProps> = ({
 
   return (
     <>
-      <ResponsiveCardVegaLite spec={spec} actions={false} />
+   {/* <div style={{display:"inline-block" }}>
+
+        <ResponsiveCardVegaLite title={scatterPlotTitles[0]} spec={spec1} actions={false}  maxHeight={200} />     
+       <ResponsiveCardVegaLite title={scatterPlotTitles[1]} spec={spec2} actions={false}  maxHeight={200} />
+
+   </div> */}
+    
+  <Grid container spacing={2} mb={1}>
+  <Grid item xs={12} md={6}>
+    <ResponsiveCardVegaLite
+      title={scatterPlotTitles[0]}
+      spec={spec1}
+      actions={false}
+      // other props
+    />
+  </Grid>
+  <Grid item xs={12} md={6}>
+    <ResponsiveCardVegaLite
+      title={scatterPlotTitles[1]}
+      spec={spec2}
+      actions={false}
+      // other props
+    />
+  </Grid>
+</Grid>
+
+
 
       <ResponsiveCardVegaLite
+      title="Individual Action Application"
         spec={specLast}
         actions={false}
         controlPanel={

@@ -88,11 +88,18 @@ const CompareMethods = () => {
       step: parseInt(step) + offset,
       eff: runData[step].eff,
       cost: runData[step].cost,
-      run: runName,
+      run: runMap[runName],
     }))
   }
 
-  const allData = results
+  
+
+const runMap = {
+  "run-c_glance": "GLANCE",
+  "run-globece": "GLOBE_CE",
+  "run-groupcfe":"GroupCFE",
+};
+const allData = results
     ? Object.entries(transformedData).flatMap(([runName, runData], index) =>
         transformData(runData, runName, index * (gcfSize + 1)),
       )
@@ -200,8 +207,10 @@ const CompareMethods = () => {
         actions={false}
         minWidth={100}
         minHeight={100}
-        maxWidth={1000}
+        maxWidth={900}
         maxHeight={500}
+      
+
       />
     )}
   </ResponsiveCardTable>
