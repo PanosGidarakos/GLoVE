@@ -765,6 +765,7 @@ if (state.targetName && state.targetName.length > 0) {
       })
       .addCase(fetchGetData.pending, (state) => {
         state.loading = true; // Optional: Set a loading state
+        state.loadDatasetAndModelResult = null;
       })
       .addCase(fetchGetData.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
