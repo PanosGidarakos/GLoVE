@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { FormControl, InputLabel, Select, MenuItem, Box } from "@mui/material"
+import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
 import {
   getAnalyzeCounterFactualsApplyActionChartSpec,
@@ -75,10 +75,12 @@ const ActionScatter = ({
 
   return (
     <>
+     <Grid container spacing={2} mb={1}>
+  <Grid item xs={12} md={6}>
       <ResponsiveCardVegaLite
+      title="Action Selection"
         spec={getAnalyzeCounterFactualsSharedLegendChartSpec(
           transformedData1,
-          transformedData2,
           xAxis,
           yAxis,
         )}
@@ -139,10 +141,85 @@ const ActionScatter = ({
           </Box>
         }
       />
+      </Grid> 
+        <Grid item xs={12} md={6}>
+
+      
+
+       <ResponsiveCardVegaLite
+        spec={getAnalyzeCounterFactualsSharedLegendChartSpec(
+          transformedData2,
+          xAxis,
+          yAxis,
+        )}
+        actions={false}
+        title="Post-Action Selection"
+        controlPanel={
+          <Box>
+            <FormControl
+              variant="outlined"
+              style={{ minWidth: 200, marginRight: "20px" }}
+            >
+              <InputLabel>X-Axis</InputLabel>
+              <Select
+                value={xAxis}
+                onChange={e => setXAxis(e.target.value)}
+                label="X-Axis"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 250,
+                      maxWidth: 300,
+                    },
+                  },
+                }}
+              >
+                {options.map(option => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl
+              variant="outlined"
+              style={{ minWidth: 200, marginRight: "20px" }}
+            >
+              <InputLabel>Y-Axis</InputLabel>
+              <Select
+                value={yAxis}
+                onChange={e => setYAxis(e.target.value)}
+                label="Y-Axis"
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 250,
+                      maxWidth: 300,
+                    },
+                  },
+                }}
+              >
+                {options.map(option => (
+                  <MenuItem key={option} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        }
+      />
+      </Grid>
 
       {/* Right side (Vega-Lite Chart) */}
 
+      </Grid>
+
+
       <ResponsiveCardVegaLite
+            title="Individual Action Application"
+
         spec={getAnalyzeCounterFactualsApplyActionChartSpec(
           transformedData1,
           xAxis,
@@ -185,8 +262,7 @@ const ActionScatter = ({
           </Box>
         }
         isStatic={false}
-        title="Todo"
-        details={"Todo"}
+       
       />
     </>
   )

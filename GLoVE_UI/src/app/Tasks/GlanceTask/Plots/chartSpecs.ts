@@ -230,14 +230,11 @@ export const determineType = (field: string, data: any[]) => {
 
 export const getAnalyzeCounterFactualsSharedLegendChartSpec = (
   data1: any[],
-  data2: any[],
   xAxis: string,
   yAxis: string
 ): VisualizationSpec => ({
   description: "Two scatter plots with a shared legend",
-  hconcat: [
-    {
-      title: "Action Selection",
+   title: "Action Selection",
       width: 350,
       height: 500,
       data: { values: data1 },
@@ -267,40 +264,7 @@ export const getAnalyzeCounterFactualsSharedLegendChartSpec = (
           value: 0.01,
         },
       },
-    },
-    {
-      title: "Post-Action Selection",
-      width: 350,
-      height: 500,
-      data: { values: data2 },
-      mark: { type: "circle", opacity: 0.8 },
-      params: [
-        {
-          name: "industry",
-          select: { type: "point", fields: ["Chosen_Action"] },
-          bind: "legend",
-        },
-      ],
-      encoding: {
-        x: { field: xAxis, type: determineType(xAxis, data2) },
-        y: { field: yAxis, type: determineType(yAxis, data2) },
-        color: {
-          field: "Chosen_Action",
-          type: "nominal",
-          title: "Chosen Action",
-        },
-        tooltip: [
-          { field: "Chosen_Action", type: "nominal", title: "Chosen Action" },
-          { field: xAxis, type: determineType(xAxis, data2) },
-          { field: yAxis, type: determineType(yAxis, data2) },
-        ],
-        opacity: {
-          condition: { param: "industry", value: 1 },
-          value: 0.01,
-        },
-      },
-    },
-  ],
+  
 });
 
 

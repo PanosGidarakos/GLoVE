@@ -11,6 +11,8 @@ import {
   FormControl,
   OutlinedInput,
   Tooltip,
+  FormControlLabel,
+  Switch,
 } from "@mui/material"
 import WorkflowCard from "../../../../shared/components/workflow-card"
 import MetricSummary from "./MetricSummary"
@@ -533,7 +535,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                           eff_cost_actions={selectedDetails.eff_cost_actions}
                         />
 
-                        {/* <FormControlLabel
+                        <FormControlLabel
                           control={
                             <Switch
                               checked={showUMAPInTab1}
@@ -544,7 +546,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                             />
                           }
                           label="Enable Dimensionality Reduction (UMAP)"
-                        /> */}
+                        />
                         {!showUMAPInTab1 ? (
                           <Box sx={{ padding: 2 }}>
                             <ActionScatter
