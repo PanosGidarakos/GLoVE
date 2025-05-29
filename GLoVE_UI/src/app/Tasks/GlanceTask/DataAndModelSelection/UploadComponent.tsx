@@ -7,6 +7,8 @@ import {
   fetchAvailableFeatures,
   fetchGetData,
   fetchTargetName,
+  setSelectedDataset,
+  setSelectedModel,
   uploadDataset,
   uploadModel,
   uploadTestDataset,
@@ -94,6 +96,8 @@ const UploadComponent: React.FC<UploadComponentProps> = ({ onUploadComplete }) =
       // Fetch data after uploading everything
       await dispatch(fetchGetData());
       await dispatch(fetchAvailableFeatures());
+      dispatch(setSelectedDataset(removeFileExtension(fileDataset?.name || "")));
+      dispatch(setSelectedModel(removeFileExtension(fileModel?.name || "")));
 
       setStatusMessage("All uploads and data fetch completed successfully!");
     } catch (err) {
@@ -106,19 +110,7 @@ const UploadComponent: React.FC<UploadComponentProps> = ({ onUploadComplete }) =
 
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: 2,
-        padding: 3,
-        border: "1px solid #ddd",
-        borderRadius: 2,
-        width: "400px",
-        margin: "0 auto",
-      }}
     >
-      <Typography variant="h6">Upload Files</Typography>
       <Stack spacing={2} sx={{ width: "100%" }}>
         <Box>
           <Typography variant="body1">Upload Dataset:</Typography>

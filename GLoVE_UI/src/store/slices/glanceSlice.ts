@@ -131,7 +131,9 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
+// const API_BASE_URL = "http://127.0.0.1:8000/";
 const API_BASE_URL = "/api/";
+
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
   "glance/fetchInitialGlanceData",
@@ -565,9 +567,15 @@ const glanceSlice = createSlice({
     
     setSelectedModel: (state, action: PayloadAction<string>) => {
       state.selectedModel = action.payload;
+      if (!state.availableResources.models.includes(action.payload)) {
+      state.availableResources.models.push(action.payload);
+    }
     },
     setSelectedDataset: (state, action: PayloadAction<string>) => {
       state.selectedDataset = action.payload;
+      if (!state.availableResources.datasets.includes(action.payload)) {
+      state.availableResources.datasets.push(action.payload);
+    }
     },
     setViewOption(state, action: PayloadAction<string>) {
       state.viewOption = action.payload;
@@ -634,7 +642,14 @@ const glanceSlice = createSlice({
       })
       .addCase(fetchAvailableFeatures.fulfilled, (state, action: PayloadAction<{ features: string[] }>) => {
         state.loading = false;
-        state.availableFeatures = action.payload.features;
+
+if (state.targetName && state.targetName.length > 0) {
+  state.availableFeatures = action.payload.features.filter(
+    (feature: string) => !state?.targetName?.includes(feature)
+  );
+} else {
+  state.availableFeatures = action.payload.features;
+}   
         state.error = null;
       })
       .addCase(fetchAvailableFeatures.rejected, (state, action) => {

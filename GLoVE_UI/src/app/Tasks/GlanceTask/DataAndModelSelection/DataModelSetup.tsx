@@ -210,9 +210,15 @@ import {
   OutlinedInput,
   Typography,
   CircularProgress,
+  Dialog,
+  Button,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from "@mui/material";
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table";
 import Loader from "../../../../shared/components/loader";
+import UploadComponent from "./UploadComponent";
 
 const DataModelSetup: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -279,6 +285,7 @@ const DataModelSetup: React.FC = () => {
 
   return (
    
+    
     <ResponsiveCardTable
       title={"Dataset & Model Selection"}
       details={"This section allows you to select a dataset and model for analysis."}
@@ -310,7 +317,7 @@ const DataModelSetup: React.FC = () => {
             </Box>
           </FormControl>
 
-          <FormControl fullWidth sx={{ marginTop: 2 }}>
+          <FormControl fullWidth sx={{ marginTop: 2,mb:2 }}>
             <InputLabel id="model-select-label">Select Model</InputLabel>
             <Select
               labelId="model-select-label"
@@ -327,6 +334,18 @@ const DataModelSetup: React.FC = () => {
               ))}
             </Select>
           </FormControl>
+         <Dialog open={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} fullWidth maxWidth="sm">
+        
+        <DialogContent>
+          <UploadComponent />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsUploadModalOpen(false)} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
         </>
       )}
     </ResponsiveCardTable>
