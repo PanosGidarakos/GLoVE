@@ -133,8 +133,8 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-const API_BASE_URL = "http://127.0.0.1:8000/";
-// const API_BASE_URL = "/api/";
+// const API_BASE_URL = "http://127.0.0.1:8000/";
+const API_BASE_URL = "/api/";
 
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
