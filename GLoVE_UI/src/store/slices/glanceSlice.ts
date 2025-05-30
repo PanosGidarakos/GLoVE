@@ -17,6 +17,7 @@ interface GlanceState {
   runTGlanceResult: any | null;
   loading: boolean;
   datasetLoading: boolean; // Specific loading state for dataset/model loading
+  umapLoading: boolean; // State for UMAP loading
 
   error: string | null;
   initialLoading: boolean;
@@ -88,7 +89,8 @@ const initialState: GlanceState = {
   selectedTab: 1,
   activeStep: 1,
   umapLoader: true,
-  showUMAPInTab1: true
+  showUMAPInTab1: true,
+  umapLoading: false, // State for UMAP loading
 };
 
 interface AvailableResources {
@@ -133,8 +135,8 @@ interface RunTGlanceParams {
   split_features: string[];
   local_cf_method: string;
 }
-// const API_BASE_URL = "http://127.0.0.1:8000/";
-const API_BASE_URL = "/api/";
+const API_BASE_URL = "http://127.0.0.1:8000/";
+// const API_BASE_URL = "/api/";
 
 // Fetch all initial data
 export const fetchInitialGlanceData = createAsyncThunk(
@@ -705,6 +707,7 @@ if (state.targetName && state.targetName.length > 0) {
       })
       .addCase(umapReduce.rejected, (state, action) => {
         state.loading = false;
+        state.umapLoader = false;
         state.error = action.error.message || "Error reducing UMAP";
       })
       .addCase(uploadDataset.pending, (state) => {

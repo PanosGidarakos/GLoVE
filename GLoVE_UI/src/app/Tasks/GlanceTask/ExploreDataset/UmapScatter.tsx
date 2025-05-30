@@ -8,9 +8,10 @@ interface ScatterPlotProps {
   data: any // The data you want to plot
   color: string
   controlPanel?: React.ReactNode
+  loader?: boolean
 }
 
-const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) => {
+const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel,loader }) => {
   const hasLabel = Object.keys(data).includes("label")
   const processedData = { ...data }
 
@@ -51,7 +52,7 @@ const UmapScatter: React.FC<ScatterPlotProps> = ({ data, color, controlPanel }) 
       details={"Todo"}
       controlPanel={controlPanel}
       infoMessage={<Loader/>}
-      showInfoMessage={glanceState.umapLoader }
+      showInfoMessage={loader}
       
     />
   )

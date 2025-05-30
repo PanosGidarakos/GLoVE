@@ -25,6 +25,7 @@ import Loader from "../../../shared/components/loader"
 import UmapToggle from "../../../shared/components/umapToggle"
 
 import { setActiveStep, setSelectedTab } from '../../../store/slices/glanceSlice';
+import ResponsiveCardTable from "../../../shared/components/responsive-card-table"
 
 
 const GlanceTabs= () => {
@@ -91,6 +92,7 @@ const GlanceTabs= () => {
               setShowUMAPScatter={setShowUMAPScatter}
             />
           }
+          loader={glanceState.umapLoader}
         />
       )
     }
@@ -106,7 +108,10 @@ const GlanceTabs= () => {
               setShowUMAPScatter={setShowUMAPScatter}
             />
           }
+                    loader={glanceState.umapLoader}
+
         />
+        
       )
     }
 
@@ -118,8 +123,17 @@ const GlanceTabs= () => {
         : "testData"
 
     if (umapCache[datasetKey]) {
-      return <UmapScatter controlPanel={<UmapToggle showUMAPScatter={showUMAPScatter} setShowUMAPScatter={setShowUMAPScatter} />} data={umapCache[datasetKey].reduced_data} color={""} />
+      return (<UmapScatter controlPanel={<UmapToggle showUMAPScatter={showUMAPScatter} setShowUMAPScatter={setShowUMAPScatter} />} data={umapCache[datasetKey].reduced_data} color={""} loader={glanceState.umapLoader}/>);
     }
+   if (glanceState.umapLoader) {
+  return (
+    <ResponsiveCardTable title={"Umap Plot"} details={"Todo"} >
+
+      <Loader />
+          </ResponsiveCardTable>
+
+  )
+}
 
    
   }

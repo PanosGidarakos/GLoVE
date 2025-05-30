@@ -2,10 +2,12 @@ import { useEffect, useState } from "react"
 import type { VisualizationSpec } from "react-vega"
 import { FormControl, InputLabel, Select, MenuItem, Box, Grid } from "@mui/material"
 import ResponsiveCardVegaLite from "../../../../shared/components/responsive-card-vegalite"
+import Loader from "../../../../shared/components/loader"
 interface ScatterPlotComponentForMainPageProps {
   data: any[]
   name: string
   controlPanel?: React.ReactNode
+  loader?: boolean
 
 }
 
@@ -13,6 +15,7 @@ const ScatterPlotComponentForMainPage = ({
   data,
   name,
   controlPanel,
+  loader,
 }: ScatterPlotComponentForMainPageProps) => {
   const modifiedData = data.map(item => ({
     ...item,
@@ -92,6 +95,9 @@ const ScatterPlotComponentForMainPage = ({
       maxHeight={400}
       maxWidth={2000}
       aspectRatio={2 / 1}
+      infoMessage={<Loader/>}
+      
+      showInfoMessage={loader}
       controlPanel={
          <Box sx={{ flexGrow: 1, padding: 2 }}>
       <Grid container spacing={2}>
