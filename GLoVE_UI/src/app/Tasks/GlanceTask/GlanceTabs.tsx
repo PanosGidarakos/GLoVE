@@ -55,7 +55,6 @@ const GlanceTabs= () => {
           : "testData"
 
       if (!umapCache[datasetIdentifier]) {
-        console.log("this goes", datasetIdentifier)
         dispatch(umapReduce({ dataset_identifier: datasetIdentifier, n_components: 2 })).then(
           action => {
             if (action.payload) {

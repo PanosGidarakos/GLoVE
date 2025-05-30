@@ -82,7 +82,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
   const isNearestNeighborsSelected = cfMethod.includes("NearestNeighbors")
 
   const showUMAPInTab1= glanceState.showUMAPInTab1
-  console.log("comparativeLoading", comparativeLoading)
   const handleViewDetails = (key: any, data: any) => {
     
     if (selectedRowKey === key) {

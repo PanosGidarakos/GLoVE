@@ -227,9 +227,7 @@ const DataModelSetup: React.FC = () => {
   const selectedDataset = useAppSelector((state) => state.glance.selectedDataset);
   const selectedModel = useAppSelector((state) => state.glance.selectedModel);
 
-    console.log("Selected Dataset:", selectedDataset);
-  console.log("Selected Dataset:", selectedModel);
-
+  
 
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
 
@@ -280,8 +278,7 @@ const DataModelSetup: React.FC = () => {
     handleLoad(selectedDataset || "", newModel);
   };
 
-  console.log("selectedDataset:", selectedDataset);
-  console.log("availableResources:", availableResources);
+  
 
   return (
    

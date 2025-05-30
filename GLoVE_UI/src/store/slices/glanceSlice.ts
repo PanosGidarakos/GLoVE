@@ -249,7 +249,8 @@ export const loadDatasetAndModel = createAsyncThunk(
 export const fetchGetData = createAsyncThunk(
   "glance/fetchGetData",
   async () => {
-    const response = await axios.get(`${API_BASE_URL}get-data`);
+
+    const response = await axios.get(`${API_BASE_URL}get-data/`,{timeout: 60000}); // Set a timeout of 10 seconds
     return response.data; // Assuming the response structure matches loadDatasetAndModelResult
   }
 );
