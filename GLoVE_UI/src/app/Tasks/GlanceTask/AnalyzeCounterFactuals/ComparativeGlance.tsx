@@ -203,7 +203,10 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
   return (
     <ResponsiveCardTable title="Counterfactual Analysis Configuration" details={"Configure the parameters for the Counterfactual Analysis."} showFullScreenButton={false}showOptions={false} >
-      <Box >
+    {glanceState.datasetLoading ? (
+      <Loader />
+    )
+     :( <Box >
         <Box
           display="flex"
           alignItems="center"
@@ -213,6 +216,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           padding={1}
         >
           {/* Execution Mode Dropdown */}
+          
           {/*algo*/}
 
           <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
@@ -232,7 +236,6 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
               <MenuItem value="run-globece">GLOBE-CE</MenuItem>
             </Select>
           </FormControl>
-          {/*dire*/}
 
           {/* executuin mode  */}
 
@@ -575,6 +578,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           )}
         </Box>
       </Box>
+      )}
     </ResponsiveCardTable>
   )
 }

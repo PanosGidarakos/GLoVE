@@ -178,9 +178,7 @@ const GlanceTabs= () => {
 
       {glanceState.selectedTab === 2 && (
         <>
-          {glanceState.datasetLoading ? (
-            <Loader />
-          ) : (
+        
             <ComparativeGlance
               availableCfMethods={glanceState.availableCfMethods}
               availableActionStrategies={glanceState.availableActionStrategies}
@@ -194,8 +192,8 @@ const GlanceTabs= () => {
                   : glanceState.availableFeatures
               }
             />
-            // <></>
-          )}
+          
+        
         </>
       )}
 
