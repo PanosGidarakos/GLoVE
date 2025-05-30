@@ -226,6 +226,7 @@ const DataModelSetup: React.FC = () => {
   const datasetLoading = useAppSelector((state) => state.glance.datasetLoading);
   const selectedDataset = useAppSelector((state) => state.glance.selectedDataset);
   const selectedModel = useAppSelector((state) => state.glance.selectedModel);
+  const comparativeLoading= useAppSelector((state)=> state.glance.comparativeLoading);
 
   
 
@@ -290,7 +291,7 @@ const DataModelSetup: React.FC = () => {
     showOptions={false}
     >
 
-      {datasetLoading ? (
+      {datasetLoading||comparativeLoading ? (
         <Loader/>
       ) : (
         <>
