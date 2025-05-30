@@ -286,7 +286,10 @@ const DataModelSetup: React.FC = () => {
     <ResponsiveCardTable
       title={"Dataset & Model Selection"}
       details={"This section allows you to select a dataset and model for analysis."}
+    showFullScreenButton={false}
+    showOptions={false}
     >
+
       {datasetLoading ? (
         <Loader/>
       ) : (
