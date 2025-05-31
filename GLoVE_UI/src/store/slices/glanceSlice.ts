@@ -6,21 +6,51 @@ import axios from "axios";
 // Define types for the API responses
 
 interface GlanceState {
+  // General state
   welcomeMessage: string;
+  viewOption: string;
+  selectedTab: number;
+  activeStep: number;
+  showUMAPInTab1: boolean;
+  showUMAPScatter: boolean;
+  error: string | null;
+
+  // Resource-related
   availableResources: AvailableResources;
   availableCfMethods: string[];
   availableFeatures: string[];
   availableActionStrategies: string[];
-  selectedFeatures: string[];   // Store selected features
+  selectedFeatures: string[];
+  selectedModel: string | null;
+  selectedDataset: string | null;
+  targetName: string | null;
+
+  // Loading states
+  loading: boolean;
+  initialLoading: boolean;
+  datasetLoading: boolean;
+  umapLoading: boolean;
+  comparativeLoading: boolean;
+  modelComparativeLoading: boolean;
+  umapLoader: boolean;
+
+  // Results
   runGlanceResult: any | null;
   loadDatasetAndModelResult: any | null;
   runTGlanceResult: any | null;
-  loading: boolean;
-  datasetLoading: boolean; // Specific loading state for dataset/model loading
-  umapLoading: boolean; // State for UMAP loading
+  getDataResults: any | null;
+  applyAffectedActionsResult: { [key: string]: any } | null;
+  processedSizes: number[];
 
-  error: string | null;
-  initialLoading: boolean;
+  // UMAP-specific
+  umapReduceResults: {
+    rawData?: any;
+    affectedData?: any;
+    testData?: any;
+    appliedAffected?: any;
+  };
+
+  // Comparative results
   comparativeResults: {
     [key: string]: any;
   };
@@ -28,30 +58,8 @@ interface GlanceState {
     [key: string]: any;
   };
 
-
-
-  applyAffectedActionsResult: { [key: string]: any } | null;
-  processedSizes: number[];
-  umapReduceResults: {
-    rawData?: any;
-    affectedData?: any;
-    testData?: any;
-    appliedAffected?: any;
-
-  };
-  getDataResults: any | null;
-  comparativeLoading: boolean; // New state for comparative process
-  targetName: string | null; // Add this field
-  modelComparativeLoading: any;
-   selectedModel: string | null;
-  selectedDataset: string | null;
-  viewOption: string;
-  showUMAPScatter: boolean;
-  selectedTab: number;
-  activeStep: number;
-  umapLoader: boolean;
-  showUMAPInTab1: boolean
-
+  
+  runModelComparativeResult: any | null;
 
 
 }
@@ -91,6 +99,7 @@ const initialState: GlanceState = {
   umapLoader: true,
   showUMAPInTab1: true,
   umapLoading: false, // State for UMAP loading
+  runModelComparativeResult: null, // Initialize the comparative result
 };
 
 interface AvailableResources {
@@ -196,7 +205,7 @@ export const runModelComparative = createAsyncThunk(
           },
         }
       );
-      return { data: response.data,algorithm:algorithm };
+      return { data: response.data,algorithm:algorithm, gcf_size: gcf_size.toString() };
     } catch (error: any) {
       if (error.response?.status === 400 && error.response.data?.detail) {
         // Return specific error message if it matches the expected structure
@@ -641,6 +650,7 @@ const glanceSlice = createSlice({
         state.runGlanceResult = null;
         state.comparativeResults = {};
         state.modelComparativeResults = {};
+        state.runModelComparativeResult = null; // Reset the comparative result
         state.error = null;
       })
       .addCase(loadDatasetAndModel.rejected, (state, action) => {
@@ -758,11 +768,26 @@ if (state.targetName && state.targetName.length > 0) {
       .addCase(runModelComparative.pending, (state) => {
         state.modelComparativeLoading = true; // Start the loader
       })
-      .addCase(runModelComparative.fulfilled, (state, action: PayloadAction<any>) => {
-        state.modelComparativeLoading = false; // End the loader
-        state.modelComparativeResults = action.payload;
-        state.error = null;
-      })
+     .addCase(runModelComparative.fulfilled, (state, action: PayloadAction<any>) => {
+  state.modelComparativeLoading = false;
+  state.error = null;
+
+  if (!state.runModelComparativeResult) {
+    state.runModelComparativeResult = [];
+  }
+
+  console.log("New comparative result:", action.payload);
+  console.log("Current comparative results:", state.runModelComparativeResult);
+  const newResult = action.payload;
+  const exists = state.runModelComparativeResult.some(result => result.algorithm === newResult.algorithm && result.gcf_size === newResult.gcf_size);
+
+  if (!exists) {
+    state.runModelComparativeResult.push(newResult);
+  }
+
+  // Optionally keep latest:
+  state.modelComparativeResults = newResult;
+})
       .addCase(runModelComparative.rejected, (state, action) => {
         state.modelComparativeLoading = false; // End the loader
         state.error = action.error.message || "Error in model comparative analysis";

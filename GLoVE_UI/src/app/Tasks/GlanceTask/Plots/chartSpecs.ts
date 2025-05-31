@@ -124,8 +124,15 @@ export const getCompareMethodsChartSpec=(allData:any): VegaLiteSpec => ({
       opacity: {
         condition: { "param": "industry", "value": 1 },
         value: 0.01
-      }
+      },
+       tooltip: [
+      { field: "run", title: "Method" },
+      { field: "eff", title: "Effectiveness" },
+      { field: "cost", title: "Cost" },
+      { field: "step", title: "Step" }, // if available
+    ],
     },
+   
     data: { values: allData },
   });
   

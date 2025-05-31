@@ -9,7 +9,7 @@ import {
   Select,
 } from "@mui/material"
 import { useState } from "react"
-import { useAppDispatch } from "../../../../store/store"
+import { RootState, useAppDispatch } from "../../../../store/store"
 import { runModelComparative } from "../../../../store/slices/glanceSlice"
 import ResponsiveVegaLite from "../../../../shared/components/responsive-vegalite"
 import ResponsiveCardTable from "../../../../shared/components/responsive-card-table"
@@ -17,6 +17,7 @@ import Loader from "../../../../shared/components/loader"
 import { getCompareMethodsChartSpec } from "../Plots/chartSpecs"
 import InfoMessage from "../../../../shared/components/infoMessage"
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded"
+import { useSelector } from "react-redux"
 
 const CompareMethods = () => {
   const [algorithms, setAlgorithms] = useState<string[]>(["run-c_glance"])
@@ -24,6 +25,18 @@ const CompareMethods = () => {
   const dispatch = useAppDispatch()
   const [loading, setLoading] = useState<boolean>(false) // Loading state
 
+   const allResults = useSelector(
+    (state: RootState) => state.glance.runModelComparativeResult || []
+  )
+  const filteredResults = allResults.filter(
+  (result) =>
+    algorithms.includes(result.algorithm) && 
+    result.gcf_size === gcfSize.toString() // since you store gcf_size as string
+)
+const resultsMap = filteredResults.reduce((acc, result) => {
+  acc[result.algorithm] = result.data.eff_cost_plot
+  return acc
+}, {} as Record<string, any>)
   const [results, setResults] = useState<any | null>(null)
   const [errorMessage, setErrorMessage] = useState<Record<
     string,
@@ -74,15 +87,13 @@ const CompareMethods = () => {
     return { "0": { eff: 0, cost: 0 }, ...runData }
   }
 
-  const transformedData = results
-    ? Object.entries(results).reduce(
-        (acc: { [key: string]: any }, [runName, runData]) => {
-          acc[runName] = addZeroStep(runData)
-          return acc
-        },
-        {},
-      )
-    : {}
+  const transformedData = Object.entries(resultsMap).reduce(
+  (acc: { [key: string]: any }, [runName, runData]) => {
+    acc[runName] = addZeroStep(runData)
+    return acc
+  },
+  {},
+)
   const transformData = (runData: any, runName: string, offset: number) => {
     return Object.keys(runData).map(step => ({
       step: parseInt(step) + offset,
@@ -99,11 +110,9 @@ const runMap = {
   "run-globece": "GLOBE_CE",
   "run-groupcfe":"GroupCFE",
 };
-const allData = results
-    ? Object.entries(transformedData).flatMap(([runName, runData], index) =>
-        transformData(runData, runName, index * (gcfSize + 1)),
-      )
-    : []
+const allData = Object.entries(transformedData).flatMap(([runName, runData], index) =>
+  transformData(runData, runName, index * (gcfSize + 1)),
+)
 
   return (
   <ResponsiveCardTable
