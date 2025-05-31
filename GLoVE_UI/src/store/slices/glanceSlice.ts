@@ -776,8 +776,6 @@ if (state.targetName && state.targetName.length > 0) {
     state.runModelComparativeResult = [];
   }
 
-  console.log("New comparative result:", action.payload);
-  console.log("Current comparative results:", state.runModelComparativeResult);
   const newResult = action.payload;
   const exists = state.runModelComparativeResult.some(result => result.algorithm === newResult.algorithm && result.gcf_size === newResult.gcf_size);
 

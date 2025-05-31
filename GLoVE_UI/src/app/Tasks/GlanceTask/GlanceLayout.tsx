@@ -14,7 +14,10 @@ const styles = {
     fontWeight: "bold",
     marginTop: "16px",
   },
+
 }
+
+console.log("What at you looking at?!");
 
 const GlanceLayout: React.FC = () => {
 
