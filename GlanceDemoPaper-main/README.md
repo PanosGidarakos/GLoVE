@@ -1,7 +1,4 @@
-# GlanceDemoPaper
-
-This repository contains the code for the Demo Paper submission for EDBT 2025.
-Follow the instructions below to set up the environment and run the algorithm.
+# GLOVES Backend FastAPI
 
 ## Prerequisites
 
@@ -25,10 +22,6 @@ conda activate glance_env
 ### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
-```
-After install all dependencies run:
-```bash
-pip install -e .
 ```
 ### 4. Run Example notebook
 
