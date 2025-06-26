@@ -120,72 +120,85 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
     details={
       "Visualize the performance of the algorithm for different parameter configurations."
     }
-    controlPanel={
-      <Box sx={{ flexGrow: 1, padding: 2 }}>
-        <Grid container spacing={2}>
-          {/* Full width form controls */}
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <InputLabel id="Algorithm Selection">Algorithm Selection</InputLabel>
-              <Select
-                labelId="Algorithm Selection"
-                multiple
-                value={algorithms}
-                onChange={handleChange}
-                input={<OutlinedInput label="Algorithm Selection" />}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 250,
-                      maxWidth: 300,
-                    },
-                  },
-                }}
-              >
-                <MenuItem value="run-c_glance">GLANCE</MenuItem>
-                <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
-                <MenuItem value="run-globece">GLOBE-CE</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControl fullWidth>
-              <InputLabel id="Counterfactial Size">Counterfactial Size</InputLabel>
-              <Select
-                labelId="Counterfactial Size"
-                value={gcfSize}
-                onChange={e => setGcfSize(e.target.value as number)}
-                input={<OutlinedInput label="GCF Size Selection" />}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 200,
-                      maxWidth: 300,
-                    },
-                  },
-                }}
-              >
-                {Array.from({ length: 10 }, (_, i) => i + 1).map(value => (
-                  <MenuItem key={value} value={value}>
-                    {value}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {/* Run Button, always full width and below */}
-          <Grid item xs={12}>
-            <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
-              Run Analysis
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
-    }
+    showDownloadButton={true}
+    showFullScreenButton={true}
+    
+   
   >
     {loading ? (
+      <>
+         <Box
+                display="flex"
+                alignItems="center"
+                gap={1}
+                
+                flexWrap="wrap"
+                padding={1}
+                  justifyContent="flex-end"  // This will align items to the right
+
+                
+              >
+  
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
+        <Select
+          labelId="algorithm-select-label"
+          multiple
+          value={algorithms}
+          onChange={handleChange}
+          input={<OutlinedInput label="Algorithm Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 250,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          <MenuItem value="run-c_glance">GLANCE</MenuItem>
+          <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
+          <MenuItem value="run-globece">GLOBE-CE</MenuItem>
+        </Select>
+      </FormControl>
+
+    {/* Counterfactual Size */}
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
+        <Select
+          labelId="gcf-size-select-label"
+          value={gcfSize}
+          onChange={(e) => setGcfSize(e.target.value as number)}
+          input={<OutlinedInput label="GCF Size Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 200,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+    {/* Run Button */}
+              <FormControl  size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+
+      <Button disabled variant="contained" color="primary" fullWidth onClick={handleRun}>
+        Run Analysis
+      </Button>
+    </FormControl>
+</Box>
       <Loader />
+
+
+      </>
     ) : errorMessage ? (
       <InfoMessage
         message="One or more algorithms failed to run."
@@ -198,6 +211,75 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
         fullHeight
       />
     ) : allData.length === 0 ? (
+      <>
+         <Box
+                display="flex"
+                alignItems="center"
+                gap={1}
+                
+                flexWrap="wrap"
+                padding={1}
+                  justifyContent="flex-end"  // This will align items to the right
+
+                
+              >
+  
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
+        <Select
+          labelId="algorithm-select-label"
+          multiple
+          value={algorithms}
+          onChange={handleChange}
+          input={<OutlinedInput label="Algorithm Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 250,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          <MenuItem value="run-c_glance">GLANCE</MenuItem>
+          <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
+          <MenuItem value="run-globece">GLOBE-CE</MenuItem>
+        </Select>
+      </FormControl>
+
+    {/* Counterfactual Size */}
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
+        <Select
+          labelId="gcf-size-select-label"
+          value={gcfSize}
+          onChange={(e) => setGcfSize(e.target.value as number)}
+          input={<OutlinedInput label="GCF Size Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 200,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+    {/* Run Button */}
+              <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+
+      <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
+        Run Analysis
+      </Button>
+    </FormControl>
+</Box>
       <InfoMessage
         message="Please select algorithm(s) and run the analysis to see results."
         type="info"
@@ -208,7 +290,80 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
         }
         fullHeight
       />
+            </>
+
     ) : (
+      <>
+         <Box
+                display="flex"
+                alignItems="center"
+                gap={1}
+                
+                flexWrap="wrap"
+                padding={1}
+                  justifyContent="flex-end"  // This will align items to the right
+
+                
+              >
+  
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
+        <Select
+          labelId="algorithm-select-label"
+          multiple
+          value={algorithms}
+          onChange={handleChange}
+          input={<OutlinedInput label="Algorithm Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 250,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          <MenuItem value="run-c_glance">GLANCE</MenuItem>
+          <MenuItem value="run-groupcfe">GroupCFE</MenuItem>
+          <MenuItem value="run-globece">GLOBE-CE</MenuItem>
+        </Select>
+      </FormControl>
+
+    {/* Counterfactual Size */}
+          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+        <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
+        <Select
+          labelId="gcf-size-select-label"
+          value={gcfSize}
+          onChange={(e) => setGcfSize(e.target.value as number)}
+          input={<OutlinedInput label="GCF Size Selection" />}
+          MenuProps={{
+            PaperProps: {
+              style: {
+                maxHeight: 200,
+                maxWidth: 300,
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 10 }, (_, i) => i + 1).map((value) => (
+            <MenuItem key={value} value={value}>
+              {value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+    {/* Run Button */}
+              <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+
+      <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
+        Run Analysis
+      </Button>
+    </FormControl>
+</Box>
+    
+
       <ResponsiveVegaLite
         title="Effectiveness vs. Cost"
         details={
@@ -222,8 +377,11 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       
 
       />
+              </>
+
     )}
   </ResponsiveCardTable>
+
 
   )
 }

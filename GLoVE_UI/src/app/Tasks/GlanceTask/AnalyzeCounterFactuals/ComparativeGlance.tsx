@@ -214,12 +214,13 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
           
           flexWrap="wrap"
           padding={1}
+          
         >
           {/* Execution Mode Dropdown */}
           
           {/*algo*/}
 
-          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+          <FormControl size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
             <InputLabel id="Algorithm Selection">
               Algorithm Selection
             </InputLabel>
@@ -239,7 +240,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
 
           {/* executuin mode  */}
 
-          <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+          <FormControl size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
             <InputLabel id="execution-mode-select-label">
               Execution Mode
             </InputLabel>
@@ -325,7 +326,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             title="The number of actions to be generated in the end of the algorithm"
             placement="right-start"
           >
-            <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+            <FormControl size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
               <InputLabel id="gcf-size-select-label">
                 Number of Counterfactual Actions
               </InputLabel>
@@ -365,7 +366,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 title="Methods that generate candidate counterfactual explanations"
                 placement="right-start"
               >
-                <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+                <FormControl size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
                   <InputLabel id="cf-method-select-label">
                     Local Counterfactual Method
                   </InputLabel>
@@ -403,7 +404,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 title="Different strategies for selecting the best actions from the generated counterfactuals based on different criteria"
                 placement="right-start"
               >
-                <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+                <FormControl  size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
                   <InputLabel id="action-choice-strategy-select-label">
                     Action Choice Strategy
                   </InputLabel>
@@ -439,7 +440,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
                 title="Select the features to modify when generating candidate counterfactual explanations. Supports methods are DiCE and Random Sampling."
                 placement="right-start"
               >
-                <FormControl fullWidth sx={{ flex: 1, minWidth: "150px" }}>
+                <FormControl size="small" fullWidth sx={{ flex: 1, minWidth: "150px" }}>
                   <InputLabel id="feature-select-label">Features</InputLabel>
                   <Select
                     labelId="feature-select-label"
@@ -475,6 +476,7 @@ const ComparativeGlance: React.FC<CGlanceExecutionProps> = ({
             marginTop={3}
           >
             <Button
+            size="small"
               variant="contained"
               color="primary"
               onClick={handleRun}
