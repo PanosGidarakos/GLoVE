@@ -87,7 +87,7 @@ const ScatterPlotComponentForMainPage = ({
   return (
     <ResponsiveCardVegaLite
       title={`Scatter Plot for ${name}`}
-      details={"Todo"}
+      details={`This scatter plot displays the relationship between the selected fields on the X and Y axes. Each point represents an individual data item, colored by its label to highlight groupings or categories within your dataset.`}
       spec={spec}
       actions={false}
       minWidth={100}

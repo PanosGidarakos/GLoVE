@@ -127,7 +127,8 @@ const GlanceTabs= () => {
     }
    if (glanceState.umapLoader) {
   return (
-    <ResponsiveCardTable title={"Umap Plot"} details={"Todo"} >
+    <ResponsiveCardTable title={"Umap Plot"}   details={"This scatter plot visualizes high-dimensional data reduced to two dimensions using UMAP (Uniform Manifold Approximation and Projection). Each point represents a sample, clustered based on similarity. Use this plot to explore the structure and patterns in your dataset."}
+ >
 
       <Loader />
           </ResponsiveCardTable>

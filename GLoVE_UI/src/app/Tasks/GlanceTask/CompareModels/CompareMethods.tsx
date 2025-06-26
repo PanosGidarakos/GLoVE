@@ -211,8 +211,9 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
     ) : (
       <ResponsiveVegaLite
         title="Effectiveness vs. Cost"
-        details={"todo"}
-        spec={getCompareMethodsChartSpec(allData)}
+        details={
+  "This chart compares the effectiveness and cost of selected algorithms across different counterfactual sizes. Use the controls above to select algorithms and parameter settings, then run the analysis to visualize performance trade-offs."
+}        spec={getCompareMethodsChartSpec(allData)}
         actions={false}
         minWidth={100}
         minHeight={100}
