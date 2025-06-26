@@ -139,7 +139,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
                 
               >
   
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
         <Select
           labelId="algorithm-select-label"
@@ -163,7 +163,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Counterfactual Size */}
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
         <Select
           labelId="gcf-size-select-label"
@@ -188,7 +188,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Run Button */}
-              <FormControl  size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+              <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
 
       <Button disabled variant="contained" color="primary" fullWidth onClick={handleRun}>
         Run Analysis
@@ -224,7 +224,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
                 
               >
   
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
         <Select
           labelId="algorithm-select-label"
@@ -248,7 +248,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Counterfactual Size */}
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
         <Select
           labelId="gcf-size-select-label"
@@ -273,7 +273,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Run Button */}
-              <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+              <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
 
       <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
         Run Analysis
@@ -306,7 +306,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
                 
               >
   
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="algorithm-select-label">Algorithm Selection</InputLabel>
         <Select
           labelId="algorithm-select-label"
@@ -330,7 +330,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Counterfactual Size */}
-          <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+          <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
         <InputLabel id="gcf-size-select-label">Counterfactual Size</InputLabel>
         <Select
           labelId="gcf-size-select-label"
@@ -355,7 +355,7 @@ const allData = Object.entries(transformedData).flatMap(([runName, runData], ind
       </FormControl>
 
     {/* Run Button */}
-              <FormControl size="small" fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
+              <FormControl  fullWidth sx={{ flex: 1, maxWidth: "150px" }}>
 
       <Button variant="contained" color="primary" fullWidth onClick={handleRun}>
         Run Analysis
